@@ -1,0 +1,172 @@
+#include "renderer.h"
+#include "shader.h"
+#include "../point.h"
+
+#include "../loader/null_loader.h"
+#include "../loader/test/random_torus_loader.h"
+#include "../loader/test/pcl_loader.h"
+
+
+#include <stdexcept>
+#include <iostream>
+#include <utility>
+
+#include <string>
+
+namespace dypc {
+
+renderer::renderer(float viewport_width, float viewport_height) {
+	initialize_glew();
+	
+	drag_constant_ = 3.0;
+	point_buffer_capacity_ = 300000;
+	
+	shaders_ = new program({
+		shader::read_file(GL_VERTEX_SHADER, "res/vertex_shader.glsl"),
+		shader::read_file(GL_FRAGMENT_SHADER, "res/fragment_shader.glsl")
+	});
+	mvp_matrix_uniform_ = shaders_->uniform_location("mvp");
+	projection_matrix_ = glm::perspective(60.0f, viewport_width/viewport_height, 0.1f, 1000.0f);
+	
+	
+	glGenBuffers(1, &renderer_point_buffer_);
+	glBindBuffer(GL_ARRAY_BUFFER, renderer_point_buffer_);
+	glBufferData(GL_ARRAY_BUFFER, point_buffer_capacity_*sizeof(point), nullptr, GL_STREAM_DRAW);
+	
+	glGenBuffers(1, &loader_point_buffer_);
+	glBindBuffer(GL_ARRAY_BUFFER, loader_point_buffer_);
+	glBufferData(GL_ARRAY_BUFFER, point_buffer_capacity_*sizeof(point), nullptr, GL_STREAM_DRAW);
+
+	glBindBuffer(GL_ARRAY_BUFFER, 0);
+	renderer_point_buffer_size_ = 0;
+
+	pause_loader_ = false;
+	loader_check_interval_ = std::chrono::milliseconds(200);
+	loader_check_condition_ = true;
+	loader_ = new null_loader();
+}
+
+renderer::~renderer() {
+	if(loader_) delete loader_;
+	if(shaders_) delete shaders_;
+}
+
+void renderer::update_loader_request_() {
+	loader_->update_request(
+		Eigen::Vector3f(-position_.x, -position_.y, -position_.z),
+		Eigen::Quaternionf()
+	);
+}
+
+void renderer::check_loader_() {
+	if(! loader_->finished()) return;
+	
+	if(std::size_t sz = loader_->new_points_available()) {
+		glBindBuffer(GL_ARRAY_BUFFER, loader_point_buffer_);
+		auto valid = glUnmapBuffer(GL_ARRAY_BUFFER);
+		if(valid) {
+			std::swap(loader_point_buffer_, renderer_point_buffer_);
+			renderer_point_buffer_size_ = sz;
+		}
+	}
+	
+	glBindBuffer(GL_ARRAY_BUFFER, loader_point_buffer_);
+	auto buf = glMapBuffer(GL_ARRAY_BUFFER, GL_WRITE_ONLY);
+	if(buf) loader_->reset(reinterpret_cast<point_buffer_t>(buf), point_buffer_capacity_);
+}
+
+void renderer::compute_matrix_() {
+	glm::mat4 translation_matrix = glm::translate(position_);
+	glm::mat4 rotation_matrix = glm::mat4_cast(orientation_);
+	
+	mvp_matrix_ = projection_matrix_* rotation_matrix * translation_matrix;
+}
+
+void renderer::compute_motion_(float dtime) {	
+	if(dtime > 0.01) dtime = 0.01;
+	
+	velocity_ += acceleration_/*glm::rotate(glm::inverse(orientation_), acceleration_)*/ * dtime;
+	glm::vec3 drag(
+		velocity_[0] * std::abs(velocity_[0]),
+		velocity_[1] * std::abs(velocity_[1]),
+		velocity_[2] * std::abs(velocity_[2])
+	);
+	drag *= drag_constant_;
+	velocity_ -= drag * dtime;
+	const float max_speed = 0.1;
+	if(std::abs(velocity_[0]) < max_speed) velocity_[0] = 0.0;
+	if(std::abs(velocity_[1]) < max_speed) velocity_[1] = 0.0;
+	if(std::abs(velocity_[2]) < max_speed) velocity_[2] = 0.0;
+	
+	position_ += velocity_ * dtime;
+}
+
+void renderer::draw(float dtime) {	
+	compute_motion_(dtime);
+	compute_matrix_();
+	update_loader_request_();
+	check_loader_();
+	
+	shaders_->use();
+	glUniformMatrix4fv(mvp_matrix_uniform_, 1, GL_FALSE, &mvp_matrix_[0][0]);
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+
+	glEnableVertexAttribArray(0);
+	glEnableVertexAttribArray(1);
+	glBindBuffer(GL_ARRAY_BUFFER, renderer_point_buffer_);
+	point::gl_setup_position_vertex_attribute(0);
+	point::gl_setup_color_vertex_attribute(1);
+	glDrawArrays(GL_POINTS, 0, renderer_point_buffer_size_);
+	glDisableVertexAttribArray(0);
+	glDisableVertexAttribArray(1);
+}
+
+void renderer::rotate_camera(float horizontalAngle, float verticalAngle) {
+	const float factor = M_PI * 2.0 / 1000.0;
+	glm::vec3 angles(verticalAngle * factor, horizontalAngle * factor, 0.0);
+	glm::quat rot(angles);
+	orientation_ = rot * orientation_;
+}
+
+void renderer::delete_loader_() {
+	if(! loader_) return;
+	loader_->stop();
+	delete loader_;
+	loader_ = nullptr;
+	glBindBuffer(GL_ARRAY_BUFFER, loader_point_buffer_);
+	glUnmapBuffer(GL_ARRAY_BUFFER);
+}
+
+void renderer::apply_loader_configuration_() {
+	loader_->stop();
+	if(! pause_loader_) loader_->start(loader_check_interval_, loader_check_condition_);
+}
+
+void renderer::update_loader_now() {
+	loader_->update_now();
+}
+
+void renderer::switch_loader(const std::string& name) {
+	loader* ld = nullptr;
+	if(name == "random_torus_test") ld = new random_torus_loader();
+	else if(name == "pcl_test") ld = new pcl_loader();
+	else return;
+	switch_loader(ld);
+}
+
+void renderer::switch_loader(loader* ld) {
+	delete_loader_();
+	loader_ = ld;
+	apply_loader_configuration_();
+}
+
+void renderer::set_configuration(bool paused, std::chrono::milliseconds interval, bool check) {
+	pause_loader_ = paused;
+	loader_check_interval_ = interval;
+	loader_check_condition_ = check;
+	apply_loader_configuration_();
+}
+
+}
+

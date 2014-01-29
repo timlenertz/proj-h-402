@@ -1,0 +1,5 @@
+/app/build
+/app/dypc
+/app/res/*.cpp
+/app/res/*.h
+
