@@ -51,6 +51,8 @@ public:
 	
 	explicit cubes_structure_hdf_loader(const std::string& file);
 
+	std::string loader_name() const override { return "Cubes Structure HDF Loader"; }
+
 protected:
 	std::size_t extract_points_(point_buffer_t points, std::size_t capacity, const loader::request_t&);
 	std::size_t memory_size_() const override;

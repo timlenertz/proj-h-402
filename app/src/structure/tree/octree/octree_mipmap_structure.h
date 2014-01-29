@@ -11,7 +11,6 @@ namespace dypc {
 class octree_mipmap_structure_splitter;
 
 using octree_mipmap_structure = tree_mipmap_structure<octree_mipmap_structure_splitter>;
-using octree_mipmap_structure_memory_loader = tree_structure_memory_loader<octree_mipmap_structure>;
 
 class octree_mipmap_structure_splitter : public tree_structure_splitter {
 public:
@@ -20,6 +19,12 @@ public:
 	static cuboid root_coboid(const model& mod);
 	static std::ptrdiff_t node_child_for_point(const octree_mipmap_structure::node& nd, const point& pt, const cuboid& cub);
 	static cuboid node_child_cuboid(const octree_mipmap_structure::node& nd, const std::ptrdiff_t i, const cuboid& cub);
+};
+
+class octree_mipmap_structure_memory_loader : public tree_structure_memory_loader<octree_mipmap_structure> {
+public:
+	using tree_structure_memory_loader<octree_mipmap_structure>::tree_structure_memory_loader;
+	std::string loader_name() const override { return "Octree Mipmap Structure Memory Loader"; }
 };
 
 

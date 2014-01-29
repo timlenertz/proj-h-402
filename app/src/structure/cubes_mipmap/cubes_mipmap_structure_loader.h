@@ -11,8 +11,8 @@ namespace dypc {
 
 class cubes_mipmap_structure_loader : public structure_loader {
 protected:
-	float downsampling_start_distance_ = 20;
-	float downsampling_step_distance_ = 10;
+	float downsampling_start_distance_ = 70;
+	float downsampling_step_distance_ = 30;
 	bool frustum_culling_ = true;
 		
 	static cuboid cube_from_index_(cubes_mipmap_structure::cube_index_t idx, float side_length) {

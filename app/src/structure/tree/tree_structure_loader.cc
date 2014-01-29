@@ -16,7 +16,7 @@ std::ptrdiff_t tree_structure_loader::action_for_node_(const cuboid& cub, std::s
 		return 0;
 	}
 		
-	float distance = std::abs(glm::distance(req.position, cub.center()));
+	float distance = cub.maximal_distance(req.position);
 	std::ptrdiff_t lvl = 0;
 	if(distance >= downsampling_start_distance_) lvl = 1 + (distance - downsampling_start_distance_) / downsampling_step_distance_;
 	if(lvl >= levels) lvl = levels - 1;

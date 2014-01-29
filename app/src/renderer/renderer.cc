@@ -100,10 +100,11 @@ void renderer::compute_projection_matrix_() {
 void renderer::compute_view_matrix_() {
 	compute_projection_matrix_();
 	
+	glm::mat4 scale_matrix = glm::scale(scale_, scale_, scale_);
 	glm::mat4 translation_matrix = glm::translate(position_);
 	glm::mat4 rotation_matrix = glm::mat4_cast(orientation_);
 	
-	view_matrix_ = rotation_matrix * translation_matrix;
+	view_matrix_ = rotation_matrix * translation_matrix * scale_matrix;
 	
 	glUniformMatrix4fv(view_matrix_uniform_, 1, GL_FALSE, &view_matrix_[0][0]);
 }
@@ -112,6 +113,7 @@ void renderer::compute_motion_(float dtime) {
 	if(dtime > 0.01) dtime = 0.01;
 			
 	glm::vec3 target_velocity = glm::rotate(glm::inverse(orientation_), view_target_velocity_);
+	target_velocity *= scale_;
 	
 	glm::vec3 velocity_difference = target_velocity - velocity_;
 	velocity_difference /= 20.0;
@@ -144,8 +146,6 @@ void renderer::draw(float dtime) {
 	glDrawArrays(GL_POINTS, 0, renderer_point_buffer_size_);
 	glDisableVertexAttribArray(0);
 	glDisableVertexAttribArray(1);
-	
-	++fps_counter_;
 }
 
 void renderer::rotate_camera(float horizontalAngle, float verticalAngle, float rollAngle) {
@@ -188,8 +188,9 @@ void renderer::set_loader_configuration(bool paused, std::chrono::milliseconds i
 	apply_loader_configuration_();
 }
 
-void renderer::set_configuration(float fov, unsigned char bg_r, unsigned char bg_g, unsigned char bg_b) {
+void renderer::set_configuration(float fov, float scale, unsigned char bg_r, unsigned char bg_g, unsigned char bg_b) {
 	fov_ = fov;
+	scale_ = scale;
 	compute_projection_matrix_();
 	
 	background_color_[0] = (float)bg_r / 255.0;

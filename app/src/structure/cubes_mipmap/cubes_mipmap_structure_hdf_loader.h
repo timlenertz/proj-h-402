@@ -53,6 +53,8 @@ public:
 	static void write(const std::string& file, const cubes_mipmap_structure&);
 	
 	explicit cubes_mipmap_structure_hdf_loader(const std::string& file);
+	
+	std::string loader_name() const override { return "Cubes Mipmap Structure HDF Loader"; }
 
 protected:
 	std::size_t extract_points_(point_buffer_t points, std::size_t capacity, const loader::request_t&);

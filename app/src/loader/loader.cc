@@ -89,6 +89,10 @@ void loader::reset(point_buffer_t buffer, std::size_t output_buffer_capacity_) {
 	finished_ = false;
 }
 
+std::string loader::loader_name() const {
+	return "Unnamed Loader";
+}
+
 ::wxWindow* loader::create_panel(::wxWindow* parent) {
 	return nullptr;
 }

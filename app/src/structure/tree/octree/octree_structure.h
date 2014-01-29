@@ -10,7 +10,6 @@ namespace dypc {
 class octree_structure_splitter;
 
 using octree_structure = tree_structure<octree_structure_splitter>;
-using octree_structure_memory_loader = tree_structure_memory_loader<octree_structure>;
 
 class octree_structure_splitter : public tree_structure_splitter {
 public:
@@ -21,7 +20,13 @@ public:
 	static cuboid node_child_cuboid(const octree_structure::node& nd, const std::ptrdiff_t i, const cuboid& cub);
 };
 
+class octree_structure_memory_loader : public tree_structure_memory_loader<octree_structure> {
+public:
+	using tree_structure_memory_loader<octree_structure>::tree_structure_memory_loader;
+	std::string loader_name() const override { return "Octree Structure Memory Loader"; }
+};
 
 }
 
 #endif
+

@@ -4,6 +4,7 @@
 #include "renderer_canvas.h"
 #include "../model/model.h"
 #include "../structure/structure_loader.h"
+#include "../loader/loader.h"
 
 #include "../ui/model_create/model_create.h"
 #include "../ui/structure_create/structure_create.h"
@@ -254,8 +255,11 @@ void main_frame::on_loader_choice_(wxCommandEvent& event) {
 	
 	if(ld) {
 		get_renderer_().switch_loader(ld);
+		loader_label->SetLabel(wxString(ld->loader_name().c_str(), wxConvUTF8));
 		wxWindow* panel = ld->create_panel(loader_panel);
 		if(panel) loader_panel_sizer->Add(panel, wxSizerFlags().Expand());
+	} else {
+		loader_label->SetLabel(wxT(""));
 	}
 }
 
@@ -277,12 +281,13 @@ void main_frame::on_loader_update_now_(wxCommandEvent& event) {
 
 void main_frame::on_renderer_config_() {	
 	auto speed = renderer_speed->GetValue();
+	float scale = (float)renderer_scale->GetValue()/100.0;
 	auto fov = renderer_fov->GetValue();
 	wxColour bg_color = renderer_background->GetColour();
 	auto bg_r = bg_color.Red(); auto bg_g = bg_color.Green(); auto bg_b = bg_color.Blue();
 	
 	renderer& rd = get_renderer_();
-	rd.set_configuration(fov, bg_r, bg_g, bg_b);
+	rd.set_configuration(fov, scale, bg_r, bg_g, bg_b);
 
 	renderer_canv->set_movement_speed(speed);
 }

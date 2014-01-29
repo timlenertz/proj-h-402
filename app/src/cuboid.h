@@ -34,6 +34,9 @@ public:
 	const glm::vec3* corners_end() const { return corners_ + 8; }
 	const glm::vec3& center() const { return center_; }
 	
+	float minimal_distance(glm::vec3 pt) const;
+	float maximal_distance(glm::vec3 pt) const;
+	
 	const glm::vec3 origin() const { return glm::vec3(x_range_[0], y_range_[0], z_range_[0]); }
 	const glm::vec3 extremity() const { return glm::vec3(x_range_[1], y_range_[1], z_range_[1]); }
 	

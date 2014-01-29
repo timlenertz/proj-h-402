@@ -35,6 +35,8 @@ public:
 	static void write(const std::string& file, const cubes_structure&);
 	
 	explicit cubes_structure_sqlite_loader(const std::string& file);
+	
+	std::string loader_name() const override { return "Cubes Structure SQLite Loader"; }
 
 protected:
 	std::size_t extract_points_(point_buffer_t points, std::size_t capacity, const loader::request_t&);

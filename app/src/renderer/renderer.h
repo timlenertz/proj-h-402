@@ -49,15 +49,13 @@ private:
 	GLint view_matrix_uniform_;
 	GLint fog_color_uniform_;
 	
+	float scale_ = 1.0;
 	glm::vec3 position_;
 	glm::quat orientation_;
 	glm::vec3 velocity_;
 	glm::vec3 view_target_velocity_;
 	bool fix_z_orientation_;
-	
-	std::chrono::system_clock::time_point fps_time_;
-	unsigned fps_counter_;
-	
+		
 	statistics::item stat_capacity_;
 	statistics::item stat_count_;
 	statistics::item stat_loader_duration_;
@@ -88,7 +86,7 @@ public:
 	void set_view_target_velocity(float x, float y, float z) { view_target_velocity_ = glm::vec3(x, y, z); }
 	void rotate_camera(float horizontalAngle, float verticalAngle, float rollAngle = 0.0);
 	
-	void set_configuration(float fov, unsigned char bg_r, unsigned char bg_g, unsigned char bg_b);
+	void set_configuration(float fov, float scale, unsigned char bg_r, unsigned char bg_g, unsigned char bg_b);
 	void set_point_capacity(std::size_t capacity);
 	
 	bool get_loader_paused() const { return pause_loader_; }

@@ -10,6 +10,7 @@
 #include <mutex>
 #include <atomic>
 #include <chrono>
+#include <string>
 
 #include <glm/glm.hpp>
 #include <glm/gtc/quaternion.hpp>
@@ -70,6 +71,7 @@ public:
 	void start(std::chrono::milliseconds check_interval, bool check_condition);
 	void update_now();
 	
+	virtual std::string loader_name() const;
 	virtual ::wxWindow* create_panel(::wxWindow* parent);
 };
 	
