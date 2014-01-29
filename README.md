@@ -1,11 +1,14 @@
 dypc
 ====
 
-Dynamic Point Cloud Viewer
+### Dynamic Point Cloud Viewer ###
 
 Tim Lenertz
+
 ULB INFO MA1
+
 PROJ-H-402 Project
+
 
 Dependencies:
 - clang Compiler
