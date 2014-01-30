@@ -38,7 +38,7 @@ std::size_t tree_structure_memory_loader<Structure>::extract_node_points_(point_
 		
 	} else if(action == action_split) {
 		std::size_t c = 0;
-		for(std::ptrdiff_t i = 0; i < Structure::splitter::number_of_node_children; ++i) {
+		for(std::ptrdiff_t i = 0; i < Structure::number_of_node_children; ++i) {
 			auto child_cuboid = Structure::splitter::node_child_cuboid(nd, i, cub);
 			c += extract_node_points_(points + c, capacity - c, req, nd.child(i), child_cuboid);
 		}

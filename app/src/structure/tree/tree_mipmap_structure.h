@@ -6,7 +6,7 @@
 
 namespace dypc {
 
-template<class Splitter, std::size_t Levels = 4>
+template<class Splitter, std::size_t Levels = 8>
 class tree_mipmap_structure : public tree_structure<Splitter, Levels> {
 private:
 	const float mipmap_factor_;
@@ -31,7 +31,7 @@ tree_structure<Splitter, Levels>(leaf_capacity, mod), mipmap_factor_(mmfac), dow
 	float prob = 1.0 / mipmap_factor_;
 	float area = mod.x_range() * mod.y_range() * mod.z_range();
 	
-	for(int lvl = 1; lvl < Levels; ++lvl) progress("Downsampling points, level " + std::to_string(lvl) + "...", mod.number_of_points()*2, 250000, [&]() {
+	for(int lvl = 1; lvl < Levels; ++lvl) progress("Downsampling points, level " + std::to_string(lvl) + "...", 500, 5, [&]() {
 		std::vector<point> downsampled;
 		
 		if(downsampling_mode_ == random_downsampling_mode) random_downsampling(points, prob, downsampled);
@@ -39,9 +39,10 @@ tree_structure<Splitter, Levels>(leaf_capacity, mod), mipmap_factor_(mmfac), dow
 
 		auto& level_points = super::all_points_[lvl];
 		level_points.reserve(downsampled.size());
+		std::size_t c = 0;
 		for(const point& pt : downsampled) {			
 			super::root_.add_point(pt, super::root_cuboid_, leaf_capacity, lvl);
-			increment_progress();
+			set_progress(500 * (++c) / downsampled.size());
 		}
 		super::root_.move_out_points(level_points, lvl);
 

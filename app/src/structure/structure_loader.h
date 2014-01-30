@@ -49,7 +49,7 @@ protected:
 	virtual std::size_t total_points_() const = 0;
 
 public:
-	enum structure_type_t { cubes = 0, cubes_mipmap, octree };
+	enum structure_type_t { cubes = 0, cubes_mipmap, octree, octree_mipmap };
 	using file_formats_t = std::map<std::string, std::string>;
 	
 	static std::map<structure_type_t, std::string> structure_type_names;

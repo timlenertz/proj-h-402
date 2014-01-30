@@ -37,12 +37,13 @@ public:
 	float minimal_distance(glm::vec3 pt) const;
 	float maximal_distance(glm::vec3 pt) const;
 	
-	const glm::vec3 origin() const { return glm::vec3(x_range_[0], y_range_[0], z_range_[0]); }
-	const glm::vec3 extremity() const { return glm::vec3(x_range_[1], y_range_[1], z_range_[1]); }
+	glm::vec3 origin() const { return glm::vec3(x_range_[0], y_range_[0], z_range_[0]); }
+	glm::vec3 extremity() const { return glm::vec3(x_range_[1], y_range_[1], z_range_[1]); }
 	
 	float side_length_x() const { return x_range_[1] - x_range_[0]; }
 	float side_length_y() const { return y_range_[1] - y_range_[0]; }
 	float side_length_z() const { return z_range_[1] - z_range_[0]; }
+	glm::vec3 side_lengths() const { return glm::vec3(side_length_x(), side_length_y(), side_length_z()); }
 };
 
 }

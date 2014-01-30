@@ -4,6 +4,7 @@
 #include "../tree_structure.h"
 #include "../tree_structure_splitter.h"
 #include "../tree_structure_memory_loader.h"
+#include "../tree_structure_hdf_loader.h"
 
 namespace dypc {
 
@@ -24,6 +25,12 @@ class octree_structure_memory_loader : public tree_structure_memory_loader<octre
 public:
 	using tree_structure_memory_loader<octree_structure>::tree_structure_memory_loader;
 	std::string loader_name() const override { return "Octree Structure Memory Loader"; }
+};
+
+class octree_structure_hdf_loader : public tree_structure_hdf_loader<octree_structure> {
+public:
+	using tree_structure_hdf_loader<octree_structure>::tree_structure_hdf_loader;
+	std::string loader_name() const override { return "Octree Structure HDF Loader"; }
 };
 
 }

@@ -10,17 +10,14 @@ namespace dypc {
 
 void set_progress(int value) {
 	if(! dialog) return;
+	int old_steps = current_value / update_step;
 	current_value = value;
-	if(value % update_step) return;
-	dialog->Update(value);
+	if(current_value / update_step == old_steps) return;
+	dialog->Update(current_value);
 }
 
 void increment_progress(int add) {
-	if(! dialog) return;
-	current_value += add;
-	if(current_value % update_step) return;
-	dialog->Update(current_value);
-
+	set_progress(current_value + add);
 }
 
 void progress(const std::string& label, int maximum, int s, const std::function<void()>& callback) {
@@ -31,10 +28,11 @@ void progress(const std::string& label, int maximum, int s, const std::function<
 		wxString(label.c_str(), wxConvUTF8),
 		maximum,
 		nullptr,
-		wxPD_APP_MODAL | wxPD_SMOOTH | wxPD_ELAPSED_TIME | wxPD_ESTIMATED_TIME | wxPD_REMAINING_TIME
+		wxPD_APP_MODAL | wxPD_SMOOTH | wxPD_ELAPSED_TIME | wxPD_ESTIMATED_TIME | wxPD_REMAINING_TIME | wxPD_AUTO_HIDE
 	);
 	
 	update_step = s;
+	current_value = 0;
 	dialog->Update(0);
 
 	callback();

@@ -16,6 +16,7 @@ class tree_structure : public structure {
 public:
 	using splitter = Splitter;
 	static constexpr std::size_t levels = Levels;
+	static constexpr std::size_t number_of_node_children = Splitter::number_of_node_children;
 
 	class node {
 	private:
@@ -30,19 +31,19 @@ public:
 			}
 		};
 	
-		node* children_[Splitter::number_of_node_children];
+		node* children_[number_of_node_children];
 		point_set point_sets_[Levels];
 	
 		void split_(const cuboid& cub, std::size_t leaf_capacity);
 
 	public:	
 		node() {
-			for(std::ptrdiff_t i = 0; i < Splitter::number_of_node_children; ++i) children_[i] = nullptr;
+			for(std::ptrdiff_t i = 0; i < number_of_node_children; ++i) children_[i] = nullptr;
 		}
 		
 		~node() {
 			if(! children_[0]) return;
-			for(std::ptrdiff_t i = 0; i < Splitter::number_of_node_children; ++i) delete children_[i];
+			for(std::ptrdiff_t i = 0; i < number_of_node_children; ++i) delete children_[i];
 		}
 	
 		void add_point(const point& pt, const cuboid& cube, std::size_t leaf_capacity, unsigned level = 0);
@@ -53,6 +54,13 @@ public:
 		
 		const point* points_begin(std::ptrdiff_t lvl = 0) const { assert(lvl >= 0 && lvl < Levels); return point_sets_[lvl].points; }
 		const point* points_end(std::ptrdiff_t lvl = 0) const { assert(lvl >= 0 && lvl < Levels); return point_sets_[lvl].points + point_sets_[lvl].number_of_points; }
+	
+		std::size_t number_of_nodes_in_branch() const {
+			std::size_t n = 1;
+			if(! is_leaf()) for(std::ptrdiff_t i = 0; i < number_of_node_children; ++i) n += children_[i]->number_of_nodes_in_branch();
+			return n;
+		}
+
 	
 		std::size_t number_of_points() const { return point_sets_[0].number_of_points; }
 		std::size_t size() const;
@@ -70,6 +78,7 @@ public:
 	tree_structure(std::size_t leaf_capacity, model& mod);
 	
 	std::size_t number_of_points() const { return all_points_[0].size(); }
+	std::size_t number_of_nodes() const { return root_.number_of_nodes_in_branch(); }
 	std::size_t size() const;
 	
 	const node& root_node() const { return root_; }
@@ -92,9 +101,7 @@ leaf_capacity_(leaf_capacity), root_cuboid_(Splitter::root_coboid(mod)) {
 		}
 	});
 	all_points_[0].reserve(mod.number_of_points());
-	progress("Moving out tree structure points...", mod.number_of_points(), 250000, [&]() {
-		root_.move_out_points(all_points_[0]);
-	});
+	root_.move_out_points(all_points_[0]);
 }
 
 
@@ -128,7 +135,7 @@ std::size_t tree_structure<Splitter, Levels>::node::move_out_points(std::vector<
 		delete[] set.points;
 	} else {
 		std::size_t count = 0;
-		for(std::ptrdiff_t i = 0; i < Splitter::number_of_node_children; ++i) count += children_[i]->move_out_points(output_points, lvl);
+		for(std::ptrdiff_t i = 0; i < number_of_node_children; ++i) count += children_[i]->move_out_points(output_points, lvl);
 		set.number_of_points = count;
 	}
 	
@@ -169,7 +176,7 @@ template<class Splitter, std::size_t Levels>
 std::size_t tree_structure<Splitter, Levels>::node::size() const {
 	std::size_t sz = sizeof(node);
 	if(! is_leaf()) {
-		for(std::ptrdiff_t i = 0; i < Splitter::number_of_node_children; ++i) sz += children_[i]->size();
+		for(std::ptrdiff_t i = 0; i < number_of_node_children; ++i) sz += children_[i]->size();
 	}
 	return sz;
 }
