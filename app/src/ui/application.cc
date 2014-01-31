@@ -18,7 +18,7 @@ bool application::OnInit() {
 
 int application::OnRun() {
 	try {
-		wxApp::OnRun();
+		return wxApp::OnRun();
 	} catch(const std::exception& ex) {
 		wxMessageDialog dialog(
 			nullptr,
@@ -27,6 +27,7 @@ int application::OnRun() {
 			wxOK | wxICON_ERROR
 		);
 		dialog.ShowModal();
+		return 0;
 	}
 }
 

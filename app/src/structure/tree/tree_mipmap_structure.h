@@ -6,7 +6,9 @@
 
 namespace dypc {
 
-template<class Splitter, std::size_t Levels = 8>
+static constexpr std::size_t tree_mipmap_structure_levels = 8;
+
+template<class Splitter, std::size_t Levels = tree_mipmap_structure_levels>
 class tree_mipmap_structure : public tree_structure<Splitter, Levels> {
 private:
 	const float mipmap_factor_;
