@@ -39,10 +39,6 @@ public:
 	void set_downsampling_start_distance(float d) { downsampling_start_distance_ = d; }
 	void set_downsampling_step_distance(float d) { downsampling_step_distance_ = d; }
 	void set_frustum_culling(bool f) { frustum_culling_ = f; }
-
-	static file_formats_t available_file_formats();
-	static cubes_mipmap_structure_loader* create_file_loader(const std::string& format, const std::string& filepath);
-	static void write_to_file(const cubes_mipmap_structure&, const std::string& format, const std::string& filepath);
 	
 	::wxWindow* create_panel(::wxWindow* parent) override;
 };

@@ -46,18 +46,7 @@ protected:
 	
 	virtual std::size_t memory_size_() const = 0;
 	virtual std::size_t file_size_() const = 0;
-	virtual std::size_t total_points_() const = 0;
-
-public:
-	enum structure_type_t { cubes = 0, cubes_mipmap, octree, octree_mipmap };
-	using file_formats_t = std::map<std::string, std::string>;
-	
-	static std::map<structure_type_t, std::string> structure_type_names;
-	
-	static file_formats_t structure_available_file_formats(structure_type_t);
-	static structure_loader* structure_create_file_loader(structure_type_t, const std::string& format, const std::string& filepath);
-
-	static std::string file_formats_to_wildcard(const file_formats_t&);
+	virtual std::size_t total_points_() const = 0;		
 };
 
 }

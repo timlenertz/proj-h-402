@@ -17,10 +17,16 @@ public:
 	std::string loader_name() const override { return "Octree Structure Memory Loader"; }
 };
 
-class octree_structure_hdf_loader : public tree_structure_hdf_separate_loader<octree_structure> {
+class octree_structure_hdf_loader : public tree_structure_hdf_loader<octree_structure> {
+public:
+	using tree_structure_hdf_loader<octree_structure>::tree_structure_hdf_loader;
+	std::string loader_name() const override { return "Octree Structure HDF Loader (Striped)"; }
+};
+
+class octree_structure_hdf_separate_loader : public tree_structure_hdf_separate_loader<octree_structure> {
 public:
 	using tree_structure_hdf_separate_loader<octree_structure>::tree_structure_hdf_separate_loader;
-	std::string loader_name() const override { return "Octree Structure HDF Loader"; }
+	std::string loader_name() const override { return "Octree Structure HDF Loader (Separate)"; }
 };
 
 }

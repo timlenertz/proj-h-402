@@ -31,6 +31,7 @@ public:
 	structure_create(wxWindow* parent = nullptr, wxWindowID id = wxID_ANY);
 	
 	loader* create_memory_loader(model&) const;
+	static loader* create_file_loader();
 	std::string write_structure_file(model&) const;
 };
 

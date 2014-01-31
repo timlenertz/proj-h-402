@@ -1,5 +1,9 @@
 #include "util.h"
 #include <cstdio>
+#include <string>
+#include <memory>
+#include <wx/msgdlg.h>
+#include <wx/choicdlg.h>
 
 namespace dypc {
 
@@ -33,4 +37,41 @@ std::string float_to_string(double f, std::size_t decimal_digits) {
 	return std::string(decimal);
 }
 
+std::string user_choice(const user_choices_t& choices, const std::string& caption) {	
+	size_t n = choices.size();
+	std::unique_ptr<wxString[]> labels(new wxString [n]);
+	std::unique_ptr<std::string[]> names(new std::string [n]);
+	
+	std::ptrdiff_t i = 0;
+	for(const auto& it : choices) {
+		labels[i] = wxString(it.second.c_str(), wxConvUTF8);
+		names[i++] = it.first;
+	}
+	
+	wxSingleChoiceDialog dialog(
+		nullptr,
+		wxString(caption.c_str(), wxConvUTF8),
+		wxT("Choice"),
+		n,
+		labels.get()
+	);
+	auto result = dialog.ShowModal();
+	if(result == wxID_CANCEL) return "";
+
+	i = dialog.GetSelection();
+	if(i < 0 || i >= n) return "";
+	else return names[i];
 }
+
+
+std::string file_formats_to_wildcard(const user_choices_t& file_formats) {
+	std::string wildcard;
+	for(const auto& p : file_formats) {
+		if(wildcard != "") wildcard += "|";
+		wildcard += p.second + " (*." + p.first + ")|*." + p.first;
+	}
+	return wildcard;
+}
+
+}
+

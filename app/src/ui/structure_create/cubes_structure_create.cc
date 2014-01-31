@@ -13,15 +13,26 @@ loader* cubes_structure_create::create_memory_loader(model& mod) const {
 	return new cubes_structure_memory_loader(side, mod);
 }
 
-structure_loader::file_formats_t cubes_structure_create::available_file_formats() const {
-	return cubes_structure_loader::available_file_formats();
+user_choices_t cubes_structure_create::available_file_formats() {
+	return {
+		{ "db", "SQLite Database" },
+		{ "hdf", "HDF5 File" }
+	};
 }
 
 void cubes_structure_create::write_structure_file(model& mod, const std::string& filename, const std::string& format) const {
 	unsigned side = side_spin->GetValue();
 
 	cubes_structure s(side, mod);
-	cubes_structure_loader::write_to_file(s, format, filename);
+	if(format == "hdf") cubes_structure_hdf_loader::write(filename, s);
+	else if(format == "db") cubes_structure_sqlite_loader::write(filename, s);
+}
+
+
+loader* cubes_structure_create::create_file_loader(const std::string& filename, const std::string& format) {
+	if(format == "hdf") return new cubes_structure_hdf_loader(filename);
+	else if(format == "db") return new cubes_structure_sqlite_loader(filename);
+	else return nullptr;
 }
 
 }

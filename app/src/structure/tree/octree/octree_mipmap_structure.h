@@ -17,12 +17,17 @@ public:
 	std::string loader_name() const override { return "Octree Mipmap Structure Memory Loader"; }
 };
 
-class octree_mipmap_structure_hdf_loader : public tree_structure_hdf_separate_loader<octree_mipmap_structure> {
+class octree_mipmap_structure_hdf_loader : public tree_structure_hdf_loader<octree_mipmap_structure> {
 public:
-	using tree_structure_hdf_separate_loader<octree_mipmap_structure>::tree_structure_hdf_separate_loader;
-	std::string loader_name() const override { return "Octree Mipmap Structure HDF Loader"; }
+	using tree_structure_hdf_loader<octree_mipmap_structure>::tree_structure_hdf_loader;
+	std::string loader_name() const override { return "Octree Mipmap Structure HDF Loader (Striped)"; }
 };
 
+class octree_mipmap_structure_hdf_separate_loader : public tree_structure_hdf_separate_loader<octree_mipmap_structure> {
+public:
+	using tree_structure_hdf_separate_loader<octree_mipmap_structure>::tree_structure_hdf_separate_loader;
+	std::string loader_name() const override { return "Octree Mipmap Structure HDF Loader (Separate)"; }
+};
 
 
 }

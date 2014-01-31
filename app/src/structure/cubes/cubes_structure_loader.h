@@ -43,10 +43,6 @@ public:
 	void set_frustum_culling(bool f) { frustum_culling_ = f; }
 	void set_downsampling_level(unsigned l) { downsampling_level_ = l; }
 	void set_secondary_pass_minimal_distance(float d) { secondary_pass_distance_ = d; }
-
-	static file_formats_t available_file_formats();
-	static cubes_structure_loader* create_file_loader(const std::string& format, const std::string& filepath);
-	static void write_to_file(const cubes_structure&, const std::string& format, const std::string& filepath);
 	
 	::wxWindow* create_panel(::wxWindow* parent) override;
 };

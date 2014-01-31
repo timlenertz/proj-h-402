@@ -208,49 +208,7 @@ void main_frame::on_loader_choice_(wxCommandEvent& event) {
 		
 	} else if(index == 3) {
 		// File Structure Loader
-		auto n = structure_loader::structure_type_names.size();
-		
-		std::unique_ptr<wxString[]> choices(new wxString [n]);
-		std::unique_ptr<structure_loader::structure_type_t[]> types(new structure_loader::structure_type_t [n]);
-		
-		std::ptrdiff_t i = 0;
-		for(const auto& p : structure_loader::structure_type_names) {
-			choices[i] = wxString(p.second.c_str(), wxConvUTF8);
-			types[i++] = p.first;
-		}
-		
-		wxSingleChoiceDialog dialog(
-			this,
-			wxT("Choose a structure type"),
-			wxT("File structure"),
-			n,
-			choices.get()
-		);
-		auto result = dialog.ShowModal();
-		if(result == wxID_CANCEL) return;
-		
-		auto j = dialog.GetSelection();
-		if(j < 0 || j >= n) return;
-				
-		auto tp = types[j];
-		auto file_formats = structure_loader::structure_available_file_formats(tp);
-		auto wildcard = structure_loader::file_formats_to_wildcard(file_formats);
-		
-		wxFileDialog open_dialog(
-			this,
-			wxT("Open structure file"),
-			wxEmptyString,
-			wxEmptyString,
-			wxString(wildcard.c_str(), wxConvUTF8),
-			wxFD_OPEN | wxFD_FILE_MUST_EXIST
-		);
-		result = open_dialog.ShowModal();
-		if(result == wxID_CANCEL) return;
-		
-		std::string filename(open_dialog.GetPath().utf8_str());		
-		std::string format = file_path_extension(filename);
-
-		ld = structure_loader::structure_create_file_loader(tp, format, filename);
+		ld = structure_create::create_file_loader();
 	}
 	
 	if(ld) {

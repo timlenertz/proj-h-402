@@ -36,7 +36,7 @@ loader* structure_create::create_memory_loader(model& mod) const {
 std::string structure_create::write_structure_file(model& mod) const {
 	if(! panel_) return "";
 
-	std::string wildcard = structure_loader::file_formats_to_wildcard(panel_->available_file_formats());
+	std::string wildcard = file_formats_to_wildcard(panel_->instance_available_file_formats());
 	
 	wxFileDialog save_dialog(
 		nullptr,
@@ -57,6 +57,46 @@ std::string structure_create::write_structure_file(model& mod) const {
 
 	return filename;
 }
+
+loader* structure_create::create_file_loader() {
+	user_choices_t structure_choices = {
+		{ "cubes", "Cubes (Weights)" },
+		{ "cubes_mipmap", "Cubes (Mipmap)" },
+		{ "octree", "Octree" },
+		{ "octree_mipmap", "Octree (Mipmap)" }
+	};
+	auto structure_type = user_choice(structure_choices, "Type of structure");
+	
+	user_choices_t formats;
+	if(structure_type == "cubes") formats = cubes_structure_create::available_file_formats();
+	else if(structure_type == "cubes_mipmap") formats = cubes_mipmap_structure_create::available_file_formats();
+	else if(structure_type == "octree") formats = octree_structure_create::available_file_formats();
+	else if(structure_type == "octree_mipmap") formats = octree_mipmap_structure_create::available_file_formats();
+	else return nullptr;
+
+	auto wildcard = file_formats_to_wildcard(formats);
+
+	wxFileDialog open_dialog(
+		nullptr,
+		wxT("Open structure file"),
+		wxEmptyString,
+		wxEmptyString,
+		wxString(wildcard.c_str(), wxConvUTF8),
+		wxFD_OPEN | wxFD_FILE_MUST_EXIST
+	);
+	auto result = open_dialog.ShowModal();
+	if(result == wxID_CANCEL) return nullptr;
+		
+	std::string filename(open_dialog.GetPath().utf8_str());		
+	std::string format = file_path_extension(filename);
+
+	if(structure_type == "cubes") return cubes_structure_create::create_file_loader(filename, format);
+	else if(structure_type == "cubes_mipmap") return cubes_mipmap_structure_create::create_file_loader(filename, format);
+	else if(structure_type == "octree") return octree_structure_create::create_file_loader(filename, format);
+	else if(structure_type == "octree_mipmap") return octree_mipmap_structure_create::create_file_loader(filename, format);
+	else return nullptr;
+}
+
 
 structure_create::structure_create(wxWindow* parent, wxWindowID id) : structure_create_ui(parent, id) {
 	wxCommandEvent ev;
