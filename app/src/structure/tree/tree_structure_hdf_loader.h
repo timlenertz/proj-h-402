@@ -157,13 +157,14 @@ void tree_structure_hdf_loader<Structure>::write(const std::string& filename, co
 	struct entry {
 		const structure_node_t& node;
 		cuboid node_cuboid;
+		unsigned depth;
 	};
 	
 	hsize_t points_position = 0;
 	hsize_t nodes_position = 0;
 	
 	std::stack<entry> stack_;
-	stack_.push({ s.root_node(), s.root_cuboid() });
+	stack_.push({ s.root_node(), s.root_cuboid(), 0 });
 	
 	progress("Writing to HDF...", s.number_of_nodes(), 1000, [&]() {
 	while(! stack_.empty()) {
@@ -202,8 +203,8 @@ void tree_structure_hdf_loader<Structure>::write(const std::string& filename, co
 				child_node_offset += e.node.child(i).number_of_nodes_in_branch();
 			}
 			for(std::ptrdiff_t i = Structure::number_of_node_children - 1; i >= 0; --i) {
-				auto child_cuboid = Structure::splitter::node_child_cuboid(i, e.node_cuboid);
-				stack_.push({ e.node.child(i), child_cuboid });
+				auto child_cuboid = Structure::splitter::node_child_cuboid(i, e.node_cuboid, e.node.get_points_information(), e.depth);
+				stack_.push({ e.node.child(i), child_cuboid, e.depth + 1 });
 			}
 		}
 

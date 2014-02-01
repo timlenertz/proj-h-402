@@ -11,6 +11,8 @@ namespace dypc {
 template<class Splitter, std::size_t Levels>
 class tree_structure_node {
 private:
+	using node_points_information = typename Splitter::node_points_information;
+
 	struct point_set {
 		point* points = nullptr;
 		std::size_t number_of_points = 0;
@@ -24,8 +26,9 @@ private:
 
 	tree_structure_node* children_[Splitter::number_of_node_children];
 	point_set point_sets_[Levels];
+	node_points_information points_information_;
 	
-	void split_(const cuboid& cub, std::size_t leaf_capacity);
+	void split_(const cuboid& cub, unsigned depth, std::size_t leaf_capacity);
 
 public:	
 	tree_structure_node() {
@@ -43,7 +46,8 @@ public:
 	const point* points_begin(std::ptrdiff_t lvl = 0) const { assert(lvl >= 0 && lvl < Levels); return point_sets_[lvl].points; }
 	const point* points_end(std::ptrdiff_t lvl = 0) const { assert(lvl >= 0 && lvl < Levels); return point_sets_[lvl].points + point_sets_[lvl].number_of_points; }
 
-	void add_point(const point& pt, const cuboid& cube, std::size_t leaf_capacity, unsigned level = 0);
+	void add_point(const point& pt, const cuboid& cube, unsigned depth, std::size_t leaf_capacity, unsigned level = 0);
+	void add_points_with_information(std::vector<point>& all_points, const cuboid& cub, unsigned depth, std::size_t leaf_capacity);
 	std::size_t move_out_points(std::vector<point>&, unsigned level = 0);
 		
 	std::size_t number_of_nodes_in_branch() const {
@@ -56,25 +60,57 @@ public:
 	std::size_t size() const;
 	
 	bool is_leaf() const { return (children_[0] == nullptr); }
+	const node_points_information& get_points_information() const { return points_information_; }
 };
 
 
-
-
 template<class Splitter, std::size_t Levels>
-void tree_structure_node<Splitter, Levels>::add_point(const point& pt, const cuboid& cub, std::size_t leaf_capacity, unsigned level) {
+void tree_structure_node<Splitter, Levels>::add_point(const point& pt, const cuboid& cub, unsigned depth, std::size_t leaf_capacity, unsigned level) {
+	assert(level > 0 || !Splitter::has_points_information);
+	
 	auto& set = point_sets_[level];
 	if(! is_leaf()) {
-		auto child_index = Splitter::node_child_for_point(pt, cub);
-		auto child_cuboid = Splitter::node_child_cuboid(child_index, cub);
-		children_[child_index]->add_point(pt, child_cuboid, leaf_capacity, level);
+		auto child_index = Splitter::node_child_for_point(pt, cub, points_information_, depth);
+		auto child_cuboid = Splitter::node_child_cuboid(child_index, cub, points_information_, depth);
+		children_[child_index]->add_point(pt, child_cuboid, depth + 1, leaf_capacity, level);
 	} else if(set.number_of_points < leaf_capacity) {
 		set.add_point_to_buffer(pt, leaf_capacity);
 	} else if(level == 0) {
-		split_(cub, leaf_capacity);
-		add_point(pt, cub, leaf_capacity);
+		split_(cub, depth, leaf_capacity);
+		add_point(pt, cub, depth, leaf_capacity);
 	} else {
 		throw std::logic_error("Not enough capacity to add point to tree node (won't split because level>0)");
+	}
+}
+
+
+template<class Splitter, std::size_t Levels>
+void tree_structure_node<Splitter, Levels>::add_points_with_information(std::vector<point>& all_points, const cuboid& cub, unsigned depth, std::size_t leaf_capacity) {
+	assert(is_leaf());
+	assert(Splitter::has_points_information);
+		
+	points_information_ = Splitter::compute_node_points_information(all_points, cub, depth);
+		
+	if(all_points.size() <= leaf_capacity) {
+		auto& set = point_sets_[0];
+		for(const point& pt : all_points) set.add_point_to_buffer(pt, leaf_capacity);
+		increment_progress(all_points.size());
+		
+	} else {
+		for(std::ptrdiff_t i = 0; i < Splitter::number_of_node_children; ++i) children_[i] = new tree_structure_node;
+		
+		std::vector<point> child_point_sets[Splitter::number_of_node_children];
+		for(const point& pt : all_points) {
+			std::ptrdiff_t i = Splitter::node_child_for_point(pt, cub, points_information_, depth);
+			child_point_sets[i].push_back(pt);
+		}
+		
+		for(std::ptrdiff_t i = 0; i < Splitter::number_of_node_children; ++i) {
+			cuboid child_cuboid = Splitter::node_child_cuboid(i, cub, points_information_, depth);
+			auto& set = child_point_sets[i];
+			child(i).add_points_with_information(set, child_cuboid, depth + 1, leaf_capacity);
+			set.clear();
+		}
 	}
 }
 
@@ -101,7 +137,9 @@ std::size_t tree_structure_node<Splitter, Levels>::move_out_points(std::vector<p
 
 
 template<class Splitter, std::size_t Levels>
-void tree_structure_node<Splitter, Levels>::split_(const cuboid& cub, std::size_t leaf_capacity) {
+void tree_structure_node<Splitter, Levels>::split_(const cuboid& cub, unsigned depth, std::size_t leaf_capacity) {
+	assert(! Splitter::has_points_information);
+	
 	for(std::ptrdiff_t i = 0; i < Splitter::number_of_node_children; ++i) children_[i] = new tree_structure_node;
 
 	auto& first_set = point_sets_[0];
@@ -110,7 +148,7 @@ void tree_structure_node<Splitter, Levels>::split_(const cuboid& cub, std::size_
 	
 	const point* points_end = first_set.points + first_set.number_of_points;
 	for(const point* pt = first_set.points; pt < points_end; ++pt) {
-		auto child_index = Splitter::node_child_for_point(*pt, cub);
+		auto child_index = Splitter::node_child_for_point(*pt, cub, points_information_, depth);
 		auto& child = *children_[child_index];
 		child.point_sets_[0].add_point_to_buffer(*pt, leaf_capacity);
 	}

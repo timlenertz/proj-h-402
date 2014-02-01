@@ -10,6 +10,10 @@ void set_progress(int value);
 void increment_progress(int add = 1);
 void progress(const std::string& label, int maximum, int update_step, const std::function<void()>&);
 
+inline void progress(const std::string& label, int maximum, const std::function<void()>& callback) {
+	progress(label, maximum, maximum/1000, callback);
+}
+
 }
 
 #endif

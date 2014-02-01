@@ -3,6 +3,8 @@
 #include "cubes_mipmap_structure_create.h"
 #include "octree_structure_create.h"
 #include "octree_mipmap_structure_create.h"
+#include "kdtree_structure_create.h"
+#include "kdtree_mipmap_structure_create.h"
 #include "../../structure/structure_loader.h"
 #include "../../util.h"
 
@@ -17,6 +19,8 @@ void structure_create::on_structure_choice_(wxCommandEvent& event) {
 		case 1: set_panel_(new cubes_mipmap_structure_create(structure_panel)); break;
 		case 2: set_panel_(new octree_structure_create(structure_panel)); break;
 		case 3: set_panel_(new octree_mipmap_structure_create(structure_panel)); break;
+		case 4: set_panel_(new kdtree_structure_create(structure_panel)); break;
+		case 5: set_panel_(new kdtree_mipmap_structure_create(structure_panel)); break;
 	}
 }
 
@@ -63,7 +67,9 @@ loader* structure_create::create_file_loader() {
 		{ "cubes", "Cubes (Weights)" },
 		{ "cubes_mipmap", "Cubes (Mipmap)" },
 		{ "octree", "Octree" },
-		{ "octree_mipmap", "Octree (Mipmap)" }
+		{ "octree_mipmap", "Octree (Mipmap)" },
+		{ "kdtree", "KdTree" },
+		{ "kdtree_mipmap", "KdTree (Mipmap)" }
 	};
 	auto structure_type = user_choice(structure_choices, "Type of structure");
 	
@@ -72,6 +78,8 @@ loader* structure_create::create_file_loader() {
 	else if(structure_type == "cubes_mipmap") formats = cubes_mipmap_structure_create::available_file_formats();
 	else if(structure_type == "octree") formats = octree_structure_create::available_file_formats();
 	else if(structure_type == "octree_mipmap") formats = octree_mipmap_structure_create::available_file_formats();
+	else if(structure_type == "kdtree") formats = kdtree_structure_create::available_file_formats();
+	else if(structure_type == "kdtree_mipmap") formats = kdtree_mipmap_structure_create::available_file_formats();
 	else return nullptr;
 
 	auto wildcard = file_formats_to_wildcard(formats);
@@ -94,6 +102,8 @@ loader* structure_create::create_file_loader() {
 	else if(structure_type == "cubes_mipmap") return cubes_mipmap_structure_create::create_file_loader(filename, format);
 	else if(structure_type == "octree") return octree_structure_create::create_file_loader(filename, format);
 	else if(structure_type == "octree_mipmap") return octree_mipmap_structure_create::create_file_loader(filename, format);
+	else if(structure_type == "kdtree") return kdtree_structure_create::create_file_loader(filename, format);
+	else if(structure_type == "kdtree_mipmap") return kdtree_mipmap_structure_create::create_file_loader(filename, format);
 	else return nullptr;
 }
 

@@ -88,19 +88,19 @@ void cubes_mipmap_structure::cube::add_point(const point& pt) {
 void cubes_mipmap_structure::cube::generate_downsampling() {
 	const point_set_t& all_points = point_sets_[0]; 
 	float factor = structure_.mipmap_factor_;
-	float prob = 1.0 / factor;
+	float ratio = 1.0 / factor;
 	float area = std::pow(structure_.get_side_length(), 3.0);
 	
 	if(structure_.downsampling_mode_ == random_downsampling_mode) {
 		for(std::ptrdiff_t lvl = 1; lvl < structure_.mipmap_levels_; ++lvl) {
-			random_downsampling(all_points, prob, point_sets_[lvl]);
-			prob /= factor;
+			random_downsampling(all_points.data(), all_points.data() + all_points.size(), ratio, point_sets_[lvl]);
+			ratio /= factor;
 		}
 		
 	} else if(structure_.downsampling_mode_ == uniform_downsampling_mode) {
 		for(std::ptrdiff_t lvl = 1; lvl < structure_.mipmap_levels_; ++lvl) {
-			uniform_downsampling(all_points, prob, area, point_sets_[lvl]);
-			prob /= factor;
+			uniform_downsampling(all_points.data(), all_points.data() + all_points.size(), ratio, area, point_sets_[lvl]);
+			ratio /= factor;
 		}
 		
 	}

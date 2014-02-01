@@ -12,7 +12,7 @@ cuboid octree_structure_splitter::root_coboid(const model& mod) {
 	return cuboid(origin, side_length);
 }
 
-std::ptrdiff_t octree_structure_splitter::node_child_for_point(const point& pt, const cuboid& cub) {
+std::ptrdiff_t octree_structure_splitter::node_child_for_point(const point& pt, const cuboid& cub, const node_points_information& info, unsigned depth) {
 	auto c = cub.center();
 	std::ptrdiff_t idx = 0;
 	if(pt.x > c.x) idx += 1;
@@ -21,7 +21,7 @@ std::ptrdiff_t octree_structure_splitter::node_child_for_point(const point& pt, 
 	return idx;
 }
 
-cuboid octree_structure_splitter::node_child_cuboid(const std::ptrdiff_t idx, const cuboid& cub) {
+cuboid octree_structure_splitter::node_child_cuboid(const std::ptrdiff_t idx, const cuboid& cub, const node_points_information& info, unsigned depth) {
 	auto s = cub.side_length_x() / 2;
 	auto o = cub.origin();
 	if(idx % 2) o.x += s;

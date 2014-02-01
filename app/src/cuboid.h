@@ -44,6 +44,8 @@ public:
 	float side_length_y() const { return y_range_[1] - y_range_[0]; }
 	float side_length_z() const { return z_range_[1] - z_range_[0]; }
 	glm::vec3 side_lengths() const { return glm::vec3(side_length_x(), side_length_y(), side_length_z()); }
+	
+	float area() const { return side_length_x() * side_length_y() * side_length_z(); }
 };
 
 }

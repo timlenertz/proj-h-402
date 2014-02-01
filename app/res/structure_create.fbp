@@ -86,7 +86,7 @@
                     <property name="proportion">0</property>
                     <object class="wxChoice" expanded="1">
                         <property name="bg"></property>
-                        <property name="choices">&quot;Cubes (Weights)&quot; &quot;Cubes (Mipmap)&quot; &quot;Octree&quot; &quot;Octree (Mipmap)&quot;</property>
+                        <property name="choices">&quot;Cubes (Weights)&quot; &quot;Cubes (Mipmap)&quot; &quot;Octree&quot; &quot;Octree (Mipmap)&quot; &quot;KdTree&quot; &quot;KdTree (Mipmap)&quot;</property>
                         <property name="context_help"></property>
                         <property name="enabled">1</property>
                         <property name="fg"></property>

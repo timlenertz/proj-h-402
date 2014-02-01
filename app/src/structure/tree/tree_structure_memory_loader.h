@@ -15,11 +15,11 @@ private:
 public:
 	template<class... Args> tree_structure_memory_loader(Args&&... args) : structure_(std::forward<Args>(args)...) { }
 	
-	std::size_t extract_node_points_(point_buffer_t points, std::size_t capacity, const loader::request_t& req, const typename Structure::node& nd, const cuboid& cub) const;
+	std::size_t extract_node_points_(point_buffer_t points, std::size_t capacity, const loader::request_t& req, const typename Structure::node& nd, const cuboid& cub, unsigned depth) const;
 	
 protected:
 	std::size_t extract_points_(point_buffer_t points, std::size_t capacity, const loader::request_t& req) override {
-		return extract_node_points_(points, capacity, req, structure_.root_node(), structure_.root_cuboid());
+		return extract_node_points_(points, capacity, req, structure_.root_node(), structure_.root_cuboid(), 0);
 	}
 	
 	std::size_t memory_size_() const override { return structure_.size(); }
@@ -30,7 +30,7 @@ protected:
 
 
 template<class Structure>
-std::size_t tree_structure_memory_loader<Structure>::extract_node_points_(point_buffer_t points, std::size_t capacity, const loader::request_t& req, const typename Structure::node& nd, const cuboid& cub) const {
+std::size_t tree_structure_memory_loader<Structure>::extract_node_points_(point_buffer_t points, std::size_t capacity, const loader::request_t& req, const typename Structure::node& nd, const cuboid& cub, unsigned depth) const {
 	auto action = action_for_node_(cub, nd.number_of_points(), nd.is_leaf(), req, Structure::levels);
 	
 	if(action == action_skip) {
@@ -39,8 +39,8 @@ std::size_t tree_structure_memory_loader<Structure>::extract_node_points_(point_
 	} else if(action == action_split) {
 		std::size_t c = 0;
 		for(std::ptrdiff_t i = 0; i < Structure::number_of_node_children; ++i) {
-			auto child_cuboid = Structure::splitter::node_child_cuboid(i, cub);
-			c += extract_node_points_(points + c, capacity - c, req, nd.child(i), child_cuboid);
+			auto child_cuboid = Structure::splitter::node_child_cuboid(i, cub, nd.get_points_information(), depth);
+			c += extract_node_points_(points + c, capacity - c, req, nd.child(i), child_cuboid, depth + 1);
 		}
 		return c;
 		
