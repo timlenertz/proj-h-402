@@ -42,8 +42,8 @@ r_(mod.r_), g_(mod.g_), b_(mod.b_) {
 
 void ply_model::find_limits_() {
 	rewind();
-	point pt;
-	minimum_ = maximum_ = glm::vec3(0, 0, 0);
+	point pt; next_point(pt);
+	minimum_ = maximum_ = pt;
 	while(next_point(pt)) {
 		if(pt.x < minimum_[0]) minimum_[0] = pt.x;
 		else if(pt.x > maximum_[0]) maximum_[0] = pt.x;

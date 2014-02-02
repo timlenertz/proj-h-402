@@ -33,7 +33,7 @@ private:
 	
 	loader* loader_ = nullptr;
 	bool pause_loader_ = false;
-	std::chrono::milliseconds loader_check_interval_ = std::chrono::milliseconds(200);
+	std::chrono::milliseconds loader_check_interval_ = std::chrono::milliseconds(100);
 	bool loader_check_condition_ = true;
 	
 	const float viewport_width_;

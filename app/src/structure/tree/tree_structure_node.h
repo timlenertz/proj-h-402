@@ -72,6 +72,7 @@ void tree_structure_node<Splitter, Levels>::add_higher_level_point(unsigned leve
 		auto child_cuboid = Splitter::node_child_cuboid(child_index, cub, points_information_, depth);
 		children_[child_index]->add_higher_level_point(level, pt, child_cuboid, depth + 1, leaf_capacity);
 	} else if(set.number_of_points < leaf_capacity) {
+		assert(cub.in_range(pt));
 		set.add_point_to_buffer(pt, leaf_capacity);
 	} else {
 		throw std::logic_error("Not enough capacity to add higher level point to tree node");
@@ -87,7 +88,7 @@ void tree_structure_node<Splitter, Levels>::add_points_with_information(std::vec
 		
 	if(all_points.size() <= leaf_capacity) {
 		auto& set = point_sets_[0];
-		for(const point& pt : all_points) set.add_point_to_buffer(pt, leaf_capacity);
+		for(const point& pt : all_points) { assert(cub.in_range(pt)); set.add_point_to_buffer(pt, leaf_capacity); }
 		increment_progress(all_points.size());
 		
 	} else {

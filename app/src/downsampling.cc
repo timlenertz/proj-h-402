@@ -21,8 +21,8 @@ float uniform_downsampling_side_length(const point* pt_begin, const point* pt_en
 	if(number_of_points <= 1) return std::cbrt(bounding_area);
 	
 	std::size_t expected_number_of_points = ratio * number_of_points;
-	std::size_t threshold = 0.03 * number_of_points;
-	std::size_t increment_max = number_of_points / 100000;
+	std::size_t threshold = 0.1 * expected_number_of_points;
+	std::size_t increment_max = number_of_points / 3000000;
 	
 	while(increment_max >= expected_number_of_points) increment_max /= 2;
 	if(! increment_max) increment_max = 1;
