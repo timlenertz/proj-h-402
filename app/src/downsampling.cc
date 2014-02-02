@@ -5,6 +5,8 @@
 #include <glm/glm.hpp>
 #include <cmath>
 
+#include <iostream>
+
 
 namespace dypc {
 
@@ -20,10 +22,10 @@ float uniform_downsampling_side_length(const point* pt_begin, const point* pt_en
 	
 	std::size_t expected_number_of_points = ratio * number_of_points;
 	std::size_t threshold = 0.03 * number_of_points;
-	std::size_t increment = number_of_points / 100000;
+	std::size_t increment_max = number_of_points / 100000;
 	
-	while(increment >= expected_number_of_points) increment /= 2;
-	if(increment == 0) increment = 1;
+	while(increment_max >= expected_number_of_points) increment_max /= 2;
+	if(! increment_max) increment_max = 1;
 	
 	float minimal_side_length = 0;
 	float maximal_side_length = std::cbrt(bounding_area);
@@ -37,13 +39,17 @@ float uniform_downsampling_side_length(const point* pt_begin, const point* pt_en
 					
 			using cube_index_t = std::tuple<long, long, long>;
 			std::map<cube_index_t, bool> cubes;
-			for(const point* pt = pt_begin; pt < pt_end; pt += increment) {
+			for(const point* pt = pt_begin; pt < pt_end;) {
+				std::size_t increment = 1 + (std::rand() % increment_max);
+				
 				cube_index_t idx(pt->x / attempt_side_length, pt->y / attempt_side_length, pt->z / attempt_side_length);
 				bool& cube_has_point = cubes[idx];
 				if(! cube_has_point) {
 					attempt_number_of_points += increment;
 					cube_has_point = true;
 				}
+				
+				pt += increment;
 			}
 			
 			if(attempt_number_of_points > expected_number_of_points) minimal_side_length = attempt_side_length;
@@ -51,6 +57,8 @@ float uniform_downsampling_side_length(const point* pt_begin, const point* pt_en
 			attempt_side_length = minimal_side_length + (maximal_side_length - minimal_side_length)/2;
 			
 			increment_progress();
+			
+			std::cout << "expected: " << expected_number_of_points << ", got: " << attempt_number_of_points << "; side: " << attempt_side_length << std::endl;
 		} while(std::abs(attempt_number_of_points - expected_number_of_points) > threshold);
 	});
 	
@@ -66,7 +74,7 @@ void uniform_downsampling(const point* pt_begin, const point* pt_end, float rati
 	using cube_index_t = std::tuple<long, long, long>;
 	std::map<cube_index_t, std::vector<point>> cubes;
 	
-	progress("Computing uniform downsampling cubes", number_of_points, number_of_points/1000, [&]() {
+	progress("Computing uniform downsampling cubes", number_of_points, [&]() {
 		for(const point* pt = pt_begin; pt != pt_end; ++pt) {
 			cube_index_t idx(pt->x / side, pt->y / side, pt->z / side);
 			cubes[idx].push_back(*pt);
@@ -74,7 +82,7 @@ void uniform_downsampling(const point* pt_begin, const point* pt_end, float rati
 		}
 	});
 	
-	progress("Computing uniform downsampling points", cubes.size(), cubes.size()/1000, [&]() {
+	progress("Computing uniform downsampling points", cubes.size(), [&]() {
 		for(const auto& p : cubes) {
 			const auto& cube = p.second;
 			
@@ -82,7 +90,7 @@ void uniform_downsampling(const point* pt_begin, const point* pt_end, float rati
 			for(const point& pt : cube) center += glm::vec3(pt.x, pt.y, pt.z);
 			center /= cube.size(); 
 			
-			float min_distance = side * side;
+			float min_distance = INFINITY;
 			const point* median_point = nullptr;
 			for(const point& pt : cube) {
 				float distance = glm::distance(center, glm::vec3(pt.x, pt.y, pt.z));
@@ -92,7 +100,7 @@ void uniform_downsampling(const point* pt_begin, const point* pt_end, float rati
 				}
 			}
 			
-			if(median_point) output.emplace_back(
+			output.emplace_back(
 				center.x, center.y, center.z,
 				median_point->r, median_point->g, median_point->b
 			);
