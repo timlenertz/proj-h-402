@@ -62,7 +62,7 @@ tree_structure<Splitter, Levels>(leaf_capacity, mod), mipmap_factor_(mmfac), dow
 			level_points.reserve(downsampled.size());
 			std::size_t c = 0;
 			for(const point& pt : downsampled) {			
-				super::root_.add_point(pt, super::root_cuboid_, 0, leaf_capacity, lvl);
+				super::root_.add_higher_level_point(lvl, pt, super::root_cuboid_, 0, leaf_capacity);
 				increment_progress();
 			}
 			super::root_.move_out_points(level_points, lvl);

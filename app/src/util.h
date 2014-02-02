@@ -17,6 +17,8 @@ std::string user_choice(const user_choices_t&, const std::string& caption = "Cho
 
 std::string file_formats_to_wildcard(const user_choices_t& file_formats);
 
+template<class Number> inline Number sq(Number n) { return n * n; } 
+
 }
 
 #endif

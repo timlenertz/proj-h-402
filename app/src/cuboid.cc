@@ -1,5 +1,6 @@
 #include "cuboid.h"
 #include "frustum.h"
+#include "util.h"
 #include <cmath>
 
 namespace dypc {
@@ -44,12 +45,18 @@ cuboid::cuboid(glm::vec3 origin, glm::vec3 side_lengths) :
 
 
 float cuboid::minimal_distance(glm::vec3 pt) const {
-	float min_d = INFINITY;
-	for(const glm::vec3& corner : corners_) {
-		float d = std::abs(glm::distance(corner, pt));
-		if(d < min_d) min_d = d;
-	}
-	return min_d;
+	float terms = 0;
+
+	if(pt.x < x_range_[0]) terms += sq(x_range_[0] - pt.x);  
+	else if(pt.x > x_range_[1]) terms += sq(pt.x - x_range_[1]);  
+
+	if(pt.y < y_range_[0]) terms += sq(y_range_[0] - pt.y);  
+	else if(pt.y > y_range_[1]) terms += sq(pt.y - y_range_[1]);  
+
+	if(pt.z < z_range_[0]) terms += sq(z_range_[0] - pt.z);  
+	else if(pt.z > z_range_[1]) terms += sq(pt.z - z_range_[1]);  
+
+	return std::sqrt(terms);
 }
 
 

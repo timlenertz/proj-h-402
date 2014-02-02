@@ -45,24 +45,14 @@ public:
 
 template<class Splitter, std::size_t Levels>
 tree_structure<Splitter, Levels>::tree_structure(std::size_t leaf_capacity, model& mod) :
-leaf_capacity_(leaf_capacity), root_cuboid_(Splitter::root_coboid(mod)) {
-	if(Splitter::has_points_information) {
-		std::vector<point> all_points;
-		progress("Collecting points from model...", mod.number_of_points(), [&]() {
-			for(const auto& pt : mod) { all_points.push_back(pt); increment_progress(); }
-		});
-		progress("Adding points with info to tree...", mod.number_of_points(), [&]() {
-			root_.add_points_with_information(all_points, root_cuboid_, 0, leaf_capacity_);
-		});
-
-	} else {
-		progress("Adding points to tree...", mod.number_of_points(), [&]() {
-			for(const auto& pt : mod) {
-				root_.add_point(pt, root_cuboid_, 0, leaf_capacity_);
-				increment_progress();
-			}
-		});
-	}
+leaf_capacity_(leaf_capacity), root_cuboid_(Splitter::root_cuboid(mod)) {
+	std::vector<point> all_points;
+	progress("Collecting points from model...", mod.number_of_points(), [&]() {
+		for(const auto& pt : mod) { all_points.push_back(pt); increment_progress(); }
+	});
+	progress("Adding points with info to tree...", mod.number_of_points(), [&]() {
+		root_.add_points_with_information(all_points, root_cuboid_, 0, leaf_capacity_);
+	});
 
 	all_points_[0].reserve(mod.number_of_points());
 	root_.move_out_points(all_points_[0]);

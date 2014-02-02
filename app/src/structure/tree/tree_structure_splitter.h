@@ -12,7 +12,6 @@ namespace dypc {
 class tree_structure_splitter {
 public:
 	static constexpr std::size_t number_of_node_children = 0;
-	static constexpr bool has_points_information = true;
 
 	struct node_points_information { };
 
