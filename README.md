@@ -13,6 +13,8 @@ PROJ-H-402 Project
 Dependencies:
 - clang Compiler
 - OpenGL + GLEW
+- GLM
+- CGAL
 - wxWidgets
 - wxformbuilder
 - SQLite3

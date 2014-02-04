@@ -19,6 +19,12 @@ std::string file_formats_to_wildcard(const user_choices_t& file_formats);
 
 template<class Number> inline Number sq(Number n) { return n * n; } 
 
+inline float min(float a, float b) { return (a < b ? a : b); }
+inline float max(float a, float b) { return (a < b ? b : a); }
+
+inline std::ptrdiff_t min(std::ptrdiff_t a, std::ptrdiff_t b) { return (a < b ? a : b); }
+inline std::ptrdiff_t max(std::ptrdiff_t a, std::ptrdiff_t b) { return (a < b ? b : a); }
+
 }
 
 #endif

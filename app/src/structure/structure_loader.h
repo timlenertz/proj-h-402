@@ -4,9 +4,12 @@
 #include "../point.h"
 #include "../loader/loader.h"
 #include "../statistics.h"
+#include "../util.h"
 #include <stdexcept>
 #include <string>
 #include <map>
+#include <cstring>
+#include <cstdint>
 
 namespace dypc {
 
@@ -16,22 +19,19 @@ private:
 	statistics::item stat_file_size_;
 	statistics::item stat_memory_size_;
 	statistics::item stat_total_points_;
+	
+	static constexpr std::size_t buffer_capacity_ = 1000000;
+	point buffer_[buffer_capacity_];
+	
+	static constexpr std::size_t depth_buffer_side = 1000;
+	std::uint8_t depth_buffer_[depth_buffer_side][depth_buffer_side];
 
 protected:
 	static constexpr float minimal_update_distance_ = 1;
 
-	void compute_points_(const request_t& request, point_buffer_t points, std::size_t& count, std::size_t capacity) override {
-		count = this->extract_points_(points, capacity, request);
-		
-		stat_memory_size_ = this->memory_size_();
-		if(! initialized_stats_) {
-			stat_file_size_ = this->file_size_();
-			stat_total_points_ = this->total_points_();
-			initialized_stats_ = true;
-		}
-	}
+	void compute_points(const request_t& req, point_buffer_t points, std::size_t& count, std::size_t capacity) override;
 	
-	bool should_compute_points_(const request_t& request, const request_t& previous, std::chrono::milliseconds dtime) override {
+	bool should_compute_points(const request_t& request, const request_t& previous, std::chrono::milliseconds dtime) override {
 		return
 			glm::distance(request.position, previous.position) > minimal_update_distance_
 			|| request.orientation != previous.orientation;

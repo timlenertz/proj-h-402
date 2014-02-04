@@ -11,6 +11,8 @@
 
 #include <string>
 
+#include "../hpr/hpr_loader.h"
+
 namespace dypc {
 
 renderer::renderer(float w, float h) : viewport_width_(w), viewport_height_(h),
@@ -33,22 +35,19 @@ stat_loader_duration_(statistics::add("Loader Time", 0, statistics::milliseconds
 	glUniform3fv(fog_color_uniform_, 1, background_color_);
 	
 	initialize_point_buffers_();
-	
-	apply_loader_configuration_();
-	
+		
 	initialize_gl_();
+	
+	updater_.start();
 }
 
 renderer::~renderer() {
-	if(loader_) delete loader_;
 	if(shaders_) delete shaders_;
 	if(renderer_point_buffer_) glDeleteBuffers(1, &renderer_point_buffer_);
 	if(loader_point_buffer_) glDeleteBuffers(1, &loader_point_buffer_);
 }
 
-void renderer::initialize_point_buffers_() {
-	if(loader_) loader_->stop();
-	
+void renderer::initialize_point_buffers_() {	
 	if(! renderer_point_buffer_) glGenBuffers(1, &renderer_point_buffer_);
 	glBindBuffer(GL_ARRAY_BUFFER, renderer_point_buffer_);
 	glBufferData(GL_ARRAY_BUFFER, point_buffer_capacity_*sizeof(point), nullptr, GL_STREAM_DRAW);
@@ -63,16 +62,17 @@ void renderer::initialize_point_buffers_() {
 	renderer_point_buffer_size_ = 0;
 }
 
-void renderer::update_loader_request_() {
-	if(loader_) loader_->update_request(-position_, -velocity_, orientation_, frustum(projection_matrix_ * view_matrix_));
+void renderer::update_request_() {
+	updater_.set_request(-position_, -velocity_, orientation_, projection_matrix_ * view_matrix_);
 }
 
-void renderer::check_loader_() {
-	if(!loader_ || !loader_->finished()) return;
+void renderer::check_updater_() {
+	if(! updater_.is_finished()) return;
 
-	glBindBuffer(GL_ARRAY_BUFFER, loader_point_buffer_);	
-	if(std::size_t sz = loader_->new_points_available()) {
-		stat_loader_duration_ = loader_->last_compute_duration().count();
+	glBindBuffer(GL_ARRAY_BUFFER, loader_point_buffer_);
+	std::size_t sz;
+	if(updater_.new_points_available(sz)) {
+		stat_loader_duration_ = updater_.get_last_compute_duration().count();
 		auto valid = glUnmapBuffer(GL_ARRAY_BUFFER);
 		if(valid) {
 			std::swap(loader_point_buffer_, renderer_point_buffer_);
@@ -88,7 +88,7 @@ void renderer::check_loader_() {
 	
 	glBindBuffer(GL_ARRAY_BUFFER, loader_point_buffer_);	
 	auto buf = glMapBuffer(GL_ARRAY_BUFFER, GL_WRITE_ONLY);
-	if(buf) loader_->reset(reinterpret_cast<point_buffer_t>(buf), point_buffer_capacity_);
+	if(buf) updater_.reset(reinterpret_cast<point_buffer_t>(buf), point_buffer_capacity_);
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
 }
 
@@ -130,11 +130,11 @@ void renderer::initialize_gl_() {
 }
 
 void renderer::draw(float dtime) {	
-	check_loader_();
+	check_updater_();
 
 	compute_motion_(dtime);
 	compute_view_matrix_();
-	update_loader_request_();
+	update_request_();
 
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
@@ -154,38 +154,19 @@ void renderer::rotate_camera(float horizontalAngle, float verticalAngle, float r
 	orientation_ = rot * orientation_;
 }
 
-void renderer::delete_loader_() {
-	if(! loader_) return;
-	
-	loader_->stop();
-	delete loader_;
-	loader_ = nullptr;
-	glBindBuffer(GL_ARRAY_BUFFER, loader_point_buffer_);
-	glUnmapBuffer(GL_ARRAY_BUFFER);
-}
 
-void renderer::apply_loader_configuration_() {
-	if(! loader_) return;
-	
-	loader_->stop();
-	if(! pause_loader_) loader_->start(loader_check_interval_, loader_check_condition_);
-}
-
-void renderer::update_loader_now() {
-	if(loader_) loader_->update_now();
+void renderer::update_now() {
+	updater_.update_now();
 }
 
 void renderer::switch_loader(loader* ld) {
-	delete_loader_();
-	loader_ = ld;
-	apply_loader_configuration_();
+	//ld = new hpr_loader(ld, 1000000);
+	updater_.switch_loader(ld);
 }
 
-void renderer::set_loader_configuration(bool paused, std::chrono::milliseconds interval, bool check) {
-	pause_loader_ = paused;
-	loader_check_interval_ = interval;
-	loader_check_condition_ = check;
-	apply_loader_configuration_();
+void renderer::set_updater_paused(bool paused) {
+	if(paused) updater_.stop();
+	else updater_.start();
 }
 
 void renderer::set_configuration(float fov, float scale, unsigned char bg_r, unsigned char bg_g, unsigned char bg_b) {
@@ -203,7 +184,11 @@ void renderer::set_configuration(float fov, float scale, unsigned char bg_r, uns
 void renderer::set_point_capacity(std::size_t capacity) {
 	point_buffer_capacity_ = capacity;
 	stat_capacity_ = capacity;
+	
+	bool was_paused = get_updater_paused();
+	updater_.stop();
 	initialize_point_buffers_();
+	set_updater_paused(was_paused);
 }
 
 

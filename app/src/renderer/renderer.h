@@ -3,6 +3,7 @@
 
 #include "../gl.h"
 #include "program.h"
+#include "../updater/updater.h"
 
 #include "../statistics.h"
 
@@ -26,16 +27,13 @@ class loader;
 
 class renderer {
 private:
-	std::size_t point_buffer_capacity_ = 300000;
+	updater updater_;
+	
+	std::size_t point_buffer_capacity_ = 1000000;
 	GLuint renderer_point_buffer_ = 0;
 	GLuint loader_point_buffer_ = 0;
 	std::size_t renderer_point_buffer_size_ = 0;
-	
-	loader* loader_ = nullptr;
-	bool pause_loader_ = false;
-	std::chrono::milliseconds loader_check_interval_ = std::chrono::milliseconds(100);
-	bool loader_check_condition_ = true;
-	
+		
 	const float viewport_width_;
 	const float viewport_height_;
 	float fov_ = 60.0;
@@ -66,12 +64,9 @@ private:
 	void compute_fps_();
 	
 	void initialize_point_buffers_();
-	void update_loader_request_();
-	void check_loader_();
+	void update_request_();
+	void check_updater_();
 	
-	void apply_loader_configuration_();
-	void delete_loader_();
-
 	void initialize_gl_();
 
 public:
@@ -89,15 +84,14 @@ public:
 	void set_configuration(float fov, float scale, unsigned char bg_r, unsigned char bg_g, unsigned char bg_b);
 	void set_point_capacity(std::size_t capacity);
 	
-	bool get_loader_paused() const { return pause_loader_; }
-	void set_loader_paused(bool p) { pause_loader_ = p; apply_loader_configuration_(); }
-	std::chrono::milliseconds get_loader_check_interval() const { return loader_check_interval_; }
-	void set_loader_check_interval(std::chrono::milliseconds i) { loader_check_interval_ = i; apply_loader_configuration_(); }
-	bool get_loader_check_condition() const { return loader_check_condition_; }
-	void set_loader_check_condition(bool c) { loader_check_condition_ = c; apply_loader_configuration_(); }
-	void set_loader_configuration(bool paused, std::chrono::milliseconds interval, bool check);
+	bool get_updater_paused() const { return ! updater_.is_running(); }
+	void set_updater_paused(bool p);
+	std::chrono::milliseconds get_updater_check_interval() const { return updater_.get_check_interval(); }
+	void set_updater_check_interval(std::chrono::milliseconds i) { updater_.set_check_interval(i); }
+	bool get_updater_check_condition() const { return updater_.get_check_condition(); }
+	void set_updater_check_condition(bool c) { updater_.set_check_condition(c); }
 	
-	void update_loader_now();
+	void update_now();
 	void switch_loader(loader* ld);
 	void delete_loader() { switch_loader(nullptr); }
 };

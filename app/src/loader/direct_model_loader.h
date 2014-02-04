@@ -16,15 +16,15 @@ public:
 	template<class... Args>
 	direct_model_loader(Args&&... args) : model_(std::forward<Args>(args)...) { }
 	
-	void compute_points_(const request_t& request, point_buffer_t points, std::size_t& count, std::size_t capacity) override;
-	bool should_compute_points_(const request_t& request, const request_t& previous, std::chrono::milliseconds dtime) override;
+	void compute_points(const request_t& request, point_buffer_t points, std::size_t& count, std::size_t capacity) override;
+	bool should_compute_points(const request_t& request, const request_t& previous, std::chrono::milliseconds dtime) override;
 	
 	std::string loader_name() const override { return "Direct Model Loader"; }
 };
 
 
 template<class Model>
-void direct_model_loader<Model>::compute_points_(const request_t& request, point_buffer_t points, std::size_t& count, std::size_t capacity) {
+void direct_model_loader<Model>::compute_points(const request_t& request, point_buffer_t points, std::size_t& count, std::size_t capacity) {
 	std::size_t ct = 0;
 	point_buffer_t current = points;
 	for(point pt : model_) {
@@ -37,7 +37,7 @@ void direct_model_loader<Model>::compute_points_(const request_t& request, point
 
 
 template<class Model>
-bool direct_model_loader<Model>::should_compute_points_(const request_t& request, const request_t& previous, std::chrono::milliseconds dtime) {
+bool direct_model_loader<Model>::should_compute_points(const request_t& request, const request_t& previous, std::chrono::milliseconds dtime) {
 	return false;
 }
 

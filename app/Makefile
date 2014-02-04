@@ -1,5 +1,5 @@
 TARGET := dypc
-DEPLOY := 1
+DEPLOY := 0
 
 CXX := clang++
 CXXFLAGS := -std=c++11
@@ -24,7 +24,8 @@ CXXFLAGS += $(shell pkg-config --cflags $(PACKAGES))
 CXXFLAGS += $(shell wx-config --cxxflags)
 LDLIBS += $(shell wx-config --libs --gl-libs)
 
-LDLIBS += -lm -lz -lhdf5 -lhdf5_cpp
+LDLIBS += -lm -lz -lhdf5 -lhdf5_cpp -lCGAL -lgmp
+CXXFLAGS += -frounding-math
 
 CPP := $(shell find ./src -name '*.cc')
 OBJ := $(patsubst %.cc,build/%.o,$(CPP))

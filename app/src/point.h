@@ -17,6 +17,7 @@ public:
 	
 	point() = default;
 	point(const point&) = default;
+	point(glm::vec3 pt) : x(pt[0]), y(pt[1]), z(pt[2]) { }
 		
 	point(float nx, float ny, float nz, std::uint8_t nr = 255, std::uint8_t ng = 255, std::uint8_t nb = 255) :
 	x(nx), y(ny), z(nz), r(nr), g(ng), b(nb) {

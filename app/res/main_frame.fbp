@@ -2340,7 +2340,7 @@
                                                 <property name="validator_style">wxFILTER_NUMERIC</property>
                                                 <property name="validator_type">wxDefaultValidator</property>
                                                 <property name="validator_variable"></property>
-                                                <property name="value">300000</property>
+                                                <property name="value">1000000</property>
                                                 <property name="window_extra_style"></property>
                                                 <property name="window_name"></property>
                                                 <property name="window_style"></property>
@@ -2383,7 +2383,7 @@
                             <property name="proportion">0</property>
                             <object class="wxStaticBoxSizer" expanded="0">
                                 <property name="id">wxID_ANY</property>
-                                <property name="label">Loader Updates</property>
+                                <property name="label">Updater</property>
                                 <property name="minimum_size"></property>
                                 <property name="name">loader_settings_sizer</property>
                                 <property name="orient">wxVERTICAL</property>
@@ -2410,7 +2410,7 @@
                                                 <property name="font"></property>
                                                 <property name="hidden">0</property>
                                                 <property name="id">wxID_ANY</property>
-                                                <property name="label">Update Interval:</property>
+                                                <property name="label">Interval:</property>
                                                 <property name="maximum_size"></property>
                                                 <property name="minimum_size"></property>
                                                 <property name="name">loader_interval_label</property>
@@ -2465,10 +2465,10 @@
                                                 <property name="font"></property>
                                                 <property name="hidden">0</property>
                                                 <property name="id">wxID_ANY</property>
-                                                <property name="initial">250</property>
+                                                <property name="initial">100</property>
                                                 <property name="max">5000</property>
                                                 <property name="maximum_size"></property>
-                                                <property name="min">100</property>
+                                                <property name="min">10</property>
                                                 <property name="minimum_size"></property>
                                                 <property name="name">loader_interval</property>
                                                 <property name="permission">protected</property>
@@ -2481,7 +2481,7 @@
                                                 <property name="validator_style">wxFILTER_NUMERIC</property>
                                                 <property name="validator_type">wxTextValidator</property>
                                                 <property name="validator_variable"></property>
-                                                <property name="value">250</property>
+                                                <property name="value">100</property>
                                                 <property name="window_extra_style"></property>
                                                 <property name="window_name"></property>
                                                 <property name="window_style"></property>
@@ -2527,7 +2527,7 @@
                                         <property name="font"></property>
                                         <property name="hidden">0</property>
                                         <property name="id">wxID_ANY</property>
-                                        <property name="label">Check Update Condition</property>
+                                        <property name="label">Check Condition</property>
                                         <property name="maximum_size"></property>
                                         <property name="minimum_size"></property>
                                         <property name="name">loader_check_condition</property>
@@ -2643,7 +2643,7 @@
                                                 <property name="bg"></property>
                                                 <property name="context_help"></property>
                                                 <property name="default">0</property>
-                                                <property name="enabled">0</property>
+                                                <property name="enabled">1</property>
                                                 <property name="fg"></property>
                                                 <property name="font"></property>
                                                 <property name="hidden">0</property>

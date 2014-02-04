@@ -228,13 +228,14 @@ void main_frame::on_loader_config_() {
 	bool paused = loader_paused->IsChecked();
 	std::chrono::milliseconds interval( loader_interval->GetValue() );
 	bool check_condition = loader_check_condition->IsChecked();
-	rd.set_loader_configuration(paused, interval, check_condition);
 	
-	loader_force_update->Enable(paused);
+	rd.set_updater_paused(paused);
+	rd.set_updater_check_condition(check_condition);
+	rd.set_updater_check_interval(interval);
 }
 
 void main_frame::on_loader_update_now_(wxCommandEvent& event) {
-	get_renderer_().update_loader_now();
+	get_renderer_().update_now();
 }
 
 void main_frame::on_renderer_config_() {	
