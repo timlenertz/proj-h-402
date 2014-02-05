@@ -19,4 +19,5 @@ void main() {
 	
 	gl_Position = projection_matrix * view_matrix * v;	
 	fragment_color = mix(vertex_color, fog_color, fog_factor);
+	fragment_color = vertex_color;
 }

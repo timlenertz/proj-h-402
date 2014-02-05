@@ -5,6 +5,7 @@
 #include "../model/model.h"
 #include "../structure/structure_loader.h"
 #include "../loader/loader.h"
+#include "../hpr/hpr_loader.h"
 
 #include "../ui/model_create/model_create.h"
 #include "../ui/structure_create/structure_create.h"
@@ -212,6 +213,8 @@ void main_frame::on_loader_choice_(wxCommandEvent& event) {
 	}
 	
 	if(ld) {
+	//	ld = new hpr_loader(ld, 100000);
+		
 		get_renderer_().switch_loader(ld);
 		loader_label->SetLabel(wxString(ld->loader_name().c_str(), wxConvUTF8));
 		wxWindow* panel = ld->create_panel(loader_panel);

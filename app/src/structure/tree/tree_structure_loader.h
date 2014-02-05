@@ -17,11 +17,14 @@ private:
 	downsampling_node_distance_t downsampling_node_distance = minimal_node_distance;
 	float additional_split_distance_difference_ = 25;
 
+	float cuboid_distance_(glm::vec3 position, const cuboid& cub, float min_dist, float max_dist) const;
+
 protected:
 	static constexpr std::ptrdiff_t action_skip = -2;
 	static constexpr std::ptrdiff_t action_split = -1;
 	
 	std::ptrdiff_t action_for_node_(const cuboid&, std::size_t number_of_points, bool is_leaf, const loader::request_t&, std::size_t levels = 1) const;
+	float cuboid_distance_(glm::vec3 position, const cuboid& cub) const;
 	
 public:
 	void set_downsampling_start_distance(float d) { downsampling_start_distance_ = d; }

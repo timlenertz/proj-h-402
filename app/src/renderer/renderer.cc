@@ -4,14 +4,9 @@
 #include "../frustum.h"
 #include "../loader/loader.h"
 
-
 #include <stdexcept>
-#include <iostream>
 #include <utility>
-
 #include <string>
-
-#include "../hpr/hpr_loader.h"
 
 namespace dypc {
 
@@ -160,7 +155,6 @@ void renderer::update_now() {
 }
 
 void renderer::switch_loader(loader* ld) {
-	//ld = new hpr_loader(ld, 1000000);
 	updater_.switch_loader(ld);
 }
 

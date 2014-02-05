@@ -1,5 +1,5 @@
-#ifndef DYPC_TREE_STRUCTURE_HDF_SEPARATE_LOADER_H_
-#define DYPC_TREE_STRUCTURE_HDF_SEPARATE_LOADER_H_
+#ifndef DYPC_TREE_STRUCTURE_HDF_SIMPLE_LOADER_H_
+#define DYPC_TREE_STRUCTURE_HDF_SIMPLE_LOADER_H_
 
 #include "tree_structure_loader.h"
 #include "tree_structure_hdf_loader_base.h"
@@ -14,7 +14,7 @@
 namespace dypc {
 
 template<class Structure>
-class tree_structure_hdf_separate_loader : public tree_structure_loader, public tree_structure_hdf_loader_base {
+class tree_structure_hdf_simple_loader : public tree_structure_loader, public tree_structure_hdf_loader_base {
 private:
 	struct hdf_node {
 		std::uint32_t data_start[Structure::levels];
@@ -44,7 +44,9 @@ public:
 	static void write(const std::string& file, const Structure&);
 	static H5::CompType initialize_node_type();	
 	
-	explicit tree_structure_hdf_separate_loader(const std::string& file);
+	explicit tree_structure_hdf_simple_loader(const std::string& file);
+	
+	std::string loader_name() const override { return Structure::structure_name() + " HDF Simple Loader"; }
 	
 protected:
 	std::size_t extract_points_(point_buffer_t points, std::size_t capacity, const loader::request_t& req) override;
@@ -67,11 +69,11 @@ protected:
 
 
 template<class Structure>
-const H5::CompType tree_structure_hdf_separate_loader<Structure>::node_type_ = tree_structure_hdf_separate_loader<Structure>::initialize_node_type();
+const H5::CompType tree_structure_hdf_simple_loader<Structure>::node_type_ = tree_structure_hdf_simple_loader<Structure>::initialize_node_type();
 
 
 template<class Structure>
-H5::CompType tree_structure_hdf_separate_loader<Structure>::initialize_node_type() {
+H5::CompType tree_structure_hdf_simple_loader<Structure>::initialize_node_type() {
 	H5::CompType t(sizeof(hdf_node));
 	hsize_t three_dims[] = { 3 };
 	hsize_t levels_dims[] = { Structure::levels };
@@ -86,7 +88,7 @@ H5::CompType tree_structure_hdf_separate_loader<Structure>::initialize_node_type
 
 
 template<class Structure>
-tree_structure_hdf_separate_loader<Structure>::tree_structure_hdf_separate_loader(const std::string& filename) : file_(filename, 0) {
+tree_structure_hdf_simple_loader<Structure>::tree_structure_hdf_simple_loader(const std::string& filename) : file_(filename, 0) {
 	auto nodes_set = file_.openDataSet("nodes");
 	auto nodes_space = nodes_set.getSpace();
 	
@@ -103,7 +105,7 @@ tree_structure_hdf_separate_loader<Structure>::tree_structure_hdf_separate_loade
 
 
 template<class Structure>
-std::size_t tree_structure_hdf_separate_loader<Structure>::extract_points_(point_buffer_t buf, std::size_t capacity, const loader::request_t& req) {
+std::size_t tree_structure_hdf_simple_loader<Structure>::extract_points_(point_buffer_t buf, std::size_t capacity, const loader::request_t& req) {
 	std::size_t total = 0;
 	std::size_t remaining = capacity;
 
@@ -143,7 +145,7 @@ std::size_t tree_structure_hdf_separate_loader<Structure>::extract_points_(point
 
 
 template<class Structure>
-void tree_structure_hdf_separate_loader<Structure>::write(const std::string& filename, const Structure& s) {
+void tree_structure_hdf_simple_loader<Structure>::write(const std::string& filename, const Structure& s) {
 	H5::H5File file(filename, H5F_ACC_TRUNC);
 	
 	H5::DataSpace points_space[Structure::levels];

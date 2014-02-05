@@ -17,6 +17,8 @@ public:
 	
 	std::size_t extract_node_points_(point_buffer_t points, std::size_t capacity, const loader::request_t& req, const typename Structure::node& nd, const cuboid& cub, unsigned depth) const;
 	
+	std::string loader_name() const override { return Structure::structure_name() + " Memory Ordered Loader"; }
+	
 protected:
 	std::size_t extract_points_(point_buffer_t points, std::size_t capacity, const loader::request_t& req) override {
 		return extract_node_points_(points, capacity, req, structure_.root_node(), structure_.root_cuboid(), 0);

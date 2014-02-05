@@ -4,6 +4,7 @@
 #include "../loader/loader.h"
 #include "../point.h"
 #include <memory>
+#include <atomic>
 #include <CGAL/Exact_predicates_inexact_constructions_kernel.h>
 #include <CGAL/Polyhedron_3.h>
 
@@ -27,6 +28,7 @@ private:
 	using cgal_point = cgal_k::Point_3;
 	using cgal_polyhedron = CGAL::Polyhedron_3<cgal_k>;
 
+	std::atomic_bool trigger_;
 	const std::size_t buffer_capacity_;
 	float sphere_radius_ = 5.0;
 	
@@ -40,6 +42,11 @@ public:
 	std::string loader_name() const override {
 		return underlying_loader_->loader_name() + " (HPR)";
 	}
+	
+	void trigger() { trigger_ = true; }
+	void set_sphere_radius(float r) { sphere_radius_ = r; } 
+	
+	::wxWindow* create_panel(::wxWindow* parent) override;
 
 protected:
 	void compute_points(const request_t& request, point_buffer_t points, std::size_t& count, std::size_t capacity) override;

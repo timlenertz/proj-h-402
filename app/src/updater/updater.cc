@@ -92,7 +92,8 @@ void updater::thread_main_() {
 			
 		configuration_mutex_.unlock();
 		
-		while(finished_) std::this_thread::sleep_for(check_interval_);
+		if(last_compute_duration_ < check_interval_) std::this_thread::sleep_for(check_interval_ - last_compute_duration_);
+		while(finished_ && !stop_) std::this_thread::sleep_for(check_interval_);
 	}
 }
 

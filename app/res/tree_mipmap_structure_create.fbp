@@ -8,7 +8,7 @@
         <property name="encoding">UTF-8</property>
         <property name="event_generation">connect</property>
         <property name="event_handler">impl_virtual</property>
-        <property name="file">kdtree_mipmap_structure_create</property>
+        <property name="file">tree_mipmap_structure_create</property>
         <property name="first_id">1000</property>
         <property name="help_provider">none</property>
         <property name="internationalize">0</property>
@@ -29,7 +29,7 @@
             <property name="id">wxID_ANY</property>
             <property name="maximum_size"></property>
             <property name="minimum_size"></property>
-            <property name="name">kdtree_mipmap_structure_create_ui</property>
+            <property name="name">tree_mipmap_structure_create_ui</property>
             <property name="pos"></property>
             <property name="size">500,300</property>
             <property name="subclass"></property>

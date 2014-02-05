@@ -1,4 +1,5 @@
 #include "hpr_loader.h"
+#include "../ui/hpr_panel.h"
 
 #include <CGAL/convex_hull_3.h>
 
@@ -8,24 +9,34 @@ hpr_loader::hpr_loader(loader* ld, std::size_t cap) :
 	buffer_capacity_(cap),
 	underlying_loader_(ld),
 	buffer_(new point[cap]),
-	dual_buffer_(new cgal_point[cap + 1]) { }
+	dual_buffer_(new cgal_point[cap + 1])
+{
+	trigger_ = false;
+}
 
 
 void hpr_loader::compute_points(const request_t& req, point_buffer_t points, std::size_t& count, std::size_t capacity) {
+	if(! trigger_) {
+		underlying_loader_->compute_points(req, points, count, capacity);
+		return;
+	}
+	
+	trigger_ = false;
+	
 	std::size_t loader_count;
 	underlying_loader_->compute_points(req, buffer_.get(), loader_count, capacity);
 	
 	if(loader_count <= 3) { count = 0; return; }
 
 	cgal_point* dual_pt = dual_buffer_.get();
-	*(dual_pt++) = cgal_k::Point_3(req.position.x, req.position.y, req.position.z);
+	*(dual_pt++) = cgal_k::Point_3(0.0, 0.0, 0.0);
 	
 	const point* pt_end = buffer_.get() + loader_count;
 	for(const point* orig_pt = buffer_.get(); orig_pt != pt_end; ++orig_pt) {
 		glm::vec3 pt = *orig_pt;
-		float distance = glm::distance(pt, req.position);
-		pt += (sphere_radius_ - distance) * 2.0f * pt;
-		pt /= distance;
+		pt -= req.position;
+		float d = glm::length(pt);
+		pt += (sphere_radius_ - d) * 2.0f * glm::normalize(pt);
 		
 		*(dual_pt++) = cgal_point(pt.x, pt.y, pt.z);
 	}
@@ -49,7 +60,14 @@ void hpr_loader::compute_points(const request_t& req, point_buffer_t points, std
 
 
 bool hpr_loader::should_compute_points(const request_t& request, const request_t& previous, std::chrono::milliseconds dtime) {
-	return underlying_loader_->should_compute_points(request, previous, dtime);
+	return trigger_ || underlying_loader_->should_compute_points(request, previous, dtime);
+}
+
+
+::wxWindow* hpr_loader::create_panel(::wxWindow* parent) {
+	hpr_panel* panel = new hpr_panel(parent);
+	panel->set_loader(*this, nullptr);
+	return panel;
 }
 
 
