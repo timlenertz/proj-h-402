@@ -42,7 +42,7 @@ private:
 	std::atomic_bool force_update_;
 	std::thread thread_;
 
-	std::chrono::milliseconds last_compute_duration_;
+	std::chrono::milliseconds last_compute_duration_ = std::chrono::milliseconds(0);
 
 	void thread_main_();
 

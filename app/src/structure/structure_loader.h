@@ -20,12 +20,8 @@ private:
 	statistics::item stat_memory_size_;
 	statistics::item stat_total_points_;
 	
-	static constexpr std::size_t buffer_capacity_ = 1000000;
-	point buffer_[buffer_capacity_];
+	bool adapted_ = false;
 	
-	static constexpr std::size_t depth_buffer_side = 1000;
-	std::uint8_t depth_buffer_[depth_buffer_side][depth_buffer_side];
-
 protected:
 	static constexpr float minimal_update_distance_ = 1;
 
@@ -33,8 +29,9 @@ protected:
 	
 	bool should_compute_points(const request_t& request, const request_t& previous, std::chrono::milliseconds dtime) override {
 		return
-			glm::distance(request.position, previous.position) > minimal_update_distance_
-			|| request.orientation != previous.orientation;
+			adapted_ ||
+			glm::distance(request.position, previous.position) > minimal_update_distance_ ||
+			request.orientation != previous.orientation;
 	}
 	
 	structure_loader() :
@@ -43,6 +40,8 @@ protected:
 		stat_total_points_(statistics::add("Total Points", 0, statistics::number, statistics::model_total_points)) { }
 
 	virtual std::size_t extract_points_(point_buffer_t points, std::size_t capacity, const loader::request_t&) = 0;
+
+	virtual bool adapt_settings_(std::size_t last_extracted, std::size_t capacity) { return false; }
 	
 	virtual std::size_t memory_size_() const = 0;
 	virtual std::size_t file_size_() const = 0;

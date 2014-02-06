@@ -140,7 +140,7 @@
                     <property name="border">5</property>
                     <property name="flag">wxEXPAND</property>
                     <property name="proportion">1</property>
-                    <object class="wxBoxSizer" expanded="1">
+                    <object class="wxBoxSizer" expanded="0">
                         <property name="minimum_size"></property>
                         <property name="name">left_sizer</property>
                         <property name="orient">wxVERTICAL</property>
@@ -206,7 +206,7 @@
                             <property name="border">0</property>
                             <property name="flag">wxEXPAND</property>
                             <property name="proportion">0</property>
-                            <object class="wxBoxSizer" expanded="1">
+                            <object class="wxBoxSizer" expanded="0">
                                 <property name="minimum_size">-1,170</property>
                                 <property name="name">bottom_panel_sizer</property>
                                 <property name="orient">wxHORIZONTAL</property>
@@ -215,7 +215,7 @@
                                     <property name="border">5</property>
                                     <property name="flag">wxEXPAND</property>
                                     <property name="proportion">1</property>
-                                    <object class="wxBoxSizer" expanded="1">
+                                    <object class="wxBoxSizer" expanded="0">
                                         <property name="minimum_size"></property>
                                         <property name="name">loader_sizer</property>
                                         <property name="orient">wxVERTICAL</property>
@@ -392,7 +392,7 @@
                                     <property name="border">5</property>
                                     <property name="flag">wxEXPAND</property>
                                     <property name="proportion">0</property>
-                                    <object class="wxBoxSizer" expanded="1">
+                                    <object class="wxBoxSizer" expanded="0">
                                         <property name="minimum_size">462,-1</property>
                                         <property name="name">short_statistics_sizer</property>
                                         <property name="orient">wxHORIZONTAL</property>
@@ -1626,7 +1626,7 @@
                     <property name="border">10</property>
                     <property name="flag">wxALL|wxEXPAND</property>
                     <property name="proportion">0</property>
-                    <object class="wxBoxSizer" expanded="0">
+                    <object class="wxBoxSizer" expanded="1">
                         <property name="minimum_size">200,-1</property>
                         <property name="name">right_sizer</property>
                         <property name="orient">wxVERTICAL</property>
@@ -1746,7 +1746,7 @@
                             <property name="border">15</property>
                             <property name="flag">wxEXPAND|wxTOP</property>
                             <property name="proportion">0</property>
-                            <object class="wxStaticBoxSizer" expanded="1">
+                            <object class="wxStaticBoxSizer" expanded="0">
                                 <property name="id">wxID_ANY</property>
                                 <property name="label">Renderer</property>
                                 <property name="minimum_size"></property>
@@ -2693,6 +2693,20 @@
                                         </object>
                                     </object>
                                 </object>
+                            </object>
+                        </object>
+                        <object class="sizeritem" expanded="1">
+                            <property name="border">15</property>
+                            <property name="flag">wxEXPAND|wxTOP</property>
+                            <property name="proportion">0</property>
+                            <object class="wxStaticBoxSizer" expanded="1">
+                                <property name="id">wxID_ANY</property>
+                                <property name="label">Occlusion</property>
+                                <property name="minimum_size"></property>
+                                <property name="name">occlusion_sizer</property>
+                                <property name="orient">wxVERTICAL</property>
+                                <property name="permission">none</property>
+                                <event name="OnUpdateUI"></event>
                             </object>
                         </object>
                         <object class="sizeritem" expanded="1">

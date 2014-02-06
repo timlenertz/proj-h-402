@@ -5,6 +5,7 @@ namespace dypc {
 
 void structure_loader::compute_points(const request_t& req, point_buffer_t points, std::size_t& count, std::size_t capacity) {		
 	count = this->extract_points_(points, capacity, req);
+	adapted_ = this->adapt_settings_(count, capacity);
 	
 	stat_memory_size_ = this->memory_size_();
 	if(! initialized_stats_) {

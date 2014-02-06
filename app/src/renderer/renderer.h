@@ -46,6 +46,7 @@ private:
 	GLint projection_matrix_uniform_;
 	GLint view_matrix_uniform_;
 	GLint fog_color_uniform_;
+	GLint shadow_uniform_;
 	
 	float scale_ = 1.0;
 	glm::vec3 position_;

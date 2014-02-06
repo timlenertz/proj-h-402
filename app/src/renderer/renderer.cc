@@ -24,6 +24,7 @@ stat_loader_duration_(statistics::add("Loader Time", 0, statistics::milliseconds
 	projection_matrix_uniform_ = shaders_->uniform_location("projection_matrix");
 	view_matrix_uniform_ = shaders_->uniform_location("view_matrix");
 	fog_color_uniform_ = shaders_->uniform_location("fog_color");
+	shadow_uniform_ = shaders_->uniform_location("shadow");
 	
 	compute_projection_matrix_();
 	compute_view_matrix_();
@@ -121,6 +122,7 @@ void renderer::compute_motion_(float dtime) {
 void renderer::initialize_gl_() {
 	shaders_->use();
 	glEnable(GL_DEPTH_TEST);
+	glEnable(GL_PROGRAM_POINT_SIZE);
 	glClearColor(background_color_[0], background_color_[1], background_color_[2], 0.0);
 }
 
@@ -133,12 +135,19 @@ void renderer::draw(float dtime) {
 
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
+	glBindBuffer(GL_ARRAY_BUFFER, renderer_point_buffer_);
+
 	glEnableVertexAttribArray(0);
 	glEnableVertexAttribArray(1);
-	glBindBuffer(GL_ARRAY_BUFFER, renderer_point_buffer_);
 	point::gl_setup_position_vertex_attribute(0);
 	point::gl_setup_color_vertex_attribute(1);
+
+	glUniform1ui(shadow_uniform_, 1);
 	glDrawArrays(GL_POINTS, 0, renderer_point_buffer_size_);
+
+	glUniform1ui(shadow_uniform_, 0);
+	glDrawArrays(GL_POINTS, 0, renderer_point_buffer_size_);
+	
 	glDisableVertexAttribArray(0);
 	glDisableVertexAttribArray(1);
 }

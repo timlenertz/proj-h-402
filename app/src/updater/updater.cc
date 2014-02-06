@@ -4,7 +4,7 @@ namespace dypc {
 
 updater::updater() :
 	points_(nullptr), points_count_(0), points_capacity_(0),
-	finished_(true), stop_(true), force_update_(false) { }
+	finished_(false), stop_(true), force_update_(false) { }
 
 
 updater::~updater() {
@@ -46,7 +46,7 @@ void updater::stop() {
 }
 
 void updater::start() {
-	if(is_running() || !loader_) return;
+	if(is_running()) return;
 	force_update_ = true;
 	stop_ = false;
 	finished_ = false;
