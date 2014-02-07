@@ -32,6 +32,7 @@ private:
 protected:
 	void on_create_structure_file_(wxCommandEvent& event) override;
 	void on_loader_choice_(wxCommandEvent& event) override;
+	void on_renderer_config_(wxCommandEvent& event) override { on_renderer_config_(); }
 	void on_renderer_config_(wxSpinEvent& event) override { on_renderer_config_(); }
 	void on_renderer_config_(wxColourPickerEvent& event) override { on_renderer_config_(); }
 	void on_renderer_capacity_config_(wxCommandEvent& event) override;

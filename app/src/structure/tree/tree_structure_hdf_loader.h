@@ -16,27 +16,17 @@
 namespace dypc {
 
 template<class Structure>
-class tree_structure_hdf_loader : public tree_structure_loader, public tree_structure_hdf_loader_base {
+class tree_structure_hdf_loader : public tree_structure_loader, public tree_structure_hdf_loader_base<Structure> {
 private:
-	struct hdf_node {
-		std::uint32_t data_start[Structure::levels];
-		std::uint32_t data_length[Structure::levels];
-		glm::vec3 cuboid_origin;
-		glm::vec3 cuboid_sides;
-		std::uint32_t children[Structure::number_of_node_children];
-		
-		bool is_leaf() const { return (children[0] == 0); }
-		cuboid node_cuboid() const { return cuboid(cuboid_origin, cuboid_sides); }
-		const hdf_node& child_node(const hdf_node* begin, std::ptrdiff_t i) const { return *(begin + children[i]); }
-		std::ptrdiff_t child_index_for_point(const hdf_node* begin, glm::vec3 pt) const;
-	};
+	using typename tree_structure_hdf_loader_base<Structure>::hdf_node;
+	using tree_structure_hdf_loader_base<Structure>::node_type_;
+	using tree_structure_hdf_loader_base<Structure>::point_type_;
+	using tree_structure_hdf_loader_base<Structure>::points_set_name_;
 	
 	struct path_entry {
 		const hdf_node& node;
 		std::ptrdiff_t node_index;
 	};
-	
-	static const H5::CompType node_type_;
 
 	H5::H5File file_;
 	H5::DataSet points_data_set_[Structure::levels];
@@ -47,22 +37,15 @@ private:
 	std::unique_ptr<hdf_node[]> nodes_;
 	std::size_t number_of_nodes_ = 0;
 	
-	static std::string points_set_name_(std::ptrdiff_t lvl) {
-		return std::string("points") + std::to_string(lvl);
-	}
-	
 	std::size_t extract_node_points_(point_buffer_t points, std::size_t capacity, const loader::request_t& req, const hdf_node& nd, unsigned depth, std::ptrdiff_t exclude_child_index = -1) const;
 
-public:
-	static H5::CompType initialize_node_type();	
-	
+public:	
 	explicit tree_structure_hdf_loader(const std::string& file);
 	
 	std::string loader_name() const override { return Structure::structure_name() + " HDF Ordered Loader"; }
 	
 protected:
 	std::size_t extract_points_(point_buffer_t points, std::size_t capacity, const loader::request_t& req) override;
-	
 	
 	std::size_t memory_size_() const override {
 		return number_of_nodes_ * sizeof(hdf_node);
@@ -78,36 +61,6 @@ protected:
 		return dims[0];
 	}
 };
-
-
-template<class Structure>
-const H5::CompType tree_structure_hdf_loader<Structure>::node_type_ = tree_structure_hdf_loader<Structure>::initialize_node_type();
-
-
-template<class Structure>
-H5::CompType tree_structure_hdf_loader<Structure>::initialize_node_type() {
-	H5::CompType t(sizeof(hdf_node));
-	hsize_t three_dims[] = { 3 };
-	hsize_t levels_dims[] = { Structure::levels };
-	hsize_t child_dims[] = { Structure::number_of_node_children };
-	t.insertMember("data_start", HOFFSET(hdf_node, data_start), H5::ArrayType(H5::PredType::NATIVE_UINT32, 1, levels_dims));
-	t.insertMember("data_length", HOFFSET(hdf_node, data_length), H5::ArrayType(H5::PredType::NATIVE_UINT32, 1, levels_dims));
-	t.insertMember("cuboid_origin", HOFFSET(hdf_node, cuboid_origin), H5::ArrayType(H5::PredType::NATIVE_FLOAT, 1, three_dims));
-	t.insertMember("cuboid_sides", HOFFSET(hdf_node, cuboid_sides), H5::ArrayType(H5::PredType::NATIVE_FLOAT, 1, three_dims));
-	t.insertMember("children", HOFFSET(hdf_node, children), H5::ArrayType(H5::PredType::NATIVE_UINT32, 1, child_dims));
-	return t;
-}
-
-
-template<class Structure>
-std::ptrdiff_t tree_structure_hdf_loader<Structure>::hdf_node::child_index_for_point(const hdf_node* begin, glm::vec3 pt) const {
-	assert(node_cuboid().in_range(pt));
-	for(std::ptrdiff_t i = 0; i < Structure::number_of_node_children; ++i) {
-		const auto& child = child_node(begin, i);
-		if(child.node_cuboid().in_range(pt)) return i;
-	}
-	throw std::logic_error("No child node containing the point");
-}
 
 
 template<class Structure>

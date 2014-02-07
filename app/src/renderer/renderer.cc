@@ -23,13 +23,16 @@ stat_loader_duration_(statistics::add("Loader Time", 0, statistics::milliseconds
 	});
 	projection_matrix_uniform_ = shaders_->uniform_location("projection_matrix");
 	view_matrix_uniform_ = shaders_->uniform_location("view_matrix");
-	fog_color_uniform_ = shaders_->uniform_location("fog_color");
+	fog_uniform_ = shaders_->uniform_location("fog");
+	background_color_uniform_ = shaders_->uniform_location("background_color");
+	fog_distance_uniform_ = shaders_->uniform_location("fog_distance");
 	shadow_uniform_ = shaders_->uniform_location("shadow");
+	shadow_point_size_uniform_ = shaders_->uniform_location("shadow_point_size");
+	maximal_shadow_distance_uniform_ = shaders_->uniform_location("maximal_shadow_distance");	
 	
 	compute_projection_matrix_();
 	compute_view_matrix_();
-	glUniform3fv(fog_color_uniform_, 1, background_color_);
-	
+		
 	initialize_point_buffers_();
 		
 	initialize_gl_();
@@ -120,9 +123,16 @@ void renderer::compute_motion_(float dtime) {
 }
 
 void renderer::initialize_gl_() {
+	glUniform3fv(background_color_uniform_, 1, background_color_);
+	glUniform1ui(fog_uniform_, 0);
+	glUniform1f(fog_distance_uniform_, 70.0);
+	glUniform1ui(shadow_point_size_uniform_, 10);
+	glUniform1f(maximal_shadow_distance_uniform_, 125.0);
+
 	shaders_->use();
 	glEnable(GL_DEPTH_TEST);
 	glEnable(GL_PROGRAM_POINT_SIZE);
+	
 	glClearColor(background_color_[0], background_color_[1], background_color_[2], 0.0);
 }
 
@@ -141,10 +151,12 @@ void renderer::draw(float dtime) {
 	glEnableVertexAttribArray(1);
 	point::gl_setup_position_vertex_attribute(0);
 	point::gl_setup_color_vertex_attribute(1);
-
-	glUniform1ui(shadow_uniform_, 1);
-	glDrawArrays(GL_POINTS, 0, renderer_point_buffer_size_);
-
+	
+	if(shadow_) {
+		glUniform1ui(shadow_uniform_, 1);
+		glDrawArrays(GL_POINTS, 0, renderer_point_buffer_size_);
+	}
+	
 	glUniform1ui(shadow_uniform_, 0);
 	glDrawArrays(GL_POINTS, 0, renderer_point_buffer_size_);
 	
@@ -172,7 +184,8 @@ void renderer::set_updater_paused(bool paused) {
 	else updater_.start();
 }
 
-void renderer::set_configuration(float fov, float scale, unsigned char bg_r, unsigned char bg_g, unsigned char bg_b) {
+
+void renderer::set_configuration(float fov, float scale, unsigned char bg_r, unsigned char bg_g, unsigned char bg_b, bool fog, float fog_distance, bool depth_test, bool shadow, unsigned shadow_size, float shadow_max_distance) {
 	fov_ = fov;
 	scale_ = scale;
 	compute_projection_matrix_();
@@ -180,8 +193,18 @@ void renderer::set_configuration(float fov, float scale, unsigned char bg_r, uns
 	background_color_[0] = (float)bg_r / 255.0;
 	background_color_[1] = (float)bg_g / 255.0;
 	background_color_[2] = (float)bg_b / 255.0;
-	glUniform3fv(fog_color_uniform_, 1, background_color_);
+	glUniform3fv(background_color_uniform_, 1, background_color_);
 	glClearColor(background_color_[0], background_color_[1], background_color_[2], 0.0);
+	
+	if(depth_test) glEnable(GL_DEPTH_TEST);
+	else glDisable(GL_DEPTH_TEST);
+	
+	shadow_ = shadow;
+	glUniform1ui(fog_uniform_, fog);
+	glUniform1f(fog_distance_uniform_, fog_distance);
+	glUniform1ui(shadow_point_size_uniform_, shadow_size);
+	glUniform1f(maximal_shadow_distance_uniform_, shadow_max_distance);
+
 }
 
 void renderer::set_point_capacity(std::size_t capacity) {

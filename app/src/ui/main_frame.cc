@@ -247,9 +247,15 @@ void main_frame::on_renderer_config_() {
 	auto fov = renderer_fov->GetValue();
 	wxColour bg_color = renderer_background->GetColour();
 	auto bg_r = bg_color.Red(); auto bg_g = bg_color.Green(); auto bg_b = bg_color.Blue();
+	bool fog = fog_checkbox->IsChecked();
+	auto fog_distance = fog_distance_spin->GetValue();
+	bool depth_test = depth_test_checkbox->IsChecked();
+	bool shadow = point_shadow_checkbox->IsChecked();
+	auto shadow_size = point_shadow_radius_spin->GetValue();
+	auto shadow_max_distance = point_shadow_distance_spin->GetValue();
 	
 	renderer& rd = get_renderer_();
-	rd.set_configuration(fov, scale, bg_r, bg_g, bg_b);
+	rd.set_configuration(fov, scale, bg_r, bg_g, bg_b, fog, fog_distance, depth_test, shadow, shadow_size, shadow_max_distance);
 
 	renderer_canv->set_movement_speed(speed);
 }

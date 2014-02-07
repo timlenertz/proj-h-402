@@ -26,12 +26,6 @@ cuboid kdtree_structure_splitter::node_child_cuboid(const std::ptrdiff_t idx, co
 
 
 kdtree_structure_splitter::node_points_information kdtree_structure_splitter::compute_node_points_information(const std::vector<point>& points, const cuboid& cub, unsigned depth) {
-	auto c = cub.center();
-	unsigned dimension = depth % 3;
-	return { c[dimension] };
-
-/*
-		
 	std::vector<float> coordinates;
 	coordinates.reserve(points.size());
 	
@@ -47,7 +41,7 @@ kdtree_structure_splitter::node_points_information kdtree_structure_splitter::co
 	if(n % 2) split_plane = (coordinates[(n-1)/2] + coordinates[n/2]) / 2.0;
 	else split_plane = coordinates[n/2];
 	
-	return { split_plane };*/
+	return { split_plane };
 }
 
 }

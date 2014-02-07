@@ -38,6 +38,8 @@ private:
 	const float viewport_height_;
 	float fov_ = 60.0;
 	float background_color_[3] = { 0.0, 0.0, 0.0 };
+	
+	bool shadow_ = false;
 
 	glm::mat4 projection_matrix_;
 	glm::mat4 view_matrix_;
@@ -45,16 +47,19 @@ private:
 	program* shaders_;
 	GLint projection_matrix_uniform_;
 	GLint view_matrix_uniform_;
-	GLint fog_color_uniform_;
+	GLint fog_uniform_;
+	GLint background_color_uniform_;
+	GLint fog_distance_uniform_;
 	GLint shadow_uniform_;
+	GLint shadow_point_size_uniform_;
+	GLint maximal_shadow_distance_uniform_;
 	
 	float scale_ = 1.0;
 	glm::vec3 position_;
 	glm::quat orientation_;
 	glm::vec3 velocity_;
 	glm::vec3 view_target_velocity_;
-	bool fix_z_orientation_;
-		
+
 	statistics::item stat_capacity_;
 	statistics::item stat_count_;
 	statistics::item stat_loader_duration_;
@@ -82,7 +87,7 @@ public:
 	void set_view_target_velocity(float x, float y, float z) { view_target_velocity_ = glm::vec3(x, y, z); }
 	void rotate_camera(float horizontalAngle, float verticalAngle, float rollAngle = 0.0);
 	
-	void set_configuration(float fov, float scale, unsigned char bg_r, unsigned char bg_g, unsigned char bg_b);
+	void set_configuration(float fov, float scale, unsigned char bg_r, unsigned char bg_g, unsigned char bg_b, bool fog, float fog_distance, bool depth_test, bool shadow, unsigned shadow_size, float shadow_max_distance);
 	void set_point_capacity(std::size_t capacity);
 	
 	bool get_updater_paused() const { return ! updater_.is_running(); }

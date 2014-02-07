@@ -11,16 +11,16 @@
 #include "../../structure/tree/tree_structure_hdf_loader.h"
 #include "../../structure/tree/tree_structure_hdf_simple_loader.h"
 
+
 namespace dypc {
 	
 class loader;
 class model;
 
-template<class Structure>
+template<template<std::size_t> class Structure>
 class tree_structure_create : public tree_structure_create_ui, public structure_create_panel {	
 private:
 	static const user_choices_t loader_variants_;
-
 
 public:
 	tree_structure_create(wxWindow* parent = nullptr, wxWindowID id = wxID_ANY) : tree_structure_create_ui(parent, id) { }
@@ -37,24 +37,38 @@ public:
 
 
 
-template<class Structure>
+template<template<std::size_t> class Structure>
 const user_choices_t tree_structure_create<Structure>::loader_variants_ = {
 	{ "ordered", "Ordered Loader" },
 	{ "separate", "Simple Loader" }
 };
 
-
-template<class Structure>
+template<template<std::size_t> class Structure>
 loader* tree_structure_create<Structure>::create_memory_loader(model& mod) const {
 	unsigned cap = capacity_spin->GetValue();
+	unsigned dmax = dmax_spin->GetValue();
+	double factor; factor_text->GetLineText(0).ToDouble(&factor);
+	auto mode = (mode_choice->GetSelection() == 0 ? random_downsampling_mode : uniform_downsampling_mode);
+	auto levels = levels_choice->GetSelection();
 	
 	auto variant = user_choice(loader_variants_, "Loader variant");
-	if(variant == "ordered") return new tree_structure_memory_simple_loader<Structure>(cap, mod);
-	else if(variant == "separate") return new tree_structure_memory_loader<Structure>(cap, mod);
-	else return nullptr;
+	if(levels == 0) {
+		if(variant == "ordered") return new tree_structure_memory_simple_loader<Structure<1>>(cap, factor, mode, dmax, mod);
+		else if(variant == "separate") return new tree_structure_memory_loader<Structure<1>>(cap, factor, mode, dmax, mod);
+	} else if(levels == 1) {
+		if(variant == "ordered") return new tree_structure_memory_simple_loader<Structure<4>>(cap, factor, mode, dmax, mod);
+		else if(variant == "separate") return new tree_structure_memory_loader<Structure<4>>(cap, factor, mode, dmax, mod);
+	} else if(levels == 2) {
+		if(variant == "ordered") return new tree_structure_memory_simple_loader<Structure<8>>(cap, factor, mode, dmax, mod);
+		else if(variant == "separate") return new tree_structure_memory_loader<Structure<8>>(cap, factor, mode, dmax, mod);
+	} else if(levels == 3) {
+		if(variant == "ordered") return new tree_structure_memory_simple_loader<Structure<16>>(cap, factor, mode, dmax, mod);
+		else if(variant == "separate") return new tree_structure_memory_loader<Structure<16>>(cap, factor, mode, dmax, mod);
+	}
+	return nullptr;
 }
 
-template<class Structure>
+template<template<std::size_t> class Structure>
 user_choices_t tree_structure_create<Structure>::available_file_formats() {
 	return {
 		{"hdf", "HDF5"}
@@ -62,21 +76,42 @@ user_choices_t tree_structure_create<Structure>::available_file_formats() {
 }
 
 
-template<class Structure>
+template<template<std::size_t> class Structure>
 void tree_structure_create<Structure>::write_structure_file(model& mod, const std::string& filename, const std::string& format) const {
 	unsigned cap = capacity_spin->GetValue();
+	unsigned dmax = dmax_spin->GetValue();
+	double factor; factor_text->GetLineText(0).ToDouble(&factor);
+	auto mode = (mode_choice->GetSelection() == 0 ? random_downsampling_mode : uniform_downsampling_mode);
+	auto levels = levels_choice->GetSelection();
 
-	Structure s(cap, mod);
-	if(format == "hdf") tree_structure_hdf_simple_loader<Structure>::write(filename, s);
+	if(format == "hdf") {
+		if(levels == 0) tree_structure_hdf_loader_base<Structure<1>>::write(filename, Structure<1>(cap, factor, mode, dmax, mod));
+		else if(levels == 1) tree_structure_hdf_loader_base<Structure<4>>::write(filename, Structure<4>(cap, factor, mode, dmax, mod));
+		else if(levels == 2) tree_structure_hdf_loader_base<Structure<8>>::write(filename, Structure<8>(cap, factor, mode, dmax, mod));
+		else if(levels == 3) tree_structure_hdf_loader_base<Structure<16>>::write(filename, Structure<16>(cap, factor, mode, dmax, mod));
+	}
 }
 
 
-template<class Structure>
+template<template<std::size_t> class Structure>
 loader* tree_structure_create<Structure>::create_file_loader(const std::string& filename, const std::string& format) {
 	if(format == "hdf") {
+		/*
 		auto variant = user_choice(loader_variants_, "Loader variant");
-		if(variant == "ordered") return new tree_structure_hdf_simple_loader<Structure>(filename);
-		else if(variant == "separate") return new tree_structure_hdf_loader<Structure>(filename);
+		if(levels == 0) {
+			if(variant == "ordered") return new tree_structure_hdf_simple_loader<Structure<1>>(cap, factor, mode, dmax, mod);
+			else if(variant == "separate") return new tree_structure_hdf_loader<Structure<1>>(cap, factor, mode, dmax, mod);
+		} else if(levels == 1) {
+			if(variant == "ordered") return new tree_structure_hdf_simple_loader<Structure<4>>(cap, factor, mode, dmax, mod);
+			else if(variant == "separate") return new tree_structure_hdf_loader<Structure<4>>(cap, factor, mode, dmax, mod);
+		} else if(levels == 2) {
+			if(variant == "ordered") return new tree_structure_hdf_simple_loader<Structure<8>>(cap, factor, mode, dmax, mod);
+			else if(variant == "separate") return new tree_structure_hdf_loader<Structure<8>>(cap, factor, mode, dmax, mod);
+		} else if(levels == 3) {
+			if(variant == "ordered") return new tree_structure_hdf_simple_loader<Structure<16>>(cap, factor, mode, dmax, mod);
+			else if(variant == "separate") return new tree_structure_hdf_loader<Structure<16>>(cap, factor, mode, dmax, mod);
+		}
+		*/
 	}
 	return nullptr;
 }

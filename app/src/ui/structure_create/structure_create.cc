@@ -1,12 +1,10 @@
 #include "structure_create.h"
 #include "tree_structure_create.h"
-#include "tree_mipmap_structure_create.h"
 #include "cubes_structure_create.h"
 #include "cubes_mipmap_structure_create.h"
 #include "../../structure/tree/octree/octree_structure.h"
-#include "../../structure/tree/octree/octree_mipmap_structure.h"
 #include "../../structure/tree/kdtree/kdtree_structure.h"
-#include "../../structure/tree/kdtree/kdtree_mipmap_structure.h"
+#include "../../structure/tree/kdtree_half/kdtree_half_structure.h"
 #include "../../structure/structure_loader.h"
 #include "../../util.h"
 
@@ -20,9 +18,8 @@ void structure_create::on_structure_choice_(wxCommandEvent& event) {
 		case 0: set_panel_(new cubes_structure_create(structure_panel)); break;
 		case 1: set_panel_(new cubes_mipmap_structure_create(structure_panel)); break;
 		case 2: set_panel_(new tree_structure_create<octree_structure>(structure_panel)); break;
-		case 3: set_panel_(new tree_mipmap_structure_create<octree_mipmap_structure>(structure_panel)); break;
-		case 4: set_panel_(new tree_structure_create<kdtree_structure>(structure_panel)); break;
-		case 5: set_panel_(new tree_mipmap_structure_create<kdtree_mipmap_structure>(structure_panel)); break;
+		case 3: set_panel_(new tree_structure_create<kdtree_structure>(structure_panel)); break;
+		case 4: set_panel_(new tree_structure_create<kdtree_half_structure>(structure_panel)); break;
 	}
 }
 
@@ -65,6 +62,7 @@ std::string structure_create::write_structure_file(model& mod) const {
 }
 
 loader* structure_create::create_file_loader() {
+	/*
 	user_choices_t structure_choices = {
 		{ "cubes", "Cubes (Weights)" },
 		{ "cubes_mipmap", "Cubes (Mipmap)" },
@@ -107,6 +105,8 @@ loader* structure_create::create_file_loader() {
 	else if(structure_type == "kdtree") return tree_structure_create<kdtree_structure>::create_file_loader(filename, format);
 	else if(structure_type == "kdtree_mipmap") return tree_mipmap_structure_create<kdtree_mipmap_structure>::create_file_loader(filename, format);
 	else return nullptr;
+	*/
+	return nullptr;
 }
 
 

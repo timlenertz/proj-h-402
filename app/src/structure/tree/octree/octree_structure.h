@@ -3,13 +3,19 @@
 
 #include "../tree_structure.h"
 #include "octree_structure_splitter.h"
+#include <string>
 
 namespace dypc {
 
-class octree_structure : public tree_structure<octree_structure_splitter> {
+template<std::size_t Levels>
+class octree_structure : public tree_structure<octree_structure_splitter, Levels> {
 public:
-	using tree_structure<octree_structure_splitter>::tree_structure;
-	static std::string structure_name() { return "Octree Structure"; }
+	using tree_structure<octree_structure_splitter, Levels>::tree_structure;
+	
+	static std::string structure_name() {
+		if(Levels == 1) return "Octree Structure";
+		else return "Octree " + std::to_string(Levels) + "-Mipmap Structure";
+	}
 };
 
 }
