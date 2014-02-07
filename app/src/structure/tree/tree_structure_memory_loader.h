@@ -110,11 +110,12 @@ std::size_t tree_structure_memory_loader<Structure>::extract_node_points_(point_
 		
 		if(! nd.number_of_points(0)) return 0;
 
-		const point* pts = nd.points_begin(lvl);
-		const point* pts_end = nd.points_end(lvl);
+		auto pts = nd.points_begin(lvl);
+		auto pts_end = nd.points_end(lvl);
 		std::size_t c = 0;
-		for(const point* pt = pts; pt != pts_end && c < capacity; ++pt) {
-			*(++points) = *pt; ++c;
+		for(auto pt = pts; pt != pts_end && c < capacity; ++pt) {
+			*(points++) = *pt;
+			++c;
 		}
 		return c;
 	}

@@ -1,6 +1,5 @@
 #include "kdtree_structure_splitter.h"
 #include "../../../point.h"
-#include <algorithm>
 
 namespace dypc {
 
@@ -24,24 +23,5 @@ cuboid kdtree_structure_splitter::node_child_cuboid(const std::ptrdiff_t idx, co
 	return cuboid(origin, side_lengths);
 }
 
-
-kdtree_structure_splitter::node_points_information kdtree_structure_splitter::compute_node_points_information(const std::vector<point>& points, const cuboid& cub, unsigned depth) {
-	std::vector<float> coordinates;
-	coordinates.reserve(points.size());
-	
-	unsigned dimension = depth % 3;
-	if(dimension == 0) for(const point& pt : points) coordinates.push_back(pt.x);
-	else if(dimension == 1) for(const point& pt : points) coordinates.push_back(pt.y);
-	else if(dimension == 2) for(const point& pt : points) coordinates.push_back(pt.z);
-	
-	std::sort(coordinates.begin(), coordinates.end());
-	
-	std::size_t n = coordinates.size();
-	float split_plane;
-	if(n % 2) split_plane = (coordinates[(n-1)/2] + coordinates[n/2]) / 2.0;
-	else split_plane = coordinates[n/2];
-	
-	return { split_plane };
-}
 
 }

@@ -24,7 +24,9 @@ public:
 	
 	static std::ptrdiff_t node_child_for_point(const point& pt, const cuboid& cub, const node_points_information& info, unsigned depth) { throw std::logic_error("Not implemented"); }
 	static cuboid node_child_cuboid(const std::ptrdiff_t i, const cuboid& cub, const node_points_information& info, unsigned depth) { throw std::logic_error("Not implemented"); }
-	static node_points_information compute_node_points_information(const std::vector<point>& points, const cuboid& cub, unsigned depth) { return node_points_information(); }
+	
+	template<class Iterator>
+	static node_points_information compute_node_points_information(Iterator pt_begin, Iterator pt_end, const cuboid& cub, unsigned depth) { return node_points_information(); }
 };
 
 }

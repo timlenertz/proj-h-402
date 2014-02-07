@@ -5,6 +5,8 @@
 #include "tree_structure.h"
 #include "../../cuboid.h"
 #include <string>
+#include <cstring>
+#include <memory>
 
 namespace dypc {
 
@@ -31,6 +33,10 @@ protected:
 	
 	static const H5::CompType point_type_;
 	static const H5::CompType node_type_;
+	
+	template<class Iterator> static void write_points_(Iterator pt_begin, Iterator pt_end, H5::DataSet& data_set);
+	static void write_points_(const point* pt_begin, const point* pt_end, H5::DataSet& data_set);
+
 		
 public:
 	static H5::CompType initialize_point_type();
@@ -104,7 +110,7 @@ void tree_structure_hdf_loader_base<Structure>::write(const std::string& filenam
 		points_set[lvl] = file.createDataSet(points_set_name_(lvl), point_type_, points_space[lvl]);
 		
 		const auto& all_points = s.points_at_level(lvl);
-		points_set[lvl].write((const void*) all_points.data(), point_type_, points_space[lvl], points_space[lvl]);
+		write_points_(all_points.begin(), all_points.end(), points_set[lvl]);
 		
 		increment_progress();
 	}
@@ -138,7 +144,7 @@ void tree_structure_hdf_loader_base<Structure>::write(const std::string& filenam
 		nd.cuboid_sides = e.node_cuboid.side_lengths();
 		
 		for(std::ptrdiff_t lvl = 0; lvl < Structure::levels; ++lvl) {
-			if(e.node.number_of_points(lvl)) nd.data_start[lvl] = e.node.points_begin(lvl) - s.points_at_level(lvl).data();
+			if(e.node.number_of_points(lvl)) nd.data_start[lvl] = s.node_points_offset(e.node, lvl);
 			else nd.data_start[lvl] = 0;
 			nd.data_length[lvl] = e.node.number_of_points(lvl);
 		}
@@ -165,6 +171,46 @@ void tree_structure_hdf_loader_base<Structure>::write(const std::string& filenam
 		increment_progress();
 	}
 	});
+}
+
+
+
+template<class Structure> template<class Iterator>
+void tree_structure_hdf_loader_base<Structure>::write_points_(Iterator pt_begin, Iterator pt_end, H5::DataSet& data_set) {
+	const std::size_t maximal_chunk_size = 1000;
+	
+	hsize_t total = pt_end - pt_begin;
+	hsize_t remaining = total;
+	hsize_t offset = 0;
+	
+	H5::DataSpace data_space = data_set.getSpace();
+	
+	Iterator pt = pt_begin;
+	while(remaining) {
+		point chunk[maximal_chunk_size];
+		
+		hsize_t chunk_size = maximal_chunk_size;
+		if(remaining < chunk_size) chunk_size = remaining;
+		Iterator pt_chunk_end = pt + chunk_size;
+		
+		point* chunk_pt = chunk;
+		while(pt != pt_chunk_end) *(chunk_pt++) = *(pt++);
+		
+		H5::DataSpace mem_space(1, &chunk_size);
+		data_space.selectHyperslab(H5S_SELECT_SET, &chunk_size, &offset);
+		data_set.write((const void*) chunk, point_type_, mem_space, data_space);
+		
+		remaining -= chunk_size;
+		pt += chunk_size;
+	}
+}
+
+
+template<class Structure>
+void tree_structure_hdf_loader_base<Structure>::write_points_(const point* pt_begin, const point* pt_end, H5::DataSet& data_set) {
+	hsize_t total = pt_end - pt_begin;
+	H5::DataSpace mem_space(1, &total);
+	data_set.write((const void*) pt_begin, point_type_, mem_space, data_set.getSpace());
 }
 
 

@@ -40,7 +40,7 @@ public:
 template<template<std::size_t> class Structure>
 const user_choices_t tree_structure_create<Structure>::loader_variants_ = {
 	{ "ordered", "Ordered Loader" },
-	{ "separate", "Simple Loader" }
+	{ "simple", "Simple Loader" }
 };
 
 template<template<std::size_t> class Structure>
@@ -53,17 +53,17 @@ loader* tree_structure_create<Structure>::create_memory_loader(model& mod) const
 	
 	auto variant = user_choice(loader_variants_, "Loader variant");
 	if(levels == 0) {
-		if(variant == "ordered") return new tree_structure_memory_simple_loader<Structure<1>>(cap, factor, mode, dmax, mod);
-		else if(variant == "separate") return new tree_structure_memory_loader<Structure<1>>(cap, factor, mode, dmax, mod);
+		if(variant == "simple") return new tree_structure_memory_simple_loader<Structure<1>>(cap, factor, mode, dmax, mod);
+		else if(variant == "ordered") return new tree_structure_memory_loader<Structure<1>>(cap, factor, mode, dmax, mod);
 	} else if(levels == 1) {
-		if(variant == "ordered") return new tree_structure_memory_simple_loader<Structure<4>>(cap, factor, mode, dmax, mod);
-		else if(variant == "separate") return new tree_structure_memory_loader<Structure<4>>(cap, factor, mode, dmax, mod);
+		if(variant == "simple") return new tree_structure_memory_simple_loader<Structure<4>>(cap, factor, mode, dmax, mod);
+		else if(variant == "ordered") return new tree_structure_memory_loader<Structure<4>>(cap, factor, mode, dmax, mod);
 	} else if(levels == 2) {
-		if(variant == "ordered") return new tree_structure_memory_simple_loader<Structure<8>>(cap, factor, mode, dmax, mod);
-		else if(variant == "separate") return new tree_structure_memory_loader<Structure<8>>(cap, factor, mode, dmax, mod);
+		if(variant == "simple") return new tree_structure_memory_simple_loader<Structure<8>>(cap, factor, mode, dmax, mod);
+		else if(variant == "ordered") return new tree_structure_memory_loader<Structure<8>>(cap, factor, mode, dmax, mod);
 	} else if(levels == 3) {
-		if(variant == "ordered") return new tree_structure_memory_simple_loader<Structure<16>>(cap, factor, mode, dmax, mod);
-		else if(variant == "separate") return new tree_structure_memory_loader<Structure<16>>(cap, factor, mode, dmax, mod);
+		if(variant == "simple") return new tree_structure_memory_simple_loader<Structure<16>>(cap, factor, mode, dmax, mod);
+		else if(variant == "ordered") return new tree_structure_memory_loader<Structure<16>>(cap, factor, mode, dmax, mod);
 	}
 	return nullptr;
 }

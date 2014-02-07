@@ -3,24 +3,32 @@
 
 #include "../../point.h"
 #include <cassert>
-#include <vector>
 
 namespace dypc {
 
 
-template<class Splitter, std::size_t Levels>
+template<class Splitter, std::size_t Levels, class PointsContainer>
 class tree_structure_node {
 private:
 	using node_points_information = typename Splitter::node_points_information;
+	using point_iterator = typename PointsContainer::const_iterator;
 
 	struct point_set {
-		point* points = nullptr;
+		union {
+			point* points_buffer;
+			std::ptrdiff_t points_offset;
+			point_iterator points_iterator;
+		};
 		std::size_t number_of_points = 0;
 		
+		point_set() {
+			points_buffer = nullptr;
+		}
+		
 		void add_point_to_buffer(const point& pt, std::size_t leaf_capacity) {
-			if(! points) points = new point [leaf_capacity];
+			if(! points_buffer) points_buffer = new point [leaf_capacity];
 			assert(number_of_points < leaf_capacity);
-			points[number_of_points++] = pt;
+			points_buffer[number_of_points++] = pt;
 		}
 	};
 
@@ -41,12 +49,13 @@ public:
 	const tree_structure_node& child(std::ptrdiff_t i) const { assert(i >= 0 && i < Splitter::number_of_node_children); return *children_[i]; }
 	tree_structure_node& child(std::ptrdiff_t i) { assert(i >= 0 && i < Splitter::number_of_node_children); return *children_[i]; }
 	
-	const point* points_begin(std::ptrdiff_t lvl = 0) const { assert(lvl >= 0 && lvl < Levels); return point_sets_[lvl].points; }
-	const point* points_end(std::ptrdiff_t lvl = 0) const { assert(lvl >= 0 && lvl < Levels); return point_sets_[lvl].points + point_sets_[lvl].number_of_points; }
+	point_iterator points_begin(std::ptrdiff_t lvl = 0) const { assert(lvl >= 0 && lvl < Levels); return point_sets_[lvl].points_iterator; }
+	point_iterator points_end(std::ptrdiff_t lvl = 0) const { assert(lvl >= 0 && lvl < Levels); return point_sets_[lvl].points_iterator + point_sets_[lvl].number_of_points; }
 
 	void add_higher_level_point(unsigned level, const point& pt, const cuboid& cube, unsigned depth, std::size_t leaf_capacity);
-	void add_points_with_information(std::vector<point>& all_points, const cuboid& cub, unsigned depth, std::size_t leaf_capacity);
-	std::size_t move_out_points(std::vector<point>&, unsigned level = 0);
+	void add_points_with_information(PointsContainer& all_points, const cuboid& cub, unsigned depth, std::size_t leaf_capacity);
+	std::size_t move_out_points(PointsContainer&, unsigned level = 0);
+	void finalize_move_out(const PointsContainer& all_points, unsigned lvl = 0);
 		
 	std::size_t number_of_nodes_in_branch() const {
 		std::size_t n = 1;
@@ -62,8 +71,8 @@ public:
 };
 
 
-template<class Splitter, std::size_t Levels>
-void tree_structure_node<Splitter, Levels>::add_higher_level_point(unsigned level, const point& pt, const cuboid& cub, unsigned depth, std::size_t leaf_capacity) {
+template<class Splitter, std::size_t Levels, class PointsContainer>
+void tree_structure_node<Splitter, Levels, PointsContainer>::add_higher_level_point(unsigned level, const point& pt, const cuboid& cub, unsigned depth, std::size_t leaf_capacity) {
 	assert(level > 0);
 	
 	auto& set = point_sets_[level];
@@ -80,11 +89,11 @@ void tree_structure_node<Splitter, Levels>::add_higher_level_point(unsigned leve
 }
 
 
-template<class Splitter, std::size_t Levels>
-void tree_structure_node<Splitter, Levels>::add_points_with_information(std::vector<point>& all_points, const cuboid& cub, unsigned depth, std::size_t leaf_capacity) {
+template<class Splitter, std::size_t Levels, class PointsContainer>
+void tree_structure_node<Splitter, Levels, PointsContainer>::add_points_with_information(PointsContainer& all_points, const cuboid& cub, unsigned depth, std::size_t leaf_capacity) {
 	assert(is_leaf());
 		
-	points_information_ = Splitter::compute_node_points_information(all_points, cub, depth);
+	points_information_ = Splitter::compute_node_points_information(all_points.begin(), all_points.end(), cub, depth);
 		
 	if(all_points.size() <= leaf_capacity) {
 		auto& set = point_sets_[0];
@@ -94,7 +103,7 @@ void tree_structure_node<Splitter, Levels>::add_points_with_information(std::vec
 	} else {
 		for(std::ptrdiff_t i = 0; i < Splitter::number_of_node_children; ++i) children_[i] = new tree_structure_node;
 		
-		std::vector<point> child_point_sets[Splitter::number_of_node_children];
+		PointsContainer child_point_sets[Splitter::number_of_node_children];
 		for(const point& pt : all_points) {
 			std::ptrdiff_t i = Splitter::node_child_for_point(pt, cub, points_information_, depth);
 			child_point_sets[i].push_back(pt);
@@ -110,29 +119,40 @@ void tree_structure_node<Splitter, Levels>::add_points_with_information(std::vec
 }
 
 
-template<class Splitter, std::size_t Levels>
-std::size_t tree_structure_node<Splitter, Levels>::move_out_points(std::vector<point>& output_points, unsigned lvl) {
-	auto& set = this->point_sets_[lvl];
-	point* pts_ptr = output_points.data() + output_points.size();
+template<class Splitter, std::size_t Levels, class PointsContainer>
+std::size_t tree_structure_node<Splitter, Levels, PointsContainer>::move_out_points(PointsContainer& output_points, unsigned lvl) {
+	auto& set = point_sets_[lvl];
+	
+	std::ptrdiff_t output_offset = output_points.size();
 	
 	if(is_leaf()) {
-		if(! set.points) return 0;
-		const point* points_end = set.points + set.number_of_points;
-		for(const point* pt = set.points; pt < points_end; ++pt) output_points.push_back(*pt);
-		delete[] set.points;
+		if(! set.points_buffer) return 0;
+		const point* points_end = set.points_buffer + set.number_of_points;
+		for(const point* pt = set.points_buffer; pt < points_end; ++pt) output_points.push_back(*pt);
+		delete[] set.points_buffer;
 	} else {
 		std::size_t count = 0;
 		for(std::ptrdiff_t i = 0; i < Splitter::number_of_node_children; ++i) count += children_[i]->move_out_points(output_points, lvl);
 		set.number_of_points = count;
 	}
 	
-	set.points = pts_ptr;
+	set.points_offset = output_offset;
 	return set.number_of_points;
 }
 
 
-template<class Splitter, std::size_t Levels>
-std::size_t tree_structure_node<Splitter, Levels>::size() const {
+template<class Splitter, std::size_t Levels, class PointsContainer>
+void tree_structure_node<Splitter, Levels, PointsContainer>::finalize_move_out(const PointsContainer& all_points, unsigned lvl) {
+	auto& set = this->point_sets_[lvl];
+	set.points_iterator = all_points.begin() + set.points_offset;
+	if(! is_leaf()) {
+		for(std::ptrdiff_t i = 0; i < Splitter::number_of_node_children; ++i) children_[i]->finalize_move_out(all_points, lvl);
+	}
+}
+
+
+template<class Splitter, std::size_t Levels, class PointsContainer>
+std::size_t tree_structure_node<Splitter, Levels, PointsContainer>::size() const {
 	std::size_t sz = sizeof(tree_structure_node);
 	if(! is_leaf()) {
 		for(std::ptrdiff_t i = 0; i < Splitter::number_of_node_children; ++i) sz += children_[i]->size();
