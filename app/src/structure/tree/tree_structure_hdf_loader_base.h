@@ -7,6 +7,7 @@
 #include <string>
 #include <cstring>
 #include <memory>
+#include <iostream>
 
 namespace dypc {
 
@@ -201,7 +202,7 @@ void tree_structure_hdf_loader_base<Structure>::write_points_(Iterator pt_begin,
 		data_set.write((const void*) chunk, point_type_, mem_space, data_space);
 		
 		remaining -= chunk_size;
-		pt += chunk_size;
+		offset += chunk_size;
 	}
 }
 

@@ -3,6 +3,8 @@
 #include <cmath>
 #include <algorithm>
 
+#include <iostream>
+
 namespace dypc {
 
 std::ptrdiff_t tree_structure_loader::action_for_node_(const cuboid& cub, std::size_t number_of_points, bool is_leaf, const loader::request_t& req, std::size_t levels) const {

@@ -31,6 +31,8 @@ protected:
 	statistics::item stat_frustum_cubes_;
 	statistics::item stat_downsampled_cubes_;
 	statistics::item stat_secondary_cubes_;
+	
+	adapt_result_t adapt_settings_(std::size_t last_extracted, std::size_t capacity) override;
 
 public:
 	cubes_structure_loader() :

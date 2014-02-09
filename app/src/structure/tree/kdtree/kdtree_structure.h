@@ -18,6 +18,12 @@ public:
 	}
 };
 
+extern template class kdtree_structure<1>;
+extern template class kdtree_structure<4>;
+extern template class kdtree_structure<8>;
+extern template class kdtree_structure<16>;
+
+
 }
 
 #endif

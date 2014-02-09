@@ -1,10 +1,8 @@
 #include "application.h"
 #include "main_frame.h"
 #include "../renderer/renderer.h"
-
-#include <iostream>
+#include "../util.h"
 #include <stdexcept>
-#include <wx/msgdlg.h>
 
 namespace dypc {
 
@@ -20,13 +18,7 @@ int application::OnRun() {
 	try {
 		return wxApp::OnRun();
 	} catch(const std::exception& ex) {
-		wxMessageDialog dialog(
-			nullptr,
-			wxString(ex.what(), wxConvUTF8),
-			wxT("An unhandled exception occured"),
-			wxOK | wxICON_ERROR
-		);
-		dialog.ShowModal();
+		error_message(ex.what(), "An unhandled exception occured");
 		return 0;
 	}
 }

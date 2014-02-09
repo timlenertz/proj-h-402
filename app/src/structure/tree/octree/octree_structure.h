@@ -18,6 +18,11 @@ public:
 	}
 };
 
+extern template class octree_structure<1>;
+extern template class octree_structure<4>;
+extern template class octree_structure<8>;
+extern template class octree_structure<16>;
+
 }
 
 #endif

@@ -5,7 +5,6 @@
 #include "../statistics.h"
 #include "../frustum.h"
 
-
 #include <glm/glm.hpp>
 #include <glm/gtc/quaternion.hpp>
 #include <glm/gtx/quaternion.hpp>
@@ -18,6 +17,9 @@ class wxWindow;
 namespace dypc {
 
 class loader {
+protected:
+	bool adaptive_ = true;
+	
 public:
 	struct request_t {
 		glm::vec3 position;

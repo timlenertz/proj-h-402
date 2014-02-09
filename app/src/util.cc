@@ -64,6 +64,17 @@ std::string user_choice(const user_choices_t& choices, const std::string& captio
 }
 
 
+void error_message(const std::string& msg, const std::string& title) {
+	wxMessageDialog dialog(
+		nullptr,
+		wxString(msg.c_str(), wxConvUTF8),
+		wxString(title.c_str(), wxConvUTF8),
+		wxOK | wxICON_ERROR
+	);
+	dialog.ShowModal();
+}
+
+
 std::string file_formats_to_wildcard(const user_choices_t& file_formats) {
 	std::string wildcard;
 	for(const auto& p : file_formats) {

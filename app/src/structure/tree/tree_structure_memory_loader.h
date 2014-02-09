@@ -10,6 +10,7 @@
 #include <algorithm>
 #include <array>
 #include <string>
+#include <iostream>
 
 namespace dypc {
 
@@ -33,7 +34,7 @@ public:
 		position_path_.push_back({ structure_.root_node(), 0, structure_.root_cuboid() });
 	}
 		
-	std::string loader_name() const override { return Structure::structure_name() + " Memory Simple Loader"; }
+	std::string loader_name() const override { return Structure::structure_name() + " Memory Ordered Loader"; }
 	
 protected:
 	std::size_t extract_points_(point_buffer_t points, std::size_t capacity, const loader::request_t& req) override;
@@ -113,6 +114,7 @@ std::size_t tree_structure_memory_loader<Structure>::extract_node_points_(point_
 		auto pts = nd.points_begin(lvl);
 		auto pts_end = nd.points_end(lvl);
 		std::size_t c = 0;
+					
 		for(auto pt = pts; pt != pts_end && c < capacity; ++pt) {
 			*(points++) = *pt;
 			++c;

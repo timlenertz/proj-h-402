@@ -6,6 +6,7 @@
 #include "../structure/structure_loader.h"
 #include "../loader/loader.h"
 #include "../hpr/hpr_loader.h"
+#include "../structure/structure_loader_interface.h"
 
 #include "../ui/model_create/model_create.h"
 #include "../ui/structure_create/structure_create.h"
@@ -15,6 +16,7 @@
 #include <wx/event.h>
 #include <wx/app.h>
 #include <wx/colour.h>
+#include <wx/filedlg.h>
 
 #include <string>
 #include <chrono>
@@ -209,7 +211,25 @@ void main_frame::on_loader_choice_(wxCommandEvent& event) {
 		
 	} else if(index == 3) {
 		// File Structure Loader
-		ld = structure_create::create_file_loader();
+		std::string wildcard = file_formats_to_wildcard(structure_file_formats);
+		wxFileDialog open_dialog(
+			nullptr,
+			wxT("Open structure file"),
+			wxEmptyString,
+			wxEmptyString,
+			wxString(wildcard.c_str(), wxConvUTF8),
+			wxFD_OPEN | wxFD_FILE_MUST_EXIST
+		);
+		auto result = open_dialog.ShowModal();
+		if(result == wxID_CANCEL) return;
+			
+		std::string filename(open_dialog.GetPath().utf8_str());		
+		
+		try {
+			ld = create_structure_file_loader(filename);
+		} catch(const std::exception& ex) {
+			error_message(ex.what(), "Could not open structure file");
+		}
 	}
 	
 	if(ld) {

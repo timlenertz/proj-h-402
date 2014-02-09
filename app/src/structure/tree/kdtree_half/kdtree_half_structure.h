@@ -18,6 +18,12 @@ public:
 	}
 };
 
+extern template class kdtree_half_structure<1>;
+extern template class kdtree_half_structure<4>;
+extern template class kdtree_half_structure<8>;
+extern template class kdtree_half_structure<16>;
+
+
 }
 
 #endif

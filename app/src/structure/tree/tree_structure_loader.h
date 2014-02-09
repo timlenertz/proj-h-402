@@ -26,6 +26,8 @@ protected:
 	std::ptrdiff_t action_for_node_(const cuboid&, std::size_t number_of_points, bool is_leaf, const loader::request_t&, std::size_t levels = 1) const;
 	float cuboid_distance_(glm::vec3 position, const cuboid& cub) const;
 	
+	//adapt_result_t adapt_settings_(std::size_t last_extracted, std::size_t capacity) override;
+	
 public:
 	void set_downsampling_start_distance(float d) { downsampling_start_distance_ = d; }
 	void set_downsampling_step_distance(float d) { downsampling_step_distance_ = d; }
