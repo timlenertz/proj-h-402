@@ -7,6 +7,7 @@
 #include <glm/gtc/quaternion.hpp>
 #include <glm/gtx/quaternion.hpp>
 #include <array>
+#include "triangle.h"
 
 namespace dypc {
 
@@ -46,6 +47,8 @@ public:
 	
 	bool is_cube() const { return side_length_x() == side_length_y() && side_length_y() == side_length_z(); }
 	float area() const { return side_length_x() * side_length_y() * side_length_z(); }
+	
+	std::array<triangle, 12> hull_triangles() const;
 };
 
 }

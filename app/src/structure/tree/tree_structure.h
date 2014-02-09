@@ -12,10 +12,11 @@
 #include <map>
 
 #include <deque>
+#include <vector>
 
 namespace dypc {
 
-template<class Splitter, std::size_t Levels, class PointsContainer = std::deque<point>>
+template<class Splitter, std::size_t Levels, class PointsContainer = std::vector<point>>
 class tree_structure : public structure {
 public:
 	using splitter = Splitter;

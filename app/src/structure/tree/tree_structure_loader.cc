@@ -26,7 +26,7 @@ std::ptrdiff_t tree_structure_loader::action_for_node_(const cuboid& cub, std::s
 		maximal_distance - minimal_distance > additional_split_distance_difference_
 	) return action_split;
 	
-	float distance = cuboid_distance_(req.position, cub, minimal_distance, maximal_distance);
+	float distance = cuboid_distance_(req.position, cub, minimal_distance, maximal_distance, downsampling_node_distance_);
 	
 	std::ptrdiff_t lvl = 0;
 	if(distance >= downsampling_start_distance_) lvl = 1 + (distance - downsampling_start_distance_) / downsampling_step_distance_;
@@ -36,8 +36,8 @@ std::ptrdiff_t tree_structure_loader::action_for_node_(const cuboid& cub, std::s
 }
 
 
-float tree_structure_loader::cuboid_distance_(glm::vec3 position, const cuboid& cub, float min_dist, float max_dist) const {
-	switch(downsampling_node_distance) {
+float tree_structure_loader::cuboid_distance_(glm::vec3 position, const cuboid& cub, float min_dist, float max_dist, downsampling_node_distance_t type) const {
+	switch(type) {
 		case minimal_node_distance: return min_dist;
 		case maximal_node_distance: return max_dist;
 		case mean_node_distance: return (max_dist + min_dist)/2.0;
@@ -47,10 +47,17 @@ float tree_structure_loader::cuboid_distance_(glm::vec3 position, const cuboid& 
 }
 
 
+float tree_structure_loader::cuboid_distance_(glm::vec3 position, const cuboid& cub, downsampling_node_distance_t type) const {
+	float minimal_distance = cub.minimal_distance(position);
+	float maximal_distance = cub.maximal_distance(position);
+	return cuboid_distance_(position, cub, minimal_distance, maximal_distance, type);
+}
+
+
 float tree_structure_loader::cuboid_distance_(glm::vec3 position, const cuboid& cub) const {
 	float minimal_distance = cub.minimal_distance(position);
 	float maximal_distance = cub.maximal_distance(position);
-	return cuboid_distance_(position, cub, minimal_distance, maximal_distance);
+	return cuboid_distance_(position, cub, minimal_distance, maximal_distance, downsampling_node_distance_);
 }
 
 

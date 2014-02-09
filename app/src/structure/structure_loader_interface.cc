@@ -14,6 +14,7 @@
 #include "cubes_mipmap/cubes_mipmap_structure_memory_loader.h"
 
 #include "tree/tree_structure_memory_loader.h"
+#include "tree/tree_structure_memory_occluding_loader.h"
 #include "tree/tree_structure_memory_simple_loader.h"
 #include "tree/tree_structure_hdf_loader.h"
 #include "tree/tree_structure_hdf_simple_loader.h"
@@ -27,7 +28,8 @@ namespace dypc {
 
 static const user_choices_t tree_loader_choice_ = {
 	{ "simple", "Simple" },
-	{ "ordered", "Ordered Nodes" }
+	{ "ordered", "Ordered Nodes" },
+	{ "occluding", "Occluding" }
 };
 
 const user_choices_t structure_file_formats = {
@@ -122,6 +124,7 @@ tree_structure_loader* create_tree_structure_memory_loader(structure_type_t type
 	
 	if(ltype == "simple") ld = create_tree_structure_loader_for_structure_type_<tree_structure_memory_simple_loader>(type, levels, leaf_cap, mmfac, dmode, dmax, mod);
 	else if(ltype == "ordered") ld = create_tree_structure_loader_for_structure_type_<tree_structure_memory_loader>(type, levels, leaf_cap, mmfac, dmode, dmax, mod);
+	else if(ltype == "occluding") ld = create_tree_structure_loader_for_structure_type_<tree_structure_memory_occluding_loader>(type, levels, leaf_cap, mmfac, dmode, dmax, mod);
 	
 	if(ld) return ld;
 	else throw std::invalid_argument("Invalid memory tree structure loader");

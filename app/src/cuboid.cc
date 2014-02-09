@@ -55,5 +55,36 @@ float cuboid::maximal_distance(glm::vec3 pt) const {
 }
 
 
+std::array<triangle, 12> cuboid::hull_triangles() const {
+	const auto& o = origin_;
+	glm::vec3 dx, dy, dz;
+	dx.x = side_lengths_.x;
+	dy.y = side_lengths_.y;
+	dz.z = side_lengths_.z;
+	
+	triangle top[2] = {
+		{ o + dx, o + dz, o },
+		{ o + dx, o + dz, o + dx + dz }
+	};
+	triangle left[2] = {
+		{ o + dy, o + dz, o },
+		{ o + dy, o + dz, o + dy + dz }
+	};
+	triangle front[2] = {
+		{ o + dy, o + dx, o },
+		{ o + dy, o + dx, o + dy + dx }
+	};
+	
+	return {
+		top[0], top[1],
+		left[0], left[1],
+		front[0], front[1],
+		top[0] + dy, top[1] + dy,
+		left[0] + dx, left[1] + dx,
+		front[0] + dz, front[1] + dz	
+	};
+}
+
+
 
 }
