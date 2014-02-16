@@ -10,7 +10,7 @@
 #include <algorithm>
 #include <array>
 #include <string>
-#include <iostream>
+#include <memory>
 
 namespace dypc {
 
@@ -23,15 +23,15 @@ private:
 		cuboid node_cuboid;
 	};
 
-	Structure structure_;
+	std::unique_ptr<const Structure> structure_;
 	std::vector<path_entry> position_path_;
 
 	std::size_t extract_node_points_(point_buffer_t points, std::size_t capacity, const loader::request_t& req, const typename Structure::node& nd, const cuboid& cub, unsigned depth, std::ptrdiff_t exclude_child_index = -1) const;
 
 
 public:
-	template<class... Args> tree_structure_memory_loader(Args&&... args) : structure_(std::forward<Args>(args)...) {
-		position_path_.push_back({ structure_.root_node(), 0, structure_.root_cuboid() });
+	explicit tree_structure_memory_loader(const Structure* s) : structure_(s) {
+		position_path_.push_back({ structure_->root_node(), 0, structure_->root_cuboid() });
 	}
 		
 	std::string loader_name() const override { return Structure::structure_name() + " Memory Ordered Loader"; }
@@ -39,9 +39,9 @@ public:
 protected:
 	std::size_t extract_points_(point_buffer_t points, std::size_t capacity, const loader::request_t& req) override;
 	
-	std::size_t memory_size_() const override { return structure_.size() + position_path_.size()*sizeof(path_entry); }
+	std::size_t memory_size_() const override { return structure_->size() + position_path_.size()*sizeof(path_entry); }
 	std::size_t file_size_() const override { return 0; }
-	std::size_t total_points_() const override { return structure_.number_of_points(); }
+	std::size_t total_points_() const override { return structure_->number_of_points(); }
 };
 
 

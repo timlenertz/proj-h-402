@@ -1,5 +1,5 @@
 TARGET := dypc
-DEPLOY := 0
+DEPLOY := 1
 
 CXX := clang++
 CXXFLAGS := -std=c++11

@@ -16,7 +16,7 @@
 
 namespace dypc {
 
-template<class Splitter, std::size_t Levels, class PointsContainer = std::vector<point>>
+template<class Splitter, std::size_t Levels, class PointsContainer = std::deque<point>>
 class tree_structure : public structure {
 public:
 	using splitter = Splitter;
@@ -38,6 +38,11 @@ private:
 	
 	void downsample_points_in_node_(float ratio, const node&, const cuboid&, PointsContainer&, unsigned depth);
 
+protected:
+	tree_structure(std::size_t leaf_cap, float mmfac, downsampling_mode_t dmode, std::size_t dmax);
+	
+	void unload_model_();
+	void load_model_(model& mod, const cuboid& cub, unsigned depth = 0);
 
 public:
 	tree_structure(std::size_t leaf_cap, float mmfac, downsampling_mode_t dmode, std::size_t dmax, model& mod);
@@ -75,17 +80,34 @@ void tree_structure<Splitter, Levels, PointsContainer>::downsample_points_in_nod
 }
 
 
+template<class Splitter, std::size_t Levels, class PointsContainer>
+inline tree_structure<Splitter, Levels, PointsContainer>::tree_structure(std::size_t leaf_cap, float mmfac, downsampling_mode_t dmode, std::size_t dmax) :
+leaf_capacity_(leaf_cap), mipmap_factor_(mmfac), downsampling_mode_(dmode), downsampling_maximal_number_of_points_(dmax) { }
 
 
 template<class Splitter, std::size_t Levels, class PointsContainer>
-tree_structure<Splitter, Levels, PointsContainer>::tree_structure(std::size_t leaf_cap, float mmfac, downsampling_mode_t dmode, std::size_t dmax, model& mod) :
-leaf_capacity_(leaf_cap), mipmap_factor_(mmfac), downsampling_mode_(dmode), downsampling_maximal_number_of_points_(dmax), root_cuboid_(Splitter::root_cuboid(mod)) {
-	PointsContainer all_points;
+void tree_structure<Splitter, Levels, PointsContainer>::unload_model_() {
+	root_ = node();
+	for(auto& pts : all_points_) pts.clear();
+}
+
+
+
+template<class Splitter, std::size_t Levels, class PointsContainer>
+void tree_structure<Splitter, Levels, PointsContainer>::load_model_(model& mod, const cuboid& cub, unsigned depth) {
+	unload_model_();
+	root_cuboid_ = cub;
+	
+	PointsContainer all_points_unordered;
 	progress("Collecting points from model...", mod.number_of_points(), [&]() {
-		for(const auto& pt : mod) { all_points.push_back(pt); increment_progress(); }
+		for(const auto& pt : mod) {
+			if(! cub.in_range(pt)) continue;
+			all_points_unordered.push_back(pt);
+			increment_progress();
+		}
 	});
-	progress("Adding points with info to tree...", mod.number_of_points(), [&]() {
-		root_.add_points_with_information(all_points, root_cuboid_, 0, leaf_capacity_);
+	progress("Adding points with info to tree...", all_points_unordered.size(), [&]() {
+		root_.add_points_with_information(all_points_unordered, root_cuboid_, depth, leaf_capacity_);
 	});
 
 	root_.move_out_points(all_points_[0]);
@@ -97,13 +119,13 @@ leaf_capacity_(leaf_cap), mipmap_factor_(mmfac), downsampling_mode_(dmode), down
 	for(int lvl = 1; lvl < Levels; ++lvl) {
 		PointsContainer downsampled;
 		
-		downsample_points_in_node_(ratio, root_, root_cuboid_, downsampled, 0);
+		downsample_points_in_node_(ratio, root_, root_cuboid_, downsampled, depth);
 
 		progress("Adding downsampled points, level " + std::to_string(lvl) + "...", downsampled.size(), [&]() {
 			auto& level_points = all_points_[lvl];
 			std::size_t c = 0;
 			for(const point& pt : downsampled) {			
-				root_.add_higher_level_point(lvl, pt, root_cuboid_, 0, leaf_capacity_);
+				root_.add_higher_level_point(lvl, pt, root_cuboid_, depth, leaf_capacity_);
 				increment_progress();
 			}
 			root_.move_out_points(level_points, lvl);
@@ -114,6 +136,16 @@ leaf_capacity_(leaf_cap), mipmap_factor_(mmfac), downsampling_mode_(dmode), down
 	}
 	
 	node_uniform_downsampling_previous_results_.clear();
+}
+
+
+
+
+template<class Splitter, std::size_t Levels, class PointsContainer>
+tree_structure<Splitter, Levels, PointsContainer>::tree_structure(std::size_t leaf_cap, float mmfac, downsampling_mode_t dmode, std::size_t dmax, model& mod) :
+tree_structure(leaf_cap, mmfac, dmode, dmax) {
+	root_cuboid_ = Splitter::root_cuboid(mod);
+	load_model_(mod, root_cuboid_);
 }
 
 

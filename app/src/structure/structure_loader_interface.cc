@@ -38,23 +38,29 @@ const user_choices_t structure_file_formats = {
 };
 
 
+template<template<class> class Loader, class Structure, class... Args>
+static tree_structure_loader* create_tree_structure_loader_(Args&&... args) {	
+	return new Loader<Structure>(new Structure(std::forward<Args>(args)...));
+}
+
+
 template<template<class> class Loader, template<std::size_t> class Structure, class... Args>
-static tree_structure_loader* create_tree_structure_loader_(std::size_t levels, Args&&... args) {
+static tree_structure_loader* create_tree_structure_loader_for_levels_(std::size_t levels, Args&&... args) {
 	switch(levels) {
-		case 1: return new Loader<Structure<1>>(std::forward<Args>(args)...);	
-		case 4: return new Loader<Structure<4>>(std::forward<Args>(args)...);	
-		case 8: return new Loader<Structure<8>>(std::forward<Args>(args)...);	
-		case 16: return new Loader<Structure<16>>(std::forward<Args>(args)...);
+		case 1: return create_tree_structure_loader_<Loader, Structure<1>>(std::forward<Args>(args)...);
+		case 4: return create_tree_structure_loader_<Loader, Structure<4>>(std::forward<Args>(args)...);
+		case 8: return create_tree_structure_loader_<Loader, Structure<8>>(std::forward<Args>(args)...);
+		case 16: return create_tree_structure_loader_<Loader, Structure<16>>(std::forward<Args>(args)...);
 		default: return nullptr;	
 	}
 }
 
 template<template<class> class Loader, class... Args>
-static tree_structure_loader* create_tree_structure_loader_for_structure_type_(structure_type_t type, unsigned levels, Args&&... args) {
+static tree_structure_loader* create_tree_structure_loader_for_structure_type_(structure_type_t type, std::size_t levels, Args&&... args) {
 	switch(type) {
-		case octree_structure_type: return create_tree_structure_loader_<Loader, octree_structure>(levels, std::forward<Args>(args)...);
-		case kdtree_structure_type: return create_tree_structure_loader_<Loader, kdtree_structure>(levels, std::forward<Args>(args)...);
-		case kdtree_half_structure_type: return create_tree_structure_loader_<Loader, kdtree_half_structure>(levels, std::forward<Args>(args)...);
+		case octree_structure_type: return create_tree_structure_loader_for_levels_<Loader, octree_structure>(levels, std::forward<Args>(args)...);
+		case kdtree_structure_type: return create_tree_structure_loader_for_levels_<Loader, kdtree_structure>(levels, std::forward<Args>(args)...);
+		case kdtree_half_structure_type: return create_tree_structure_loader_for_levels_<Loader, kdtree_half_structure>(levels, std::forward<Args>(args)...);
 		default: return nullptr;
 	}
 }
@@ -122,9 +128,9 @@ tree_structure_loader* create_tree_structure_memory_loader(structure_type_t type
 	
 	tree_structure_loader* ld = nullptr;
 	
-	if(ltype == "simple") ld = create_tree_structure_loader_for_structure_type_<tree_structure_memory_simple_loader>(type, levels, leaf_cap, mmfac, dmode, dmax, mod);
+	if(ltype == "simple") ;//ld = create_tree_structure_loader_for_structure_type_<tree_structure_memory_simple_loader>(type, levels, leaf_cap, mmfac, dmode, dmax, mod);
 	else if(ltype == "ordered") ld = create_tree_structure_loader_for_structure_type_<tree_structure_memory_loader>(type, levels, leaf_cap, mmfac, dmode, dmax, mod);
-	else if(ltype == "occluding") ld = create_tree_structure_loader_for_structure_type_<tree_structure_memory_occluding_loader>(type, levels, leaf_cap, mmfac, dmode, dmax, mod);
+	else if(ltype == "occluding") ;//ld = create_tree_structure_loader_for_structure_type_<tree_structure_memory_occluding_loader>(type, levels, leaf_cap, mmfac, dmode, dmax, mod);
 	
 	if(ld) return ld;
 	else throw std::invalid_argument("Invalid memory tree structure loader");
@@ -144,8 +150,8 @@ loader* create_structure_file_loader(const std::string& filename) {
 			ld = new cubes_mipmap_structure_hdf_loader(filename);
 		} else {
 			auto ltype = user_choice(tree_loader_choice_, "Type of HDF tree loader");
-			if(ltype == "simple") ld = create_tree_structure_loader_for_structure_type_<tree_structure_hdf_simple_loader>(type.first, type.second, filename);
-			else if(ltype == "ordered") ld = create_tree_structure_loader_for_structure_type_<tree_structure_hdf_simple_loader>(type.first, type.second, filename);
+			if(ltype == "simple") ;//ld = create_tree_structure_loader_for_structure_type_<tree_structure_hdf_simple_loader>(type.first, type.second, filename);
+			else if(ltype == "ordered"); //ld = create_tree_structure_loader_for_structure_type_<tree_structure_hdf_loader>(type.first, type.second, filename);
 		}
 	} else if(ext == "db") {
 		auto type = read_sqlite_structure_file_type(filename);

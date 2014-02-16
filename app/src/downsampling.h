@@ -38,16 +38,24 @@ float uniform_downsampling_side_length(Iterator pt_begin, Iterator pt_end, float
 	float minimal_side_length = 0;
 	float maximal_side_length = std::cbrt(bounding_area);
 			
+	std::size_t minimal_number_of_points = 0, maximal_number_of_points = -1;
 	for(const auto& prev : previous_results) {
-		if(prev.first <= expected_number_of_points && prev.second < maximal_side_length) maximal_side_length = prev.second; 
-		else if(prev.first >= expected_number_of_points && prev.second > minimal_side_length) minimal_side_length = prev.second; 
+		if(prev.first <= expected_number_of_points && prev.second < maximal_side_length) {
+			maximal_side_length = prev.second; 
+			minimal_number_of_points = prev.first;
+		} else if(prev.first >= expected_number_of_points && prev.second > minimal_side_length) {
+			minimal_side_length = prev.second;
+			maximal_number_of_points = prev.first;
+		}
 	}
-	
+
 	float attempt_side_length = minimal_side_length + 0.01*maximal_side_length;
+	if(maximal_number_of_points - minimal_number_of_points <= threshold) return attempt_side_length;
+	
 	
 	progress("Finding uniform downsampling cube size", 0, 0, [&]() {
 		std::size_t attempt_number_of_points;
-		while(std::abs(attempt_number_of_points - expected_number_of_points) > threshold) {			
+		do {			
 			attempt_number_of_points = 0;
 					
 			using cube_index_t = std::tuple<long, long, long>;
@@ -74,7 +82,7 @@ float uniform_downsampling_side_length(Iterator pt_begin, Iterator pt_end, float
 			increment_progress();
 			
 			std::cout << "expected: " << expected_number_of_points << ", got: " << attempt_number_of_points << "; side: " << attempt_side_length << std::endl;
-		};
+		} while(std::abs(attempt_number_of_points - expected_number_of_points) > threshold);
 	});
 	
 	return attempt_side_length;
@@ -92,7 +100,7 @@ template<class Iterator, class OutputContainer>
 void uniform_downsampling(Iterator pt_begin, Iterator pt_end, float ratio, float bounding_area, OutputContainer& output, uniform_downsampling_previous_results_t& previous_results) {
 	std::size_t number_of_points = pt_end - pt_begin;
 	
-	float side = uniform_downsampling_side_length(pt_begin, pt_end, ratio, bounding_area, previous_results);	
+	float side = uniform_downsampling_side_length(pt_begin, pt_end, ratio, bounding_area, previous_results);
 	
 	using cube_index_t = std::tuple<long, long, long>;
 	std::map<cube_index_t, std::vector<point>> cubes;
