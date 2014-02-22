@@ -1,5 +1,9 @@
-/app/build
-/app/dypc
-/app/res/*.cpp
-/app/res/*.h
+/app/dist
+/app/dypc/lib
+/app/dypc/include
+/app/dypc/build
+/app/viewer/viewer
+/app/viewer/build
+/app/viewer/forms/*.cpp
+/app/viewer/forms/*.h
 

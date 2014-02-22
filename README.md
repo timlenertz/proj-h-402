@@ -9,7 +9,6 @@ ULB INFO MA1
 
 PROJ-H-402 Project
 
-
 Dependencies:
 - clang Compiler
 - OpenGL + GLEW
