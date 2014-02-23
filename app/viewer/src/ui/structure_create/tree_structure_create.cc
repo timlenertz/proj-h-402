@@ -36,7 +36,7 @@ dypc_loader tree_structure_create::create_memory_loader(dypc_model mod) const {
 	}
 }
 
-void tree_structure_create::write_structure_file(dypc_model mod, const std::string& filename, const std::string& format) const {
+void tree_structure_create::write_structure_file(dypc_model mod, const std::string& filename) const {
 	unsigned leaf_cap = capacity_spin->GetValue();
 	unsigned dmax = dmax_spin->GetValue();
 	double mmfac; factor_text->GetLineText(0).ToDouble(&mmfac);

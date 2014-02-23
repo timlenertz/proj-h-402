@@ -135,9 +135,6 @@ std::size_t cubes_structure_sqlite_loader::extract_points_(point_buffer_t points
 		}
 	}
 
-	stat_frustum_cubes_ = frustum_cubes;
-	stat_downsampled_cubes_ = downsampled_cubes;
-	
 	return total;
 }
 

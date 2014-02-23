@@ -33,13 +33,16 @@ externals :
 	$(MAKE) -C external/
 
 $(TARGET) : externals $(OBJ)
-	$(MKDIR) -p lib/ && $(CXX) $(CXXFLAGS) $(LDFLAGS) -o $@ $(OBJ) $(LDLIBS)
+	$(MKDIR) -p lib/ && \
+	$(CXX) $(CXXFLAGS) $(LDFLAGS) -o $@ $(OBJ) $(LDLIBS)
 
 includes : $(INTERFACE_H)
-	$(MKDIR) -p include/dypc/ && $(CP) $^ include/dypc
+	$(MKDIR) -p include/dypc/ && \
+	$(CP) $^ include/dypc
 
 build/%.o : %.cc
-	$(MKDIR) -p $(dir $@) && $(CXX) $(CXXFLAGS) -c -o $@ $< -MMD
+	$(MKDIR) -p $(dir $@) && \
+	$(CXX) $(CXXFLAGS) -c -o $@ $< -MMD
 
 clean :
 	$(RM) -rf build/

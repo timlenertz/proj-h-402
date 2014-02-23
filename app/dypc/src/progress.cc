@@ -1,69 +1,40 @@
 #include "progress.h"
-//#include <wx/progdlg.h>
-#include <stdexcept>
+#include "interface/dypc.h"
+#include <iostream>
 
-//static wxProgressDialog* dialog = nullptr;
-static int update_step = 0;
-static int maximal_value = 0;
-static int current_value = 0;
+static thread_local dypc_progress current_ = nullptr;
 
 namespace dypc {
 
-void set_progress(int value) {/*
-	if(! dialog) return;
-	
-	if(maximal_value) {
-		int old_steps = current_value / update_step;
-		current_value = value;
-		if(current_value > maximal_value) current_value = maximal_value;
-		if(current_value / update_step == old_steps) return;
-		dialog->Update(current_value);
-	} else {
-		dialog->Pulse();
-	}*/
+void set_progress(int value) {return;
+	auto callbacks = dypc_get_callbacks();
+	callbacks->set_progress(current_, value);
 }
 
-void increment_progress(int add) {/*
-	set_progress(current_value + add);*/
+void increment_progress(int add) {return;
+	auto callbacks = dypc_get_callbacks();
+	auto current_value = callbacks->get_progress(current_);
+	callbacks->set_progress(current_, current_value + add);
 }
 
-void progress(const std::string& label, int maximum, int step, const std::function<void()>& callback) {	/*
-	if(dialog) throw std::logic_error("Cannot nest progress");
+void progress(const std::string& label, int maximum, int step, const std::function<void()>& function) {
+	std::cout << label << std::endl;
+	function();
+	return;
 	
-	if(maximum > 0) {
-		dialog = new wxProgressDialog(
-			wxT("Progress"),
-			wxString(label.c_str(), wxConvUTF8),
-			maximum,
-			nullptr,
-			wxPD_APP_MODAL | wxPD_SMOOTH | wxPD_AUTO_HIDE | wxPD_ELAPSED_TIME | wxPD_ESTIMATED_TIME | wxPD_REMAINING_TIME
-		);
+	dypc_progress old = current_;
 	
-		current_value = 0;
-		update_step = (step >= 1 ? step : 1);
-		maximal_value = maximum;
-		dialog->Update(0);
-
-	} else {
-		dialog = new wxProgressDialog(
-			wxT("Progress"),
-			wxString(label.c_str(), wxConvUTF8),
-			1,
-			nullptr,
-			wxPD_APP_MODAL | wxPD_SMOOTH
-		);
-	
-		current_value = 0;
-		update_step = 0;
-		maximal_value = 0;
-		dialog->Pulse();
-
+	auto callbacks = dypc_get_callbacks();
+	current_ = callbacks->open_progress(label.c_str(), maximum, current_);
+	try {
+		function();
+		callbacks->close_progress(current_);
+		current_ = old;
+	} catch(...) {
+		callbacks->close_progress(current_);
+		current_ = old;
+		throw;
 	}
-
-	callback();
-
-	dialog->Destroy();
-	dialog = nullptr;*/
 }
 
 }

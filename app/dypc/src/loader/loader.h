@@ -2,7 +2,6 @@
 #define DYPC_LOADER_H_
 
 #include "../point.h"
-#include "../statistics.h"
 #include "../frustum.h"
 
 #include <glm/glm.hpp>
@@ -10,6 +9,7 @@
 #include <glm/gtx/quaternion.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 
+#include <string>
 #include <chrono>
 
 class wxWindow;
@@ -39,7 +39,6 @@ public:
 	virtual bool should_compute_points(const request_t& request, const request_t& previous, std::chrono::milliseconds dtime) = 0;
 	
 	virtual std::string loader_name() const;
-	//virtual ::wxWindow* create_panel(::wxWindow* parent);
 };
 	
 }

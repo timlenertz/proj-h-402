@@ -65,7 +65,7 @@ public:
 
 template<class Splitter, std::size_t Levels, class PointsContainer>
 void tree_structure<Splitter, Levels, PointsContainer>::downsample_points_in_node_(float ratio, const node& nd, const cuboid& cub, PointsContainer& output, unsigned depth) {
-	if(nd.is_leaf() || nd.number_of_points() <= downsampling_maximal_number_of_points_) {
+	if(nd.is_leaf() || !downsampling_maximal_number_of_points_ || nd.number_of_points() <= downsampling_maximal_number_of_points_) {
 		float area = cub.area();
 		if(downsampling_mode_ == random_downsampling_mode) random_downsampling(nd.points_begin(), nd.points_end(), ratio, output);
 		else if(downsampling_mode_ == uniform_downsampling_mode) uniform_downsampling(nd.points_begin(), nd.points_end(), ratio, area, output, node_uniform_downsampling_previous_results_[&nd]);

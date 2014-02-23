@@ -2,13 +2,6 @@
 #include <iostream>
 
 namespace dypc {
-/*
-::wxWindow* cubes_structure_loader::create_panel(::wxWindow* parent) {
-	cubes_structure_panel* panel = new cubes_structure_panel(parent);
-	panel->set_loader(*this);
-	return panel;
-}
-*/
 
 cubes_structure_loader::adapt_result_t cubes_structure_loader::adapt_settings_(std::size_t last_extracted, std::size_t capacity) {
 	const std::size_t minimum_good = 0.8 * capacity;

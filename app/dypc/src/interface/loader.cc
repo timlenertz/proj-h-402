@@ -17,6 +17,8 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
+#include <iostream>
+
 static dypc::structure_type_t convert_structure_type(dypc_tree_structure_type typ) {
 	switch(typ) {
 		case dypc_octree_tree_structure_type: return dypc::octree_structure_type;
@@ -98,6 +100,7 @@ void dypc_write_cubes_structure_to_file(const char* filename, dypc_model m, floa
 	dypc::model* mod = (dypc::model*)m;
 	dypc::cubes_structure s(side, *mod);
 	auto ext = dypc::file_path_extension(filename);
+
 	if(ext == "hdf") dypc::cubes_structure_hdf_loader::write(filename, s);
 	else if(ext == "sqlite") dypc::cubes_structure_sqlite_loader::write(filename, s);
 }

@@ -217,7 +217,7 @@ void main_frame::on_loader_choice_(wxCommandEvent& event) {
 			wxT("Open structure file"),
 			wxEmptyString,
 			wxEmptyString,
-			wxEmptyString,
+			wxT("*|*"),
 			wxFD_OPEN | wxFD_FILE_MUST_EXIST
 		);
 		auto result = open_dialog.ShowModal();

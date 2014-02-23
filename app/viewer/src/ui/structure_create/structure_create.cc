@@ -53,10 +53,9 @@ std::string structure_create::write_structure_file(dypc_model mod) const {
 	if(res == wxID_CANCEL) return "";
 	
 	std::string filename(save_dialog.GetPath().utf8_str());
-	std::string format = file_path_extension(filename);
 	
 	try {
-		panel_->write_structure_file(mod, filename, format);
+		panel_->write_structure_file(mod, filename);
 	} catch(const std::exception& ex) {
 		error_message(ex.what(), "Could not write structure file");
 	}

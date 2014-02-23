@@ -161,9 +161,9 @@ tree_structure_loader* create_tree_structure_memory_loader(structure_type_t type
 	
 	tree_structure_loader* ld = nullptr;
 	switch(ltype) {
-		case simple_tree_structure_loader_type: ld = call_(create_tree_structure_memory_loader_<tree_structure_memory_simple_loader>(), type, levels, s);
-		case ordered_tree_structure_loader_type: ld = call_(create_tree_structure_memory_loader_<tree_structure_memory_ordered_loader>(), type, levels, s);
-		case occluding_tree_structure_loader_type: ld = call_(create_tree_structure_memory_loader_<tree_structure_memory_occluding_loader>(), type, levels, s);
+		case simple_tree_structure_loader_type: ld = call_(create_tree_structure_memory_loader_<tree_structure_memory_simple_loader>(), type, levels, s); break;
+		case ordered_tree_structure_loader_type: ld = call_(create_tree_structure_memory_loader_<tree_structure_memory_ordered_loader>(), type, levels, s); break;
+ 		case occluding_tree_structure_loader_type: ld = call_(create_tree_structure_memory_loader_<tree_structure_memory_occluding_loader>(), type, levels, s); break;
 	}
 	
 	if(ld) return ld;

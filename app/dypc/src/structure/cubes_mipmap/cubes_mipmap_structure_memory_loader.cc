@@ -30,10 +30,7 @@ std::size_t cubes_mipmap_structure_memory_loader::extract_points_(point_buffer_t
 		
 		if(! remaining) break;
 	}
-	
-	stat_frustum_cubes_ = frustum_cubes;
-	stat_downsampled_cubes_ = downsampled_cubes;
-	
+		
 	return total;
 
 }

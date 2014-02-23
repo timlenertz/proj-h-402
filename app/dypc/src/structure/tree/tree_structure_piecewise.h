@@ -75,9 +75,7 @@ public:
 
 
 template<class Splitter, std::size_t Levels, class PointsContainer>
-tree_structure_piecewise<Splitter, Levels, PointsContainer>::tree_structure_piecewise(std::size_t leaf_cap, float mmfac, downsampling_mode_t dmode, std::size_t dmax, model& mod) : super(leaf_cap, mmfac, dmode, dmax, mod), model_(mod), model_root_cuboid_(Splitter::root_cuboid(mod)), maximal_number_of_points_per_piece_(0) {
-	std::cout << "?!" << std::endl;
-}
+tree_structure_piecewise<Splitter, Levels, PointsContainer>::tree_structure_piecewise(std::size_t leaf_cap, float mmfac, downsampling_mode_t dmode, std::size_t dmax, model& mod) : super(leaf_cap, mmfac, dmode, dmax, mod), model_(mod), model_root_cuboid_(Splitter::root_cuboid(mod)), maximal_number_of_points_per_piece_(0) { }
 
 
 

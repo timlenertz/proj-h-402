@@ -11,7 +11,7 @@ public:
 	cubes_mipmap_structure_create(wxWindow* parent = nullptr, wxWindowID id = wxID_ANY) : cubes_mipmap_structure_create_ui(parent, id) { }
 	
 	dypc_loader create_memory_loader(dypc_model) const override;
-	void write_structure_file(dypc_model, const std::string& filename, const std::string& format) const override;
+	void write_structure_file(dypc_model, const std::string& filename) const override;
 };
 
 

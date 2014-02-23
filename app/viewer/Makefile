@@ -9,7 +9,7 @@ else
 endif
 
 CXXFLAGS += -I../dypc/include
-LDLIBS += -L../dypc/lib -ldypc
+LDLIBS += -L../dypc/lib -ldypc -Wl,-rpath=.
 
 PACKAGES := gl glew
 LDFLAGS += $(shell pkg-config --libs-only-l --libs-only-L $(PACKAGES))
@@ -33,20 +33,23 @@ OBJ += $(patsubst %.fbp,build/%.o,$(FBP))
 all : $(TARGET)
 	
 
-$(TARGET) : $(FBP_CPP) $(OBJ)
-	$(CXX) $(LDFLAGS) -o $@ $(OBJ) $(LDLIBS)
+$(TARGET) : $(OBJ)
+	$(CXX) $(CXXFLAGS) $(LDFLAGS) -o $@ $(OBJ) $(LDLIBS)
 
 build/%.o : %.cc
-	$(MKDIR) -p $(dir $@) && $(CXX) $(CXXFLAGS) -c -o $@ $< -MMD
+	$(MKDIR) -p $(dir $@) && \
+	$(CXX) $(CXXFLAGS) -c -o $@ $< -MMD
 	
 build/forms/%.o : forms/%.cpp forms/%.h
-	$(MKDIR) -p $(dir $@) && $(CXX) $(CXXFLAGS) -c -o $@ $<
+	$(MKDIR) -p $(dir $@) && \
+	$(CXX) $(CXXFLAGS) -c -o $@ $<
 
 forms/%.cpp forms/%.h : forms/%.fbp
 	wxformbuilder -g $<
 
 clean :
-	$(RM) -rf build/ && $(RM) -f $(FBP_CPP) $(FBP_HPP)
+	$(RM) -rf build/ && \
+	$(RM) -f $(FBP_CPP) $(FBP_HPP)
 	
 mrproper : clean
 	$(RM) -f $(TARGET)

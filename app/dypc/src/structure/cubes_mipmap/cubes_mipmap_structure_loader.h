@@ -3,7 +3,6 @@
 
 #include "cubes_mipmap_structure.h"
 #include "../structure_loader.h"
-#include "../../statistics.h"
 #include "../../cuboid.h"
 
 
@@ -26,21 +25,10 @@ protected:
 		);
 	}
 
-	statistics::item stat_total_cubes_;
-	statistics::item stat_frustum_cubes_;
-	statistics::item stat_downsampled_cubes_;
-
 public:
-	cubes_mipmap_structure_loader() :
-		stat_total_cubes_(statistics::add("Total Cubes", 0)),
-		stat_frustum_cubes_(statistics::add("Cubes in Frustum", 0)),
-		stat_downsampled_cubes_(statistics::add("Downsampled Cubes", 0)) { }
-
 	void set_downsampling_start_distance(float d) { downsampling_start_distance_ = d; }
 	void set_downsampling_step_distance(float d) { downsampling_step_distance_ = d; }
 	void set_frustum_culling(bool f) { frustum_culling_ = f; }
-	
-	//::wxWindow* create_panel(::wxWindow* parent) override;
 };
 
 }

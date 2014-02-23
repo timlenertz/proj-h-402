@@ -14,7 +14,7 @@ dypc_loader cubes_mipmap_structure_create::create_memory_loader(dypc_model mod) 
 }
 
 
-void cubes_mipmap_structure_create::write_structure_file(dypc_model mod, const std::string& filename, const std::string& format) const {
+void cubes_mipmap_structure_create::write_structure_file(dypc_model mod, const std::string& filename) const {
 	unsigned side = side_spin->GetValue();
 	unsigned levels = levels_spin->GetValue();
 	double mmfac; factor_text->GetLineText(0).ToDouble(&mmfac);

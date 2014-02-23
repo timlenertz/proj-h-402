@@ -3,7 +3,6 @@
 
 #include "../point.h"
 #include "../loader/loader.h"
-#include "../statistics.h"
 #include "../util.h"
 #include <stdexcept>
 #include <string>
@@ -19,13 +18,7 @@ protected:
 
 private:
 	std::size_t old_count_ = 0;
-	adapt_result_t adapt_result_ = adapt_stabilize;
-
-	bool initialized_stats_ = false;
-	statistics::item stat_file_size_;
-	statistics::item stat_memory_size_;
-	statistics::item stat_total_points_;
-	
+	adapt_result_t adapt_result_ = adapt_stabilize;	
 	
 protected:
 	static constexpr float minimal_update_distance_ = 1;
@@ -39,11 +32,6 @@ protected:
 			request.orientation != previous.orientation;
 	}
 	
-	structure_loader() :
-		stat_file_size_(statistics::add("Structure ROM", 0, statistics::file_size, statistics::rom_size)),
-		stat_memory_size_(statistics::add("Structure Memory", 0, statistics::file_size, statistics::memory_size)),
-		stat_total_points_(statistics::add("Total Points", 0, statistics::number, statistics::model_total_points)) { }
-
 	virtual std::size_t extract_points_(point_buffer_t points, std::size_t capacity, const loader::request_t&) = 0;
 	virtual adapt_result_t adapt_settings_(std::size_t last_extracted, std::size_t capacity) { return adapt_stabilize; }
 	

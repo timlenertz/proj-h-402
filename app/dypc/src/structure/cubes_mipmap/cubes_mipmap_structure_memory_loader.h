@@ -14,9 +14,7 @@ private:
 
 public:
 	cubes_mipmap_structure_memory_loader(float side, std::size_t mmlvl, float mmfac, downsampling_mode_t dmode, model& mod) :
-	structure_(side, mmlvl, mmfac, dmode, mod) {
-		stat_total_cubes_ = structure_.cubes().size();
-	}
+	structure_(side, mmlvl, mmfac, dmode, mod) { }
 	
 	std::string loader_name() const override { return "Cubes Mipmap Structure Memory Loader"; }
 

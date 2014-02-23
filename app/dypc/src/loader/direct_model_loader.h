@@ -4,6 +4,7 @@
 #include "loader.h"
 #include "../model/model.h"
 #include <utility>
+#include <memory>
 
 namespace dypc {
 

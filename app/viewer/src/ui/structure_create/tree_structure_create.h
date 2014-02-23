@@ -17,7 +17,7 @@ public:
 		structure_type_(t), tree_structure_create_ui(parent, id) { }
 	
 	dypc_loader create_memory_loader(dypc_model) const override;
-	void write_structure_file(dypc_model mod, const std::string& filename, const std::string& format) const override;
+	void write_structure_file(dypc_model mod, const std::string& filename) const override;
 };
 
 

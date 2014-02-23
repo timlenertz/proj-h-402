@@ -4,7 +4,7 @@
 #include "../src/model/concentric_spheres_model.h"
 #include "../src/model/torus_model.h"
 #include "../src/model/random_model.h"
-
+#include <iostream>
 
 dypc_model dypc_create_ply_model(const char* filename, float scale) {
 	dypc::ply_model* mod = new dypc::ply_model(filename, scale);
@@ -18,6 +18,7 @@ dypc_model dypc_create_concentric_spheres_model(dypc_size count, float inner, fl
 
 dypc_model dypc_create_torus_model(dypc_size count, float r0, float r1) {
 	dypc::torus_model* mod = new dypc::torus_model(count, r0, r1);
+	std::cout << mod->number_of_points() << std::endl;
 	return (dypc_model)mod;
 }
 

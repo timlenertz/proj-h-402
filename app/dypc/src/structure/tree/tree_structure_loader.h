@@ -35,8 +35,6 @@ public:
 	void set_minimal_number_of_points_for_split(std::size_t n) { minimal_number_of_points_for_split_ = n; }
 	void set_downsampling_node_distance(downsampling_node_distance_t d) { downsampling_node_distance_ = d; }
 	void set_additional_split_distance_difference(float d) { additional_split_distance_difference_ = d; }
-	
-	//::wxWindow* create_panel(::wxWindow* parent) override;
 };
 	
 }

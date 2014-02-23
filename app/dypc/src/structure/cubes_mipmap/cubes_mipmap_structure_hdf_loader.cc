@@ -105,8 +105,6 @@ cubes_mipmap_structure_hdf_loader::cubes_mipmap_structure_hdf_loader(const std::
 	}
 	delete[] cubes_data;
 	
-	stat_total_cubes_ = cubes_count;
-	
 	points_data_set_ = file_.openDataSet("points");
 	points_data_space_ = points_data_set_.getSpace();
 
@@ -157,9 +155,6 @@ std::size_t cubes_mipmap_structure_hdf_loader::extract_points_(point_buffer_t po
 		
 		delete[] mem_buf;
 	}
-
-	stat_frustum_cubes_ = frustum_cubes;
-	stat_downsampled_cubes_ = downsampled_cubes;
 	
 	return total;
 }
