@@ -4,5 +4,7 @@
 \BOOKMARK [1][-]{section.2.2}{Projection}{chapter.2}% 4
 \BOOKMARK [1][-]{section.2.3}{Frustum culling}{chapter.2}% 5
 \BOOKMARK [1][-]{section.2.4}{Downsampling}{chapter.2}% 6
-\BOOKMARK [1][-]{section.2.5}{Occlusion culling}{chapter.2}% 7
-\BOOKMARK [0][-]{chapter.3}{Data structures}{}% 8
+\BOOKMARK [2][-]{subsection.2.4.1}{Random downsampling}{section.2.4}% 7
+\BOOKMARK [2][-]{subsection.2.4.2}{Uniform downsampling}{section.2.4}% 8
+\BOOKMARK [1][-]{section.2.5}{Occlusion culling}{chapter.2}% 9
+\BOOKMARK [0][-]{chapter.3}{Data structures}{}% 10

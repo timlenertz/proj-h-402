@@ -4,5 +4,7 @@
 \contentsline {section}{\numberline {2.2}Projection}{4}{section.2.2}
 \contentsline {section}{\numberline {2.3}Frustum culling}{5}{section.2.3}
 \contentsline {section}{\numberline {2.4}Downsampling}{5}{section.2.4}
-\contentsline {section}{\numberline {2.5}Occlusion culling}{5}{section.2.5}
-\contentsline {chapter}{\numberline {3}Data structures}{6}{chapter.3}
+\contentsline {subsection}{\numberline {2.4.1}Random downsampling}{6}{subsection.2.4.1}
+\contentsline {subsection}{\numberline {2.4.2}Uniform downsampling}{6}{subsection.2.4.2}
+\contentsline {section}{\numberline {2.5}Occlusion culling}{6}{section.2.5}
+\contentsline {chapter}{\numberline {3}Data structures}{7}{chapter.3}
