@@ -1,10 +1,19 @@
-\documentclass[a4paper,11pt,abstracton,notitlepage]{scrreprt}
+\documentclass[a4paper,10pt,abstracton,notitlepage]{scrreprt}
 \usepackage[utf8]{inputenc}
 \usepackage{fullpage}
 \usepackage{hyperref}
 \usepackage{isomath}
 \usepackage{amsfonts}
 \usepackage{amsmath}
+\usepackage{graphicx}
+\usepackage{float}
+\usepackage{wrapfig}
+\usepackage{caption}
+\usepackage[export]{adjustbox}
+\usepackage{gnuplottex}
+
+
+\captionsetup{font={small}}
 
 \title{Dynamic loading of 3D models}
 \subtitle{PROJ-H-402 Project Report}
@@ -77,7 +86,6 @@ f = \frac{1}{\tan(\frac{\lambda}{2})}
 \end{displaymath}
 
 
-
 \section{Frustum culling}
 The simplest and most effective filtering done by $f_{P}$ is \emph{view frustum culling}, which removes all points from $P$ that are not within the view frustum defined by $\matrixsym{M}$. This usually eliminates more than half of the points from the model: Those behind the viewer, those outside his field of view, and those too far away (beyond the far clipping plane $z_{\mathrm{far}}$). It is done implicitly by the GPU, but the goal of the filtering is to reduce the number of points before they are sent to the GPU.
 
@@ -85,19 +93,96 @@ Frustum culling can be done per point by clipping the camera coordinates as desc
 
 
 \section{Downsampling}
-Downsampling reduces the density of points. Because of foreshortening in perspective projection, sections of the model that are farther away from the camera will become smaller in the two-dimensional projection, and as a consequence their amount and density of points increases. Since a smaller density is sufficient to visually represent the model, it makes sense to apply downsampling on regions of the point cloud, depending on the distance from the camera.
+Downsampling reduces the density of points. Because of foreshortening in perspective projection, sections of the model that are farther away from the camera will become smaller in the two-dimensional projection, and as a consequence their amount and density of points increases. Since a smaller density is sufficient to visually represent the model, it makes sense to apply downsampling on regions of the point cloud, depending on their distance from the camera.
 
-A downsampling algorithm with ratio $0 \leq r \leq 1$ applied on a set of points $P$ yields a smaller set of points $P'$ with $|P'| \approx r \times |P|$. The set $P'$ is not necessarily a subset of $P$, and it may be possible to get visually better results by introducing points in different locations than in $P$.
+Because the point cloud is non-volumetric, points are distributed on two-dimensional surfaces of the three-dimensional model. So the density can be defined as the number of points per surface area $\rho = n/A$. Because of the way the point clouds are generated, $\rho$ will remain approximately constant on small scale, but on composite point clouds that combine different scans, $\rho$ can vary greatly in different regions of the point cloud. Some objects could have been scanned close-up, while the surrounding environment has a much lower resolution. 
 
+The level of downsampling is determined by a function $r(d)$ which gives a ratio in function of a distance to the camera. A downsampling algorithm will transform the point cloud such that at any surface position $\overrightarrow{p}$, the density becomes $\rho' = r(d(\overrightarrow{p})) \times \rho$ (with $r \in [0, 1]$). The algorithms used here operate without knowledge of the shape of the object's surface or of the concrete value of $\rho$.
 
+\subsection{Weighted points}
+One method of doing downsampling is to assign a weight $w \in [0, 1]$ to each point $p \in P$, and let the downsampled set of points be the subset $P' = \{ p \in P : w(p) < r(d(p)) \}$. For this to work the weights $w$ need to be uniformly distributed among the points.
 
-\subsection{Random downsampling}
+This leads to a continuous $\rho'$, so no visual discontinuities are produced. Also, if the data structure contains the weighted points $P$ in a list ordered by ascending $w$, then it is possible to dynamically extract $P'$ in time $O(|P'|)$.
+
+\begin{wrapfigure}{r}{7cm}
+\includegraphics[width=7cm,frame]{random_weights_inv.png}
+\caption{Weighted points downsampling using random weights}
+\label{fig:random_weights}
+\end{wrapfigure}
+A simple way to define the weights is to set each weight to a random value. However, this leads to an irregular pattern in the way downsampled points are placed on the surface, as seen in figure \ref{fig:random_weights}. The left-hand side of the point cloud is not downsampled and retains a more regular pattern.
+
+\subsection{LOD regions}
+Another possibility is to first compute several downsampled point sets $P'_{r}$ with fixed downsampling ratios $r$, during preprocessing. $P'(\overrightarrow{p})$ is then produced out of pieces of these sets, by choosing the set whose value $r$ is closest to $r(d(\overrightarrow{p})$. The resulting $P'$ is thus composed of several \emph{level of detail} (LOD) regions\footnote{These are called \emph{mipmaps} in the implementation}, so $\rho'(d)$ becomes a non-continuous staircase function, and visual discontinuities are produced. However, this method allows for producing the sets $P'_{r}$ with no time constraints and with a constant $r$.
+
+In figure \ref{fig:uniform_example}, the region farther away was downsampled this way (using uniform downsampling). A visual discontinuity can be seen in the lower-right corner.
+
 \subsection{Uniform downsampling}
+Uniform downsampling is a downsampling algorithm that aims to produce a more regular pattern in the distribution of points on $P'$, as opposed to that produced by random downsampling (figure \ref{fig:random_weights}). It operates using a constant ratio $r$.
+
+\begin{wrapfigure}{r}{7cm}
+\includegraphics[width=7cm,frame]{uniform_example_inv.png}
+\caption{Example of uniform downsampling}
+\label{fig:uniform_example}
+\end{wrapfigure}
+The input point set $P$ is divided into a regular grid of cubes $C_{i,j,k}$ with side length $s$. For all cubes that contain at least one point, exactly one single point $p'$ is outputted into $P'$, whose position is the mean of that of the points in $C$, and whose color is that of the point $p \in P$ closest to that position. Figure \ref{fig:uniform_algo} illustrates the procedure in two dimensions. The more regular aspect of $P'$ is because its points are constrained by the regular grid. The algorithm also does not require $P$ to have a regular pattern to begin with.
+
+The main difficulty is to find the value for the side length $s$, such that $n = |P'|$ is approximately equal to $r \times |P|$. Figure \ref{fig:uniform_stat} shows how $n$ varies in function of $s$: In general, $n$ gets larger as the side length $s$ gets smaller, because there are more cubes available in the region of the model. Because the cubes are non-overlapping and each point $p \in P$ belongs to exactly one cube, $n$ is at most $|P|$. It reaches this value once $s$ gets reaches a value (depending on the density) where each point belongs to a different cube.
+
+However, the function is not entirely monotonic, as the close-up view in figure \ref{fig:uniform_stat_detail} shows. This is because when $s$ gets changes, all cubes on the grid (except those at the origin) get displaced. So it is possible that two neighboring points fit into one cube for one value of $s$, but for $s' > s$ the grid becomes such that a boundary lies between these points. This effect only occurs at the small scale because as $s$ gets even larger, the boundary moves further so the two points again fit into one cube, and many more points in the model fit into the same cubes.
+
+Because the points are not distributed evenly in space but rather on the object's surfaces, but the algorithm operates in three-dimensional space, there is way to effectively estimate a value for $n(s)$. Instead the algorithm does a dichotomic search to find a value $s$ such that $n \approx r \times |P|$, within a certain tolerance. The small-scale ascending intervals of $s(n)$ are taken into account.
+
+\begin{figure}[p]
+\centering
+\includegraphics[width=8cm]{uniform.png}
+\caption{Two-dimensional visualization of uniform downsampling algorithm}
+\label{fig:uniform_algo}
+\end{figure}
+
+\begin{figure}[p]
+\centering
+\begin{gnuplot}
+	unset key
+	set ylabel "n"
+	set xlabel "s"
+	plot "uniform\_stat.dat" smooth unique
+\end{gnuplot}
+\caption{Number of output points $n$ VS cubes side length $s$ in uniform downsampling}
+\label{fig:uniform_stat}
+\end{figure}
+
+\begin{figure}[p]
+\centering
+\begin{gnuplot}
+	unset key
+	set ylabel "n"
+	set xlabel "s"
+	plot "uniform\_stat\_detail.dat" smooth unique
+\end{gnuplot}
+\caption{Close-up view of figure \ref{fig:uniform_stat}}
+\label{fig:uniform_stat_detail}
+\end{figure}
+
+
+\subsection{Choosing the function $r(d)$}
+
+
 
 \section{Occlusion culling}
 
 
 \chapter{Data structures}
+
+\section{Cubes structure}
+\section{Tree structures}
+\subsection{Octree}
+\subsection{KdTree}
+
+\chapter{Application}
+
+\chapter{Results}
+
+\chapter{Conclusion}
 
 \bibliographystyle{plain}
 \bibliography{report}

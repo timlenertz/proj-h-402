@@ -4,7 +4,16 @@
 \BOOKMARK [1][-]{section.2.2}{Projection}{chapter.2}% 4
 \BOOKMARK [1][-]{section.2.3}{Frustum culling}{chapter.2}% 5
 \BOOKMARK [1][-]{section.2.4}{Downsampling}{chapter.2}% 6
-\BOOKMARK [2][-]{subsection.2.4.1}{Random downsampling}{section.2.4}% 7
-\BOOKMARK [2][-]{subsection.2.4.2}{Uniform downsampling}{section.2.4}% 8
-\BOOKMARK [1][-]{section.2.5}{Occlusion culling}{chapter.2}% 9
-\BOOKMARK [0][-]{chapter.3}{Data structures}{}% 10
+\BOOKMARK [2][-]{subsection.2.4.1}{Weighted points}{section.2.4}% 7
+\BOOKMARK [2][-]{subsection.2.4.2}{LOD regions}{section.2.4}% 8
+\BOOKMARK [2][-]{subsection.2.4.3}{Uniform downsampling}{section.2.4}% 9
+\BOOKMARK [2][-]{subsection.2.4.4}{Choosing the function r\(d\)}{section.2.4}% 10
+\BOOKMARK [1][-]{section.2.5}{Occlusion culling}{chapter.2}% 11
+\BOOKMARK [0][-]{chapter.3}{Data structures}{}% 12
+\BOOKMARK [1][-]{section.3.1}{Cubes structure}{chapter.3}% 13
+\BOOKMARK [1][-]{section.3.2}{Tree structures}{chapter.3}% 14
+\BOOKMARK [2][-]{subsection.3.2.1}{Octree}{section.3.2}% 15
+\BOOKMARK [2][-]{subsection.3.2.2}{KdTree}{section.3.2}% 16
+\BOOKMARK [0][-]{chapter.4}{Application}{}% 17
+\BOOKMARK [0][-]{chapter.5}{Results}{}% 18
+\BOOKMARK [0][-]{chapter.6}{Conclusion}{}% 19

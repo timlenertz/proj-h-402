@@ -24,6 +24,20 @@ void random_downsampling(Iterator pt_begin, Iterator pt_end, float ratio, Output
 
 
 template<class Iterator>
+void uniform_downsampling_side_length_statistics(std::ostream& output, Iterator pt_begin, Iterator pt_end, float max_side, float step) {	
+	for(float side = max_side; side >= 0.0; side -= step) {
+		using cube_index_t = std::tuple<long, long, long>;
+		std::map<cube_index_t, bool> cubes;
+		for(Iterator pt = pt_begin; pt != pt_end; ++pt) {				
+			cube_index_t idx(pt->x / side, pt->y / side, pt->z / side);
+			cubes[idx] = true;
+		}
+		output << side << " " << cubes.size() << std::endl;
+	}
+}
+
+
+template<class Iterator>
 float uniform_downsampling_side_length(Iterator pt_begin, Iterator pt_end, float ratio, float bounding_area, uniform_downsampling_previous_results_t& previous_results) {	
 	std::size_t number_of_points = pt_end - pt_begin;
 	if(number_of_points <= 1) return std::cbrt(bounding_area);

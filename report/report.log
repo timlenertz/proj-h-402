@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.1415926-2.4-1.40.13 (TeX Live 2012/Debian) (format=pdflatex 2013.9.9)  24 FEB 2014 11:28
+This is pdfTeX, Version 3.1415926-2.4-1.40.13 (TeX Live 2012/Debian) (format=pdflatex 2013.9.9)  26 FEB 2014 23:54
 entering extended mode
  \write18 enabled.
  file:line:error style messages enabled.
@@ -49,11 +49,11 @@ Package tocbasic Info: omitting babel extension for `lof'
 Package tocbasic Info: omitting babel extension for `lot'
 (tocbasic)             because of feature `nobabel' available
 (tocbasic)             for `lot' on input line 119.
-Package scrreprt Info: You've used obsolete option `11pt'.
-(scrreprt)             \KOMAExecuteOptions{fontsize=11pt} will be
+Package scrreprt Info: You've used obsolete option `10pt'.
+(scrreprt)             \KOMAExecuteOptions{fontsize=10pt} will be
 (scrreprt)             used instead.
-(scrreprt)             You may simply replace `11pt'
-(scrreprt)             by `fontsize=11pt'.
+(scrreprt)             You may simply replace `10pt'
+(scrreprt)             by `fontsize=10pt'.
 Class scrreprt Info: You've used standard option `abstracton'.
 (scrreprt)           This is correct!
 (scrreprt)           Internally I'm using `abstract=true'.
@@ -66,11 +66,11 @@ Class scrreprt Info: You've used standard option `notitlepage'.
 (scrreprt)           If you'd like to set the option with \KOMAoptions,
 (scrreprt)           you'd have to use `titlepage=false' there
 (scrreprt)           instead of `notitlepage', too.
-Class scrreprt Info: File `scrsize11pt.clo' used to setup font sizes on input l
+Class scrreprt Info: File `scrsize10pt.clo' used to setup font sizes on input l
 ine 1365.
 
-(/usr/share/texlive/texmf-dist/tex/latex/koma-script/scrsize11pt.clo
-File: scrsize11pt.clo 2012/05/15 v3.11 KOMA-Script font size class option (11pt
+(/usr/share/texlive/texmf-dist/tex/latex/koma-script/scrsize10pt.clo
+File: scrsize10pt.clo 2012/05/15 v3.11 KOMA-Script font size class option (10pt
 )
 )
 (/usr/share/texlive/texmf-dist/tex/latex/koma-script/typearea.sty
@@ -92,21 +92,21 @@ Package typearea Info: You've used standard option `a4paper'.
 \ta@vblk=\skip43
 \ta@temp=\skip44
 Package typearea Info: These are the values describing the layout:
-(typearea)             DIV  = 10
+(typearea)             DIV  = 8
 (typearea)             BCOR = 0.0pt
 (typearea)             \paperwidth      = 597.50793pt
-(typearea)              \textwidth      = 418.25555pt
-(typearea)              DIV departure   = -6%
-(typearea)              \evensidemargin = 17.3562pt
-(typearea)              \oddsidemargin  = 17.3562pt
+(typearea)              \textwidth      = 373.44246pt
+(typearea)              DIV departure   = -4%
+(typearea)              \evensidemargin = 39.76274pt
+(typearea)              \oddsidemargin  = 39.76274pt
 (typearea)             \paperheight     = 845.04694pt
-(typearea)              \textheight     = 595.80026pt
-(typearea)              \topmargin      = -25.16531pt
-(typearea)              \headheight     = 17.0pt
-(typearea)              \headsep        = 20.40001pt
-(typearea)              \topskip        = 11.0pt
-(typearea)              \footskip       = 47.60002pt
-(typearea)              \baselineskip   = 13.6pt
+(typearea)              \textheight     = 538.0pt
+(typearea)              \topmargin      = 0.36087pt
+(typearea)              \headheight     = 15.0pt
+(typearea)              \headsep        = 18.0pt
+(typearea)              \topskip        = 10.0pt
+(typearea)              \footskip       = 42.0pt
+(typearea)              \baselineskip   = 12.0pt
 (typearea)              on input line 1211.
 )
 \c@part=\count80
@@ -567,25 +567,162 @@ LaTeX Font Info:    Redeclaring font encoding OMS on input line 568.
 \mathdisplay@stack=\toks22
 LaTeX Info: Redefining \[ on input line 2666.
 LaTeX Info: Redefining \] on input line 2667.
+)
+(/usr/share/texlive/texmf-dist/tex/latex/graphics/graphicx.sty
+Package: graphicx 1999/02/16 v1.0f Enhanced LaTeX Graphics (DPC,SPQR)
+
+(/usr/share/texlive/texmf-dist/tex/latex/graphics/graphics.sty
+Package: graphics 2009/02/05 v1.0o Standard LaTeX Graphics (DPC,SPQR)
+
+(/usr/share/texlive/texmf-dist/tex/latex/graphics/trig.sty
+Package: trig 1999/03/16 v1.09 sin cos tan (DPC)
+)
+(/usr/share/texlive/texmf-dist/tex/latex/latexconfig/graphics.cfg
+File: graphics.cfg 2010/04/23 v1.9 graphics configuration of TeX Live
+)
+Package graphics Info: Driver file: pdftex.def on input line 91.
+
+(/usr/share/texlive/texmf-dist/tex/latex/pdftex-def/pdftex.def
+File: pdftex.def 2011/05/27 v0.06d Graphics/color for pdfTeX
+\Gread@gobject=\count111
+))
+\Gin@req@height=\dimen115
+\Gin@req@width=\dimen116
+)
+(/usr/share/texlive/texmf-dist/tex/latex/float/float.sty
+Package: float 2001/11/08 v1.3d Float enhancements (AL)
+\c@float@type=\count112
+\float@exts=\toks23
+\float@box=\box29
+\@float@everytoks=\toks24
+\@floatcapt=\box30
+)
+(/usr/share/texlive/texmf-dist/tex/latex/wrapfig/wrapfig.sty
+\wrapoverhang=\dimen117
+\WF@size=\dimen118
+\c@WF@wrappedlines=\count113
+\WF@box=\box31
+\WF@everypar=\toks25
+Package: wrapfig 2003/01/31  v 3.6
+)
+(/usr/share/texlive/texmf-dist/tex/latex/caption/caption.sty
+Package: caption 2012/02/19 v3.2f Customizing captions (AR)
+
+(/usr/share/texlive/texmf-dist/tex/latex/caption/caption3.sty
+Package: caption3 2012/01/12 v1.4b caption3 kernel (AR)
+\captionmargin=\dimen119
+\captionmargin@=\dimen120
+\captionwidth=\dimen121
+\caption@indent=\dimen122
+\caption@parindent=\dimen123
+\caption@hangindent=\dimen124
+)
+Package caption Info: KOMA-Script document class.
+\c@ContinuedFloat=\count114
+Package caption Info: float package is loaded.
+Package caption Info: hyperref package is loaded.
+Package caption Info: wrapfig package is loaded.
+)
+(/usr/share/texlive/texmf-dist/tex/latex/adjustbox/adjustbox.sty
+Package: adjustbox 2012/05/21 v1.0 Adjusting TeX boxes (trim, clip, ...)
+
+(/usr/share/texlive/texmf-dist/tex/latex/xkeyval/xkeyval.sty
+Package: xkeyval 2008/08/13 v2.6a package option processing (HA)
+
+(/usr/share/texlive/texmf-dist/tex/generic/xkeyval/xkeyval.tex
+\XKV@toks=\toks26
+\XKV@tempa@toks=\toks27
+\XKV@depth=\count115
+File: xkeyval.tex 2008/08/13 v2.6a key=value parser (HA)
+))
+(/usr/share/texlive/texmf-dist/tex/latex/adjustbox/adjcalc.sty
+Package: adjcalc 2012/05/16 v1.1 Provides advanced setlength with multiple back
+-ends (calc, etex, pgfmath)
+)
+(/usr/share/texlive/texmf-dist/tex/latex/adjustbox/trimclip.sty
+Package: trimclip 2012/05/16 v1.0 Trim and clip general TeX material
+
+(/usr/share/texlive/texmf-dist/tex/latex/collectbox/collectbox.sty
+Package: collectbox 2012/05/17 v0.4b Collect macro arguments as boxes
+\collectedbox=\box32
+)
+\tc@llx=\dimen125
+\tc@lly=\dimen126
+\tc@urx=\dimen127
+\tc@ury=\dimen128
+Package trimclip Info: Using driver 'tc-pdftex.def'.
+
+(/usr/share/texlive/texmf-dist/tex/latex/adjustbox/tc-pdftex.def
+File: tc-pdftex.def 2012/05/13 v1.0 Clipping driver for pdftex
+))
+\adjbox@Width=\dimen129
+\adjbox@Height=\dimen130
+\adjbox@Depth=\dimen131
+\adjbox@Totalheight=\dimen132
+
+(/usr/share/texlive/texmf-dist/tex/latex/ifoddpage/ifoddpage.sty
+Package: ifoddpage 2011/09/13 v1.0 Conditionals for odd/even page detection
+\c@checkoddpage=\count116
+)
+(/usr/share/texlive/texmf-dist/tex/latex/varwidth/varwidth.sty
+Package: varwidth 2009/03/30 ver 0.92;  Variable-width minipages
+\@vwid@box=\box33
+\sift@deathcycles=\count117
+\@vwid@loff=\dimen133
+\@vwid@roff=\dimen134
+))
+(/usr/share/texlive/texmf-dist/tex/latex/gnuplottex/gnuplottex.sty
+Package: gnuplottex 2011/09/12 v0.4.4 gnuplot graphs in LaTeX
+
+(/usr/share/texlive/texmf-dist/tex/latex/base/latexsym.sty
+Package: latexsym 1998/08/17 v2.2e Standard LaTeX package (lasy symbols)
+\symlasy=\mathgroup6
+LaTeX Font Info:    Overwriting symbol font `lasy' in version `bold'
+(Font)                  U/lasy/m/n --> U/lasy/b/n on input line 47.
+)
+(/usr/share/texlive/texmf-dist/tex/latex/moreverb/moreverb.sty
+Package: moreverb 2008/06/03 v2.3a `more' verbatim facilities
+
+(/usr/share/texlive/texmf-dist/tex/latex/tools/verbatim.sty
+Package: verbatim 2003/08/22 v1.5q LaTeX2e package for verbatim enhancements
+\every@verbatim=\toks28
+\verbatim@line=\toks29
+\verbatim@in@stream=\read1
+)
+\tab@position=\count118
+\tab@size=\count119
+\listing@line=\count120
+)
+(/usr/share/texlive/texmf-dist/tex/latex/base/ifthen.sty
+Package: ifthen 2001/05/26 v1.1c Standard LaTeX ifthen package (DPC)
+)
+\verbatim@out=\write3
+runsystem(touch /tmp/w18-test-20142261434)...executed.
+
+runsystem(rm -f /tmp/w18-test-20142261434)...executed.
+
+Package gnuplottex Info: Automatically converting gnuplot files. on input line 
+77.
+\c@fignum=\count121
 ) (./report.aux)
 \openout1 = `report.aux'.
 
-LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 14.
-LaTeX Font Info:    ... okay on input line 14.
-LaTeX Font Info:    Checking defaults for T1/cmr/m/n on input line 14.
-LaTeX Font Info:    ... okay on input line 14.
-LaTeX Font Info:    Checking defaults for OT1/cmr/m/n on input line 14.
-LaTeX Font Info:    ... okay on input line 14.
-LaTeX Font Info:    Checking defaults for OMS/cmsy/m/n on input line 14.
-LaTeX Font Info:    ... okay on input line 14.
-LaTeX Font Info:    Checking defaults for OMX/cmex/m/n on input line 14.
-LaTeX Font Info:    ... okay on input line 14.
-LaTeX Font Info:    Checking defaults for U/cmr/m/n on input line 14.
-LaTeX Font Info:    ... okay on input line 14.
-LaTeX Font Info:    Checking defaults for PD1/pdf/m/n on input line 14.
-LaTeX Font Info:    ... okay on input line 14.
-\AtBeginShipoutBox=\box29
-Package hyperref Info: Link coloring OFF on input line 14.
+LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 23.
+LaTeX Font Info:    ... okay on input line 23.
+LaTeX Font Info:    Checking defaults for T1/cmr/m/n on input line 23.
+LaTeX Font Info:    ... okay on input line 23.
+LaTeX Font Info:    Checking defaults for OT1/cmr/m/n on input line 23.
+LaTeX Font Info:    ... okay on input line 23.
+LaTeX Font Info:    Checking defaults for OMS/cmsy/m/n on input line 23.
+LaTeX Font Info:    ... okay on input line 23.
+LaTeX Font Info:    Checking defaults for OMX/cmex/m/n on input line 23.
+LaTeX Font Info:    ... okay on input line 23.
+LaTeX Font Info:    Checking defaults for U/cmr/m/n on input line 23.
+LaTeX Font Info:    ... okay on input line 23.
+LaTeX Font Info:    Checking defaults for PD1/pdf/m/n on input line 23.
+LaTeX Font Info:    ... okay on input line 23.
+\AtBeginShipoutBox=\box34
+Package hyperref Info: Link coloring OFF on input line 23.
 
 (/usr/share/texlive/texmf-dist/tex/latex/hyperref/nameref.sty
 Package: nameref 2010/04/30 v2.40 Cross-referencing by name of section
@@ -593,94 +730,223 @@ Package: nameref 2010/04/30 v2.40 Cross-referencing by name of section
 (/usr/share/texlive/texmf-dist/tex/generic/oberdiek/gettitlestring.sty
 Package: gettitlestring 2010/12/03 v1.4 Cleanup title references (HO)
 )
-\c@section@level=\count111
+\c@section@level=\count122
 )
-LaTeX Info: Redefining \ref on input line 14.
-LaTeX Info: Redefining \pageref on input line 14.
-LaTeX Info: Redefining \nameref on input line 14.
+LaTeX Info: Redefining \ref on input line 23.
+LaTeX Info: Redefining \pageref on input line 23.
+LaTeX Info: Redefining \nameref on input line 23.
 
 (./report.out) (./report.out)
-\@outlinefile=\write3
-\openout3 = `report.out'.
+\@outlinefile=\write4
+\openout4 = `report.out'.
 
-LaTeX Font Info:    Try loading font information for U+msa on input line 16.
+
+(/usr/share/texlive/texmf-dist/tex/context/base/supp-pdf.mkii
+[Loading MPS to PDF converter (version 2006.09.02).]
+\scratchcounter=\count123
+\scratchdimen=\dimen135
+\scratchbox=\box35
+\nofMPsegments=\count124
+\nofMParguments=\count125
+\everyMPshowfont=\toks30
+\MPscratchCnt=\count126
+\MPscratchDim=\dimen136
+\MPnumerator=\count127
+\makeMPintoPDFobject=\count128
+\everyMPtoPDFconversion=\toks31
+) (/usr/share/texlive/texmf-dist/tex/latex/oberdiek/epstopdf-base.sty
+Package: epstopdf-base 2010/02/09 v2.5 Base part for package epstopdf
+
+(/usr/share/texlive/texmf-dist/tex/latex/oberdiek/grfext.sty
+Package: grfext 2010/08/19 v1.1 Manage graphics extensions (HO)
+)
+Package grfext Info: Graphics extension search list:
+(grfext)             [.png,.pdf,.jpg,.mps,.jpeg,.jbig2,.jb2,.PNG,.PDF,.JPG,.JPE
+G,.JBIG2,.JB2,.eps]
+(grfext)             \AppendGraphicsExtensions on input line 452.
+
+(/usr/share/texlive/texmf-dist/tex/latex/latexconfig/epstopdf-sys.cfg
+File: epstopdf-sys.cfg 2010/07/13 v1.3 Configuration of (r)epstopdf for TeX Liv
+e
+))
+Package caption Info: Begin \AtBeginDocument code.
+Package caption Info: End \AtBeginDocument code.
+LaTeX Font Info:    Try loading font information for U+msa on input line 25.
 
 (/usr/share/texlive/texmf-dist/tex/latex/amsfonts/umsa.fd
 File: umsa.fd 2009/06/22 v3.00 AMS symbols A
 )
-LaTeX Font Info:    Try loading font information for U+msb on input line 16.
+LaTeX Font Info:    Try loading font information for U+msb on input line 25.
 
 (/usr/share/texlive/texmf-dist/tex/latex/amsfonts/umsb.fd
 File: umsb.fd 2009/06/22 v3.00 AMS symbols B
+)
+LaTeX Font Info:    Try loading font information for U+lasy on input line 25.
+
+(/usr/share/texlive/texmf-dist/tex/latex/base/ulasy.fd
+File: ulasy.fd 1998/08/17 v2.2e LaTeX symbol font definitions
 ) [1
 
 
 {/var/lib/texmf/fonts/map/pdftex/updmap/pdftex.map}] (./report.toc)
-\tf@toc=\write4
-\openout4 = `report.toc'.
+\tf@toc=\write5
+\openout5 = `report.toc'.
 
  [2
 
 ]
 Chapter 1.
+
+Class scrreprt Warning: \float@addtolists detected!
+(scrreprt)              You should use the features of package `tocbasic'
+(scrreprt)              instead of \float@addtolists.
+(scrreprt)              Support for \float@addtolists may be removed from
+(scrreprt)              `scrreprt' soon .
+
 [3
 
 ]
 Chapter 2.
-LaTeX Font Info:    Try loading font information for OML+cmr on input line 48.
+LaTeX Font Info:    Try loading font information for OML+cmr on input line 57.
 (/usr/share/texlive/texmf-dist/tex/latex/base/omlcmr.fd
 File: omlcmr.fd 1999/05/25 v2.5h Standard LaTeX font definitions
 )
-LaTeX Font Info:    Font shape `OML/cmr/bx/it' in size <10.95> not available
-(Font)              Font shape `OML/cmm/b/it' tried instead on input line 48.
-LaTeX Font Info:    Font shape `OML/cmr/bx/it' in size <8> not available
-(Font)              Font shape `OML/cmm/b/it' tried instead on input line 48.
-LaTeX Font Info:    Font shape `OML/cmr/bx/it' in size <6> not available
-(Font)              Font shape `OML/cmm/b/it' tried instead on input line 48.
+LaTeX Font Info:    Font shape `OML/cmr/bx/it' in size <10> not available
+(Font)              Font shape `OML/cmm/b/it' tried instead on input line 57.
+LaTeX Font Info:    Font shape `OML/cmr/bx/it' in size <7> not available
+(Font)              Font shape `OML/cmm/b/it' tried instead on input line 57.
+LaTeX Font Info:    Font shape `OML/cmr/bx/it' in size <5> not available
+(Font)              Font shape `OML/cmm/b/it' tried instead on input line 57.
  [4
 
-] [5] [6]
-Chapter 3.
-(./report.bbl [7
+]
+<random_weights_inv.png, id=135, 576.1525pt x 233.87375pt>
+File: random_weights_inv.png Graphic file (type png)
 
-])
-Package atveryend Info: Empty hook `BeforeClearDocument' on input line 106.
- [8
+<use random_weights_inv.png>
+Package pdftex.def Info: random_weights_inv.png used on input line 108.
+(pdftex.def)             Requested size: 199.16928pt x 80.8471pt.
+
+Overfull \hbox (0.79999pt too wide) in paragraph at lines 108--109
+[][] 
+ []
+
+[5]
+LaTeX Font Info:    Font shape `OML/cmr/bx/it' in size <8> not available
+(Font)              Font shape `OML/cmm/b/it' tried instead on input line 115.
+LaTeX Font Info:    Font shape `OML/cmr/bx/it' in size <6> not available
+(Font)              Font shape `OML/cmm/b/it' tried instead on input line 115.
+ <uniform_example_inv.png, id=146, 563.10374pt x 476.78125pt>
+File: uniform_example_inv.png Graphic file (type png)
+
+<use uniform_example_inv.png>
+Package pdftex.def Info: uniform_example_inv.png used on input line 123.
+(pdftex.def)             Requested size: 199.16928pt x 168.6365pt.
+
+Overfull \hbox (0.79999pt too wide) in paragraph at lines 123--124
+[][] 
+ []
+
+<uniform.png, id=150, 456.7464pt x 216.81pt>
+File: uniform.png Graphic file (type png)
+ <use uniform.png>
+Package pdftex.def Info: uniform.png used on input line 137.
+(pdftex.def)             Requested size: 227.62204pt x 108.05074pt.
+\openout3 = `report-gnuplottex-fig1.gnuplot'.
+
+
+Opening gnuplot stream report-gnuplottex-fig1.gnuplot
+runsystem(gnuplot report-gnuplottex-fig1.gnuplot)...executed.
+
+Package gnuplottex Info: report-gnuplottex-fig1.gnuplot converted on input line
+ 149.
+
+(./report-gnuplottex-fig1.tex
+\plotpoint=\box36
+)
+LaTeX Font Info:    Font shape `OML/cmr/bx/it' in size <9> not available
+(Font)              Font shape `OML/cmm/b/it' tried instead on input line 150.
+\openout3 = `report-gnuplottex-fig2.gnuplot'.
+
+
+Opening gnuplot stream report-gnuplottex-fig2.gnuplot
+runsystem(gnuplot report-gnuplottex-fig2.gnuplot)...executed.
+
+Package gnuplottex Info: report-gnuplottex-fig2.gnuplot converted on input line
+ 161.
+
+(./report-gnuplottex-fig2.tex)
+LaTeX Font Info:    Font shape `OML/cmr/bx/it' in size <12> not available
+(Font)              Font shape `OML/cmm/b/it' tried instead on input line 167.
+
+
+Package hyperref Warning: Token not allowed in a PDF string (PDFDocEncoding):
+(hyperref)                removing `math shift' on input line 167.
+
+
+Package hyperref Warning: Token not allowed in a PDF string (PDFDocEncoding):
+(hyperref)                removing `math shift' on input line 167.
+
+[6 <./random_weights_inv.png> <./uniform_example_inv.png>] [7 <./uniform.png (P
+NG copy)>] [8]
+Chapter 3.
+[9
 
 ]
-Package atveryend Info: Empty hook `AfterLastShipout' on input line 106.
+Chapter 4.
+[10
+
+]
+Chapter 5.
+[11
+
+]
+Chapter 6.
+(./report.bbl [12
+
+])
+Package atveryend Info: Empty hook `BeforeClearDocument' on input line 191.
+ [13
+
+]
+Package atveryend Info: Empty hook `AfterLastShipout' on input line 191.
  (./report.aux)
-Package atveryend Info: Executing hook `AtVeryEndDocument' on input line 106.
-Package atveryend Info: Executing hook `AtEndAfterFileList' on input line 106.
+Package atveryend Info: Executing hook `AtVeryEndDocument' on input line 191.
+Package atveryend Info: Executing hook `AtEndAfterFileList' on input line 191.
 Package rerunfilecheck Info: File `report.out' has not changed.
-(rerunfilecheck)             Checksum: 399C570E303FFEEBD0472866F2A7C3E4;598.
-Package atveryend Info: Empty hook `AtVeryVeryEnd' on input line 106.
+(rerunfilecheck)             Checksum: 88C0CC1D306BB7877A7F0424CCA24EE8;1121.
+Package atveryend Info: Empty hook `AtVeryVeryEnd' on input line 191.
  ) 
 Here is how much of TeX's memory you used:
- 6421 strings out of 493485
- 95808 string characters out of 3143527
- 210497 words of memory out of 3000000
- 9638 multiletter control sequences out of 15000+200000
- 16576 words of font info for 63 fonts, out of 3000000 for 9000
+ 9391 strings out of 493485
+ 144199 string characters out of 3143527
+ 407314 words of memory out of 3000000
+ 12468 multiletter control sequences out of 15000+200000
+ 19196 words of font info for 76 fonts, out of 3000000 for 9000
  957 hyphenation exceptions out of 8191
- 38i,14n,47p,894b,336s stack positions out of 5000i,500n,10000p,200000b,50000s
+ 40i,14n,74p,894b,403s stack positions out of 5000i,500n,10000p,200000b,50000s
 </usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmex10.pfb></us
 r/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi10.pfb></usr/shar
-e/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi8.pfb></usr/share/texli
-ve/texmf-dist/fonts/type1/public/amsfonts/cm/cmmib10.pfb></usr/share/texlive/te
-xmf-dist/fonts/type1/public/amsfonts/cmextra/cmmib8.pfb></usr/share/texlive/tex
-mf-dist/fonts/type1/public/amsfonts/cm/cmr10.pfb></usr/share/texlive/texmf-dist
-/fonts/type1/public/amsfonts/cm/cmr12.pfb></usr/share/texlive/texmf-dist/fonts/
-type1/public/amsfonts/cm/cmr6.pfb></usr/share/texlive/texmf-dist/fonts/type1/pu
-blic/amsfonts/cm/cmr8.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/ams
-fonts/cm/cmr9.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm
-/cmssbx10.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cms
-y10.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy8.pfb
-></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmti10.pfb>
-Output written on report.pdf (8 pages, 165999 bytes).
+e/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi12.pfb></usr/share/texl
+ive/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi7.pfb></usr/share/texlive/tex
+mf-dist/fonts/type1/public/amsfonts/cm/cmmi9.pfb></usr/share/texlive/texmf-dist
+/fonts/type1/public/amsfonts/cm/cmmib10.pfb></usr/share/texlive/texmf-dist/font
+s/type1/public/amsfonts/cmextra/cmmib7.pfb></usr/share/texlive/texmf-dist/fonts
+/type1/public/amsfonts/cm/cmr10.pfb></usr/share/texlive/texmf-dist/fonts/type1/
+public/amsfonts/cm/cmr12.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/
+amsfonts/cm/cmr5.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts
+/cm/cmr6.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmr7
+.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmr8.pfb></u
+sr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmr9.pfb></usr/share
+/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmssbx10.pfb></usr/share/tex
+live/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy10.pfb></usr/share/texlive/t
+exmf-dist/fonts/type1/public/amsfonts/cm/cmsy7.pfb></usr/share/texlive/texmf-di
+st/fonts/type1/public/amsfonts/cm/cmti10.pfb></usr/share/texlive/texmf-dist/fon
+ts/type1/public/amsfonts/cm/cmti8.pfb>
+Output written on report.pdf (13 pages, 298959 bytes).
 PDF statistics:
- 161 PDF objects out of 1000 (max. 8388607)
- 135 compressed objects within 2 object streams
- 23 named destinations out of 1000 (max. 500000)
- 81 words of extra memory for PDF output out of 10000 (max. 10000000)
+ 272 PDF objects out of 1000 (max. 8388607)
+ 231 compressed objects within 3 object streams
+ 43 named destinations out of 1000 (max. 500000)
+ 168 words of extra memory for PDF output out of 10000 (max. 10000000)
 
