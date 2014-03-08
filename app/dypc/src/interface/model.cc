@@ -1,10 +1,10 @@
 #include "model.h"
-#include "../src/model/model.h"
-#include "../src/model/ply_model.h"
-#include "../src/model/concentric_spheres_model.h"
-#include "../src/model/torus_model.h"
-#include "../src/model/random_model.h"
-#include "../src/downsampling.h"
+#include "../model/model.h"
+#include "../model/ply_model.h"
+#include "../model/concentric_spheres_model.h"
+#include "../model/torus_model.h"
+#include "../model/random_model.h"
+#include "../downsampling.h"
 #include <iostream>
 #include <sstream>
 #include <cstring>

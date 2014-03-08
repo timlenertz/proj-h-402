@@ -33,6 +33,11 @@ public:
 	void set_frustum_culling(bool f) { frustum_culling_ = f; }
 	void set_downsampling_level(unsigned l) { downsampling_level_ = l; }
 	void set_secondary_pass_minimal_distance(float d) { secondary_pass_distance_ = d; }
+	
+	double get_setting(const std::string&) const override;
+	void set_setting(const std::string&, double) override;
+	
+	loader_type get_loader_type() const override { return loader_type::cubes; }
 };
 
 }

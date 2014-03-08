@@ -5,6 +5,7 @@
 #include <cmath>
 #include <vector>
 #include <cassert>
+#include "../../enums.h"
 #include "../../point.h"
 #include "../../cuboid.h"
 #include "../../loader/loader.h"
@@ -33,18 +34,18 @@ private:
 	const float side_length_;
 	const std::size_t mipmap_levels_;
 	const float mipmap_factor_;
-	const downsampling_mode_t downsampling_mode_;
+	const downsampling_mode downsampling_mode_;
 	
 	std::map<cube_index_t, cube> cubes_;
 
 	void add_point_(const point& pt);
 
 public:
-	cubes_mipmap_structure(float side, std::size_t mmlvl, float mmfac, downsampling_mode_t mod, model&);	
+	cubes_mipmap_structure(float side, std::size_t mmlvl, float mmfac, downsampling_mode mod, model&);	
 	float get_side_length() const { return side_length_; }
 	std::size_t get_mipmap_levels() const { return mipmap_levels_; }
 	float get_mipmap_factor() const { return mipmap_factor_; }
-	downsampling_mode_t get_downsampling_mode() const { return downsampling_mode_; }
+	downsampling_mode get_downsampling_mode() const { return downsampling_mode_; }
 	
 	std::size_t total_number_of_points() const;
 	const std::map<cube_index_t, cube>& cubes() const { return cubes_; }

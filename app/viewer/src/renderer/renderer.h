@@ -91,6 +91,8 @@ public:
 	void set_configuration(float fov, float scale, unsigned char bg_r, unsigned char bg_g, unsigned char bg_b, bool fog, float fog_distance, bool depth_test, bool shadow, unsigned shadow_size, float shadow_max_distance);
 	void set_point_capacity(std::size_t capacity);
 	
+	const updater& get_updater() const { return updater_; }
+	updater& get_updater() { return updater_; }
 	bool get_updater_paused() const { return ! updater_.is_running(); }
 	void set_updater_paused(bool p);
 	std::chrono::milliseconds get_updater_check_interval() const { return updater_.get_check_interval(); }

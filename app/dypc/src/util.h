@@ -7,14 +7,40 @@
 
 namespace dypc {
 
-std::string file_path_extension(const std::string&);
+/**
+ * Gets extension from file path/name.
+ * @param filepath File path or name.
+ * @return File extension, or empty string if none.
+ */
+std::string file_path_extension(const std::string& filepath);
 
-std::string file_size_to_string(std::size_t);
-std::string time_to_string(std::chrono::milliseconds);
+/**
+ * Get string for file size.
+ * @param sz File size in byte.
+ * @return String such as "655 B", "1.54 MiB"
+ */
+std::string file_size_to_string(std::size_t sz);
+
+/**
+ * Get string for time duration.
+ * @param t Duration in milliseconds.
+ * @return String such as "54 ms", "4.3 s"
+ */
+std::string time_to_string(std::chrono::milliseconds t);
+
+/**
+ * Get string for decimal number.
+ * @param f Number.
+ * @param decimal_digits Maximal amount of decimal digits.
+ * @return String such as "4.78"
+ */
 std::string float_to_string(double f, std::size_t decimal_digits = 2);
 
 std::string file_formats_to_wildcard(const std::map<std::string, std::string>& file_formats);
 
+/**
+ * Get square of number.
+ */
 template<class Number> inline Number sq(Number n) { return n * n; } 
 
 inline float min(float a, float b) { return (a < b ? a : b); }

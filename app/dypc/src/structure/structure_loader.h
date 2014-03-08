@@ -37,7 +37,7 @@ protected:
 	
 	virtual std::size_t memory_size_() const = 0;
 	virtual std::size_t file_size_() const = 0;
-	virtual std::size_t total_points_() const = 0;		
+	virtual std::size_t total_points_() const = 0;
 };
 
 }

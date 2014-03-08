@@ -1,6 +1,7 @@
 #ifndef DYPC_DOWNSAMPLING_H_
 #define DYPC_DOWNSAMPLING_H_
 
+#include "enums.h"
 #include "point.h"
 #include "progress.h"
 #include <vector>
@@ -11,8 +12,6 @@
 #include <iostream>
 
 namespace dypc {
-
-enum downsampling_mode_t { random_downsampling_mode = 0, uniform_downsampling_mode };
 
 using uniform_downsampling_previous_results_t = std::map<std::size_t, float>;
 

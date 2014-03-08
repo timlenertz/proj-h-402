@@ -1,6 +1,9 @@
 set terminal latex
 set output 'report-gnuplottex-fig1.tex'
-unset key
-set ylabel "n"
-set xlabel "s"
-plot "uniform\_stat.dat" smooth unique
+set terminal epslatex color
+set xlabel "$s$"
+set ylabel "$n / |P|$"
+plot \
+"stat\_dragon.dat" using 1:($2/3609599+0*$2) smooth unique linetype rgb "black" title "dragon.ply", \
+"stat\_statuette.dat" using 1:($2/4999995+0*$2) smooth unique linetype rgb "red" title "statuette.ply", \
+"stat\_scan.dat" using 1:($2/681124+0*$2) smooth unique linetype rgb "blue" title "scan.ply"

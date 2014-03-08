@@ -59,8 +59,8 @@ private:
 	piece_node root_piece_node_;
 	
 public:
-	tree_structure_piecewise(std::size_t leaf_cap, float mmfac, downsampling_mode_t dmode, std::size_t dmax, model& mod);
-	tree_structure_piecewise(std::size_t leaf_cap, float mmfac, downsampling_mode_t dmode, std::size_t dmax, model& mod, std::ptrdiff_t maxnum);
+	tree_structure_piecewise(std::size_t leaf_cap, float mmfac, downsampling_mode dmode, std::size_t dmax, model& mod);
+	tree_structure_piecewise(std::size_t leaf_cap, float mmfac, downsampling_mode dmode, std::size_t dmax, model& mod, std::ptrdiff_t maxnum);
 	
 	const piece_node& root_piece_node() const { return root_piece_node_; }
 	const cuboid& root_piece_cuboid() const { return model_root_cuboid_; }
@@ -75,12 +75,12 @@ public:
 
 
 template<class Splitter, std::size_t Levels, class PointsContainer>
-tree_structure_piecewise<Splitter, Levels, PointsContainer>::tree_structure_piecewise(std::size_t leaf_cap, float mmfac, downsampling_mode_t dmode, std::size_t dmax, model& mod) : super(leaf_cap, mmfac, dmode, dmax, mod), model_(mod), model_root_cuboid_(Splitter::root_cuboid(mod)), maximal_number_of_points_per_piece_(0) { }
+tree_structure_piecewise<Splitter, Levels, PointsContainer>::tree_structure_piecewise(std::size_t leaf_cap, float mmfac, downsampling_mode dmode, std::size_t dmax, model& mod) : super(leaf_cap, mmfac, dmode, dmax, mod), model_(mod), model_root_cuboid_(Splitter::root_cuboid(mod)), maximal_number_of_points_per_piece_(0) { }
 
 
 
 template<class Splitter, std::size_t Levels, class PointsContainer>
-tree_structure_piecewise<Splitter, Levels, PointsContainer>::tree_structure_piecewise(std::size_t leaf_cap, float mmfac, downsampling_mode_t dmode, std::size_t dmax, model& mod, std::ptrdiff_t maxnum) : super(leaf_cap, mmfac, dmode, dmax), model_(mod), model_root_cuboid_(Splitter::root_cuboid(mod)), maximal_number_of_points_per_piece_(maxnum) {	
+tree_structure_piecewise<Splitter, Levels, PointsContainer>::tree_structure_piecewise(std::size_t leaf_cap, float mmfac, downsampling_mode dmode, std::size_t dmax, model& mod, std::ptrdiff_t maxnum) : super(leaf_cap, mmfac, dmode, dmax), model_(mod), model_root_cuboid_(Splitter::root_cuboid(mod)), maximal_number_of_points_per_piece_(maxnum) {	
 	std::cout << maxnum << std::endl;
 	
 	std::stack<piece> pieces_stack;

@@ -29,6 +29,11 @@ public:
 	void set_downsampling_start_distance(float d) { downsampling_start_distance_ = d; }
 	void set_downsampling_step_distance(float d) { downsampling_step_distance_ = d; }
 	void set_frustum_culling(bool f) { frustum_culling_ = f; }
+	
+	double get_setting(const std::string&) const override;
+	void set_setting(const std::string&, double) override;
+	
+	loader_type get_loader_type() const override { return loader_type::cubes_mipmap; }
 };
 
 }

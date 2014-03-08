@@ -9,21 +9,24 @@ CP := cp
 export
 
 
-all : make_dypc make_tools
-	$(MKDIR) -p dist && \
-	$(CP) dypc/lib/libdypc.so dist/ && \
-	$(CP) viewer/viewer dist/ && \
-	$(CP) -r viewer/res dist/ && \
-	$(CP) tools/ply2hdf tools/uniform_stat dist/
+all : make_dypc make_viewer make_tools
 	
-make_dypc : 
-	$(MAKE) -C dypc
 
-make_viewer : dypc
-	$(MAKE) -C viewer
+dist_dir :
+	$(MKDIR) -p dist
 
-make_tools :
-	$(MAKE) -C tools
+make_dypc : dist_dir
+	$(MAKE) -C dypc && \
+	$(CP) dypc/lib/libdypc.so dist/
+
+make_viewer : dist_dir
+	$(MAKE) -C viewer && \
+	$(CP) viewer/viewer dist/ && \
+	$(CP) -r viewer/res dist/
+
+make_tools : dist_dir
+	$(MAKE) -C tools && \
+	$(CP) tools/ply2hdf tools/uniform_stat dist/
 
 clean :
 	$(MAKE) -C dypc clean && \

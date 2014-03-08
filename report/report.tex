@@ -126,7 +126,7 @@ Uniform downsampling is a downsampling algorithm that aims to produce a more reg
 \end{wrapfigure}
 The input point set $P$ is divided into a regular grid of cubes $C_{i,j,k}$ with side length $s$. For all cubes that contain at least one point, exactly one single point $p'$ is outputted into $P'$, whose position is the mean of that of the points in $C$, and whose color is that of the point $p \in P$ closest to that position. Figure \ref{fig:uniform_algo} illustrates the procedure in two dimensions. The more regular aspect of $P'$ is because its points are constrained by the regular grid. The algorithm also does not require $P$ to have a regular pattern to begin with.
 
-The main difficulty is to find the value for the side length $s$, such that $n = |P'|$ is approximately equal to $r \times |P|$. Figure \ref{fig:uniform_stat} shows how $n$ varies in function of $s$: In general, $n$ gets larger as the side length $s$ gets smaller, because there are more cubes available in the region of the model. Because the cubes are non-overlapping and each point $p \in P$ belongs to exactly one cube, $n$ is at most $|P|$. It reaches this value once $s$ gets reaches a value (depending on the density) where each point belongs to a different cube.
+The main difficulty is to find the value for the side length $s$, such that $n = |P'|$ is approximately equal to $r \times |P|$. Figure \ref{fig:uniform_stat} shows how $n$ varies in function of $s$ for some example models: In general, $n$ gets larger as the side length $s$ gets smaller, because there are more cubes available in the region of the model. Because the cubes are non-overlapping and each point $p \in P$ belongs to exactly one cube, $n$ is at most $|P|$. It reaches this value once $s$ gets reaches a value (depending on the density) where each point belongs to a different cube.
 
 However, the function is not entirely monotonic, as the close-up view in figure \ref{fig:uniform_stat_detail} shows. This is because when $s$ gets changes, all cubes on the grid (except those at the origin) get displaced. So it is possible that two neighboring points fit into one cube for one value of $s$, but for $s' > s$ the grid becomes such that a boundary lies between these points. This effect only occurs at the small scale because as $s$ gets even larger, the boundary moves further so the two points again fit into one cube, and many more points in the model fit into the same cubes.
 
@@ -134,7 +134,7 @@ Because the points are not distributed evenly in space but rather on the object'
 
 \begin{figure}[p]
 \centering
-\includegraphics[width=8cm]{uniform.png}
+\includegraphics[width=7cm]{uniform.png}
 \caption{Two-dimensional visualization of uniform downsampling algorithm}
 \label{fig:uniform_algo}
 \end{figure}
@@ -142,12 +142,15 @@ Because the points are not distributed evenly in space but rather on the object'
 \begin{figure}[p]
 \centering
 \begin{gnuplot}
-	unset key
-	set ylabel "n"
-	set xlabel "s"
-	plot "uniform\_stat.dat" smooth unique
+	set terminal epslatex color
+	set xlabel "$s$"
+	set ylabel "$n / |P|$"
+	plot \
+		"stat\_dragon.dat" using 1:($2/3609599+0*$2) smooth unique linetype rgb "black" title "dragon.ply", \
+		"stat\_statuette.dat" using 1:($2/4999995+0*$2) smooth unique linetype rgb "red" title "statuette.ply", \
+		"stat\_scan.dat" using 1:($2/681124+0*$2) smooth unique linetype rgb "blue" title "scan.ply"
 \end{gnuplot}
-\caption{Number of output points $n$ VS cubes side length $s$ in uniform downsampling}
+\caption{Number of output points $n$ VS cubes side length $s$ in uniform downsampling; normalized by number of points in model $|P|$}
 \label{fig:uniform_stat}
 \end{figure}
 
@@ -155,8 +158,8 @@ Because the points are not distributed evenly in space but rather on the object'
 \centering
 \begin{gnuplot}
 	unset key
-	set ylabel "n"
-	set xlabel "s"
+	set ylabel "$n$"
+	set xlabel "$s$"
 	plot "uniform\_stat\_detail.dat" smooth unique
 \end{gnuplot}
 \caption{Close-up view of figure \ref{fig:uniform_stat}}
@@ -165,7 +168,14 @@ Because the points are not distributed evenly in space but rather on the object'
 
 
 \subsection{Choosing the function $r(d)$}
-
+The function $r(d)$ determines that ratio of downsampling that should be applied depending on the distance $d$ to the camera. If \emph{LOD regions} are used, it gets turned into a staircase function with a finite number of steps (the number of LOD regions), and after that it stays constant. The function $r(d)$, the number $l$ of LOD regions, and their respective constant values $r_{i}$ should fulfill the following constraints:
+\begin{itemize}
+\item In general, downsampling should minimized, such that $n = |P'|$ gets close to, but does not exceed the renderer capacity $C$.
+\item Regions close to the camera should not be downsampled, so that it is still possible to view all details.
+\item The regions farther away should still be recognizable. The distances can be very large, in some point clouds regions farther away may have a different point density $\rho$. (see beginning of section)
+\item Visual discontinuities should be kept as low as possible.
+\end{itemize}
+In perspective projection, the density of point surfaces projected to the two-dimensional screen raises proportionally with their distance to the camera. 
 
 
 \section{Occlusion culling}

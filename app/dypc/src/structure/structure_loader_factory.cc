@@ -41,11 +41,11 @@ static typename Functor::result_t call_levels_(const Functor& func, std::size_t 
 }
 
 template<class Functor, class... Args>
-static typename Functor::result_t call_(const Functor& func, structure_type_t type, std::size_t levels, Args&&... args) {
+static typename Functor::result_t call_(const Functor& func, structure_type type, std::size_t levels, Args&&... args) {
 	switch(type) {
-		case octree_structure_type: return call_levels_<Functor, octree_structure>(func, levels, std::forward<Args>(args)...);
-		case kdtree_structure_type: return call_levels_<Functor, kdtree_structure>(func, levels, std::forward<Args>(args)...);
-		case kdtree_half_structure_type: return call_levels_<Functor, kdtree_half_structure>(func, levels, std::forward<Args>(args)...);
+		case structure_type::octree: return call_levels_<Functor, octree_structure>(func, levels, std::forward<Args>(args)...);
+		case structure_type::kdtree: return call_levels_<Functor, kdtree_structure>(func, levels, std::forward<Args>(args)...);
+		case structure_type::kdtree_half: return call_levels_<Functor, kdtree_half_structure>(func, levels, std::forward<Args>(args)...);
 		default: return typename Functor::result_t();
 	}
 }
@@ -56,12 +56,12 @@ struct create_tree_structure_ {
 	using result_t = structure*;
 	
 	template<class Structure>
-	result_t call(std::size_t leaf_cap, float mmfac, downsampling_mode_t dmode, std::size_t dmax, model& mod) const {
+	result_t call(std::size_t leaf_cap, float mmfac, downsampling_mode dmode, std::size_t dmax, model& mod) const {
 		return new Structure(leaf_cap, mmfac, dmode, dmax, mod);
 	}
 
 	template<class Structure>
-	result_t call(std::size_t leaf_cap, float mmfac, downsampling_mode_t dmode, std::size_t dmax, model& mod, std::size_t piece_size) const {
+	result_t call(std::size_t leaf_cap, float mmfac, downsampling_mode dmode, std::size_t dmax, model& mod, std::size_t piece_size) const {
 		return new Structure(leaf_cap, mmfac, dmode, dmax, mod, piece_size);
 	}
 };
@@ -101,7 +101,7 @@ struct create_tree_structure_file_loader_ {
 };
 
 
-std::pair<structure_type_t, std::size_t> read_hdf_structure_file_type(const std::string& filename) {
+std::pair<structure_type, std::size_t> read_hdf_structure_file_type(const std::string& filename) {
 	H5::H5File file;
 	file.openFile(filename.c_str(), H5F_ACC_RDONLY);
 	
@@ -113,11 +113,11 @@ std::pair<structure_type_t, std::size_t> read_hdf_structure_file_type(const std:
 	attr = config_group.openAttribute("levels");
 	attr.read(H5::PredType::NATIVE_UINT32, (void*)&levels_int);
 	
-	return std::make_pair((structure_type_t)type_int, levels_int);
+	return std::make_pair((structure_type)type_int, levels_int);
 }
 
 
-void write_hdf_structure_file_type(const std::string& filename, structure_type_t type, std::size_t levels) {
+void write_hdf_structure_file_type(const std::string& filename, structure_type type, std::size_t levels) {
 	H5::H5File file;
 	file.openFile(filename.c_str(), H5F_ACC_RDWR);
 
@@ -133,18 +133,18 @@ void write_hdf_structure_file_type(const std::string& filename, structure_type_t
 }
 
 
-std::pair<structure_type_t, std::size_t> read_sqlite_structure_file_type(const std::string& filename) {
+std::pair<structure_type, std::size_t> read_sqlite_structure_file_type(const std::string& filename) {
 	sqlite_database database(filename);
 	auto result = database.select("SELECT type, levels FROM structure_type");
 	result.next();
 	auto r = result.current_row();
 	auto type_int = r[0].int_value();
 	auto levels_int = (r[1].is_null() ? 0 : r[1].int_value());
-	return std::make_pair((structure_type_t)type_int, levels_int);
+	return std::make_pair((structure_type)type_int, levels_int);
 }
 
 
-void write_sqlite_structure_file_type(const std::string& filename, structure_type_t type, std::size_t levels) {
+void write_sqlite_structure_file_type(const std::string& filename, structure_type type, std::size_t levels) {
 	sqlite_database database(filename);
 	database.execute("CREATE TABLE structure_type ( type INTEGER NOT NULL, levels INTEGER )");
 	int type_int = (int)type;
@@ -156,14 +156,14 @@ void write_sqlite_structure_file_type(const std::string& filename, structure_typ
 
 
 
-tree_structure_loader* create_tree_structure_memory_loader(structure_type_t type, unsigned levels, std::size_t leaf_cap, float mmfac, downsampling_mode_t dmode, std::size_t dmax, model& mod, tree_structure_loader_type_t ltype) {	
+tree_structure_loader* create_tree_structure_memory_loader(structure_type type, unsigned levels, std::size_t leaf_cap, float mmfac, downsampling_mode dmode, std::size_t dmax, model& mod, tree_structure_loader_type ltype) {	
 	structure* s = call_(create_tree_structure_(), type, levels, leaf_cap, mmfac, dmode, dmax, mod);
 	
 	tree_structure_loader* ld = nullptr;
 	switch(ltype) {
-		case simple_tree_structure_loader_type: ld = call_(create_tree_structure_memory_loader_<tree_structure_memory_simple_loader>(), type, levels, s); break;
-		case ordered_tree_structure_loader_type: ld = call_(create_tree_structure_memory_loader_<tree_structure_memory_ordered_loader>(), type, levels, s); break;
- 		case occluding_tree_structure_loader_type: ld = call_(create_tree_structure_memory_loader_<tree_structure_memory_occluding_loader>(), type, levels, s); break;
+		case tree_structure_loader_type::simple: ld = call_(create_tree_structure_memory_loader_<tree_structure_memory_simple_loader>(), type, levels, s); break;
+		case tree_structure_loader_type::ordered: ld = call_(create_tree_structure_memory_loader_<tree_structure_memory_ordered_loader>(), type, levels, s); break;
+ 		case tree_structure_loader_type::occluding: ld = call_(create_tree_structure_memory_loader_<tree_structure_memory_occluding_loader>(), type, levels, s); break;
 	}
 	
 	if(ld) return ld;
@@ -172,22 +172,22 @@ tree_structure_loader* create_tree_structure_memory_loader(structure_type_t type
 
 
 
-loader* create_structure_file_loader(const std::string& filename, tree_structure_loader_type_t ltype) {
+loader* create_structure_file_loader(const std::string& filename, tree_structure_loader_type ltype) {
 	loader* ld = nullptr;
 		
 	auto ext = file_path_extension(filename);
 	if(ext == "hdf") {
 		auto type = read_hdf_structure_file_type(filename);
-		if(type.first == cubes_structure_type) {
+		if(type.first == structure_type::cubes) {
 			ld = new cubes_structure_hdf_loader(filename);
-		} else if(type.first == cubes_mipmap_structure_type) {
+		} else if(type.first == structure_type::cubes_mipmap) {
 			ld = new cubes_mipmap_structure_hdf_loader(filename);
 		} else {
 			ld = call_(create_tree_structure_file_loader_<tree_structure_hdf_loader> {filename}, type.first, type.second);
 		}
 	} else if(ext == "db") {
 		auto type = read_sqlite_structure_file_type(filename);
-		if(type.first == cubes_structure_type) {
+		if(type.first == structure_type::cubes) {
 			ld = new cubes_structure_sqlite_loader(filename);
 		}
 	}
@@ -197,7 +197,7 @@ loader* create_structure_file_loader(const std::string& filename, tree_structure
 }
 
 
-void write_tree_structure_file(const std::string& filename, structure_type_t type, unsigned levels, std::size_t leaf_cap, float mmfac, downsampling_mode_t dmode, std::size_t dmax, model& mod) {
+void write_tree_structure_file(const std::string& filename, structure_type type, unsigned levels, std::size_t leaf_cap, float mmfac, downsampling_mode dmode, std::size_t dmax, model& mod) {
 	const std::size_t maximal_number_of_points_per_piece = 10000;//16 * 1024 * 1024;
 	
 	auto ext = file_path_extension(filename);

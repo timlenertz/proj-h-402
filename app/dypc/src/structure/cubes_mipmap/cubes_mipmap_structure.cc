@@ -24,7 +24,7 @@ void cubes_mipmap_structure::add_point_(const point& pt) {
 }
 
 
-cubes_mipmap_structure::cubes_mipmap_structure(float side, std::size_t mmlvl, float mmfac, downsampling_mode_t dmode, model& mod) :
+cubes_mipmap_structure::cubes_mipmap_structure(float side, std::size_t mmlvl, float mmfac, downsampling_mode dmode, model& mod) :
 side_length_(side), mipmap_levels_(mmlvl), mipmap_factor_(mmfac), downsampling_mode_(dmode) {
 	progress("Creating Cubes Structure...", mod.number_of_points(), 250000, [&]() {
 		std::size_t points = 0;
@@ -91,13 +91,13 @@ void cubes_mipmap_structure::cube::generate_downsampling() {
 	float ratio = 1.0 / factor;
 	float area = std::pow(structure_.get_side_length(), 3.0);
 	
-	if(structure_.downsampling_mode_ == random_downsampling_mode) {
+	if(structure_.downsampling_mode_ == downsampling_mode::random) {
 		for(std::ptrdiff_t lvl = 1; lvl < structure_.mipmap_levels_; ++lvl) {
 			random_downsampling(all_points.data(), all_points.data() + all_points.size(), ratio, point_sets_[lvl]);
 			ratio /= factor;
 		}
 		
-	} else if(structure_.downsampling_mode_ == uniform_downsampling_mode) {
+	} else if(structure_.downsampling_mode_ == downsampling_mode::uniform) {
 		for(std::ptrdiff_t lvl = 1; lvl < structure_.mipmap_levels_; ++lvl) {
 			uniform_downsampling(all_points.data(), all_points.data() + all_points.size(), ratio, area, point_sets_[lvl]);
 			ratio /= factor;

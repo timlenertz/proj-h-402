@@ -5,6 +5,9 @@
 
 #include "../ui/model_create/model_create.h"
 #include "../ui/structure_create/structure_create.h"
+#include "../ui/loader_panel/cubes_structure_panel.h"
+#include "../ui/loader_panel/cubes_mipmap_structure_panel.h"
+#include "../ui/loader_panel/tree_structure_panel.h"
 #include "../util.h"
 
 #include <dypc/model.h>
@@ -231,8 +234,17 @@ void main_frame::on_loader_choice_(wxCommandEvent& event) {
 	if(ld) {		
 		get_renderer_().switch_loader(ld);
 		loader_label->SetLabel(wxString(dypc_loader_name(ld), wxConvUTF8));
-		/*wxWindow* panel = ld->create_panel(loader_panel);
-		if(panel) loader_panel_sizer->Add(panel, wxSizerFlags().Expand());*/
+		
+		wxWindow* panel;
+		updater& upd = get_renderer_().get_updater();
+		switch(dypc_loader_loader_type(ld)) {
+			case dypc_cubes_loader_type: panel = new cubes_structure_panel(upd, loader_panel); break;
+			case dypc_cubes_mipmap_loader_type: panel = new cubes_mipmap_structure_panel(upd, loader_panel); break;
+			case dypc_tree_loader_type: panel = new tree_structure_panel(upd, loader_panel); break;
+			default: panel = nullptr;
+		}
+		
+		if(panel) loader_panel_sizer->Add(panel, wxSizerFlags().Expand());
 	} else {
 		loader_label->SetLabel(wxT(""));
 	}

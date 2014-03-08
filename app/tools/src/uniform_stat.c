@@ -12,7 +12,7 @@ int main(int argc, const char* argv[]) {
 	if(! model) { printf("Could not load model."); return 1; }
 
 
-	dypc_uniform_downsampling_side_length_statistics_print(model, 0.3, 0.00001);
+	dypc_uniform_downsampling_side_length_statistics_print(model, 0.5, 0.003);
 	dypc_delete_model(model);
 	
 	return 0;

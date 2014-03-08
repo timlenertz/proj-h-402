@@ -33,7 +33,7 @@ OBJ += $(patsubst %.fbp,build/%.o,$(FBP))
 all : $(TARGET)
 	
 
-$(TARGET) : $(OBJ)
+$(TARGET) : $(FBP_HPP) $(OBJ)
 	$(CXX) $(CXXFLAGS) $(LDFLAGS) -o $@ $(OBJ) $(LDLIBS)
 
 build/%.o : %.cc

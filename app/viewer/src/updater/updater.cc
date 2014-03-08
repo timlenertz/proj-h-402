@@ -52,6 +52,23 @@ void updater::access_loader(std::function<void(dypc_loader)> fct) {
 	}
 }
 
+double updater::get_loader_setting(const std::string& setting) {
+	double value;
+	access_loader([&](dypc_loader ld) {
+		value = dypc_loader_get_setting(ld, setting.c_str());
+	});
+	return value;
+}
+
+
+void updater::set_loader_settings(const std::map<std::string, double>& settings) {
+	access_loader([&](dypc_loader ld) {
+		for(const auto& p : settings) dypc_loader_set_setting(ld, p.first.c_str(), p.second);
+	});
+	update_now();
+}
+
+
 void updater::stop() {
 	if(! is_running()) return;
 	stop_ = true;

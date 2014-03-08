@@ -1,15 +1,16 @@
 #include "loader.h"
-#include "../src/point.h"
-#include "../src/util.h"
-#include "../src/model/model.h"
-#include "../src/loader/loader.h"
-#include "../src/loader/direct_model_loader.h"
-#include "../src/structure/structure_loader_factory.h"
-#include "../src/structure/cubes/cubes_structure_memory_loader.h"
-#include "../src/structure/cubes/cubes_structure_hdf_loader.h"
-#include "../src/structure/cubes/cubes_structure_sqlite_loader.h"
-#include "../src/structure/cubes_mipmap/cubes_mipmap_structure_memory_loader.h"
-#include "../src/structure/cubes_mipmap/cubes_mipmap_structure_hdf_loader.h"
+#include "../enums.h"
+#include "../point.h"
+#include "../util.h"
+#include "../model/model.h"
+#include "../loader/loader.h"
+#include "../loader/direct_model_loader.h"
+#include "../structure/structure_loader_factory.h"
+#include "../structure/cubes/cubes_structure_memory_loader.h"
+#include "../structure/cubes/cubes_structure_hdf_loader.h"
+#include "../structure/cubes/cubes_structure_sqlite_loader.h"
+#include "../structure/cubes_mipmap/cubes_mipmap_structure_memory_loader.h"
+#include "../structure/cubes_mipmap/cubes_mipmap_structure_hdf_loader.h"
 
 #include <glm/glm.hpp>
 #include <glm/gtc/quaternion.hpp>
@@ -17,30 +18,6 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
-#include <iostream>
-
-static dypc::structure_type_t convert_structure_type(dypc_tree_structure_type typ) {
-	switch(typ) {
-		case dypc_octree_tree_structure_type: return dypc::octree_structure_type;
-		case dypc_kdtree_tree_structure_type: return dypc::kdtree_structure_type;
-		case dypc_kdtree_half_tree_structure_type: return dypc::kdtree_half_structure_type;
-	}
-}
-
-static dypc::downsampling_mode_t convert_downsampling_mode(dypc_downsampling_mode dmode) {
-	switch(dmode) {
-		case dypc_random_downsampling_mode: return dypc::random_downsampling_mode;
-		case dypc_uniform_downsampling_mode: return dypc::uniform_downsampling_mode;
-	}
-}
-
-static dypc::tree_structure_loader_type_t convert_tree_structure_loader_type(dypc_tree_structure_loader_type ltype) {
-	switch(ltype) {
-		case dypc_simple_tree_structure_loader_type: return dypc::simple_tree_structure_loader_type;
-		case dypc_ordered_tree_structure_loader_type: return dypc::ordered_tree_structure_loader_type;
-		case dypc_occluding_tree_structure_loader_type: return dypc::occluding_tree_structure_loader_type;
-	}
-}
 
 static dypc::loader::request_t convert_loader_request(const dypc_loader_request& req) {
 	return dypc::loader::request_t(
@@ -58,7 +35,7 @@ dypc_loader dypc_create_direct_model_loader(dypc_model m) {
 }
 
 dypc_loader dypc_create_file_structure_loader(const char* filename, dypc_tree_structure_loader_type ltype) {
-	dypc::loader* ld = dypc::create_structure_file_loader(filename, convert_tree_structure_loader_type(ltype));
+	dypc::loader* ld = dypc::create_structure_file_loader(filename, (dypc::tree_structure_loader_type)(ltype));
 	return (dypc_loader)ld;
 }
 
@@ -76,24 +53,29 @@ dypc_loader dypc_create_cubes_structure_loader(dypc_model m, float side) {
 
 dypc_loader dypc_create_mipmap_cubes_structure_loader(dypc_model m, float side, unsigned levels, float mmfac, dypc_downsampling_mode dmode) {
 	dypc::model* mod = (dypc::model*)m;
-	dypc::cubes_mipmap_structure_memory_loader* ld = new dypc::cubes_mipmap_structure_memory_loader(side, levels, mmfac, convert_downsampling_mode(dmode), *mod);
+	dypc::cubes_mipmap_structure_memory_loader* ld = new dypc::cubes_mipmap_structure_memory_loader(side, levels, mmfac, (dypc::downsampling_mode)(dmode), *mod);
 	return (dypc_loader)ld;
 }
 
 
-dypc_loader dypc_create_tree_structure_loader(dypc_model m, dypc_tree_structure_type str, unsigned levels, dypc_size leaf_cap, float mmfac, dypc_downsampling_mode dmode, dypc_size dmax, dypc_tree_structure_loader_type ltype) {
+dypc_loader dypc_create_tree_structure_loader(dypc_model m, dypc_structure_type str, unsigned levels, dypc_size leaf_cap, float mmfac, dypc_downsampling_mode dmode, dypc_size dmax, dypc_tree_structure_loader_type ltype) {
 	dypc::model* mod = (dypc::model*)m;
 	dypc::tree_structure_loader* ld = dypc::create_tree_structure_memory_loader(
-		convert_structure_type(str),
+		(dypc::structure_type)(str),
 		levels, 
 		leaf_cap,
 		mmfac,
-		convert_downsampling_mode(dmode),
+		(dypc::downsampling_mode)(dmode),
 		dmax,
 		*mod,
-		convert_tree_structure_loader_type(ltype)
+		(dypc::tree_structure_loader_type)(ltype)
 	);
 	return (dypc_loader)ld;
+}
+
+dypc_loader_type dypc_loader_loader_type(dypc_loader l) {
+	dypc::loader& ld = *(dypc::loader*)l;
+	return (dypc_loader_type)ld.get_loader_type();
 }
 
 void dypc_write_cubes_structure_to_file(const char* filename, dypc_model m, float side) {
@@ -107,20 +89,20 @@ void dypc_write_cubes_structure_to_file(const char* filename, dypc_model m, floa
 
 void dypc_write_mipmap_cubes_structure_to_file(const char* filename, dypc_model m, float side, unsigned levels, float mmfac, dypc_downsampling_mode dmode) {
 	dypc::model* mod = (dypc::model*)m;
-	dypc::cubes_mipmap_structure s(side, levels, mmfac, convert_downsampling_mode(dmode), *mod);
+	dypc::cubes_mipmap_structure s(side, levels, mmfac, (dypc::downsampling_mode)(dmode), *mod);
 	auto ext = dypc::file_path_extension(filename);
 	if(ext == "hdf") dypc::cubes_mipmap_structure_hdf_loader::write(filename, s);
 }
 
-void dypc_write_tree_structure_to_file(const char* filename, dypc_model m, dypc_tree_structure_type str, unsigned levels, dypc_size leaf_cap, float mmfac, dypc_downsampling_mode dmode, dypc_size dmax) {
+void dypc_write_tree_structure_to_file(const char* filename, dypc_model m, dypc_structure_type str, unsigned levels, dypc_size leaf_cap, float mmfac, dypc_downsampling_mode dmode, dypc_size dmax) {
 	dypc::model* mod = (dypc::model*)m;
 	dypc::write_tree_structure_file(
 		filename,
-		convert_structure_type(str),
+		(dypc::structure_type)(str),
 		levels,
 		leaf_cap,
 		mmfac,
-		convert_downsampling_mode(dmode),
+		(dypc::downsampling_mode)(dmode),
 		dmax,
 		*mod
 	);
@@ -134,12 +116,14 @@ const char* dypc_loader_name(dypc_loader l) {
 	return buffer.c_str();
 }
 
-void dypc_loader_set_configuration(dypc_loader, const char* key, double value) {
-	
+void dypc_loader_set_setting(dypc_loader l, const char* key, double value) {
+	dypc::loader* ld = (dypc::loader*)l;
+	ld->set_setting(key, value);
 }
 
-double dypc_loader_get_configuration(dypc_loader, const char* key) {
-	
+double dypc_loader_get_setting(dypc_loader l, const char* key) {
+	dypc::loader* ld = (dypc::loader*)l;
+	return ld->get_setting(key);
 }
 
 

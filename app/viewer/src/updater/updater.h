@@ -11,6 +11,8 @@
 #include <string>
 #include <memory>
 #include <functional>
+#include <vector>
+#include <map>
 
 #include <glm/glm.hpp>
 #include <glm/gtc/quaternion.hpp>
@@ -49,6 +51,9 @@ public:
 	void switch_loader(dypc_loader);
 	void delete_loader();
 	void access_loader(std::function<void(dypc_loader)>);
+	double get_loader_setting(const std::string&);
+	void set_loader_settings(const std::map<std::string, double>&);
+	void set_loader_setting(const std::string& setting, double value) { set_loader_settings({{setting, value}}); }
 	
 	void set_check_interval(std::chrono::milliseconds);
 	void set_check_condition(bool);

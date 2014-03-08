@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.1415926-2.4-1.40.13 (TeX Live 2012/Debian) (format=pdflatex 2013.9.9)  26 FEB 2014 23:54
+This is pdfTeX, Version 3.1415926-2.4-1.40.13 (TeX Live 2012/Debian) (format=pdflatex 2013.9.9)  27 FEB 2014 18:20
 entering extended mode
  \write18 enabled.
  file:line:error style messages enabled.
@@ -697,9 +697,9 @@ Package: verbatim 2003/08/22 v1.5q LaTeX2e package for verbatim enhancements
 Package: ifthen 2001/05/26 v1.1c Standard LaTeX ifthen package (DPC)
 )
 \verbatim@out=\write3
-runsystem(touch /tmp/w18-test-20142261434)...executed.
+runsystem(touch /tmp/w18-test-20142271100)...executed.
 
-runsystem(rm -f /tmp/w18-test-20142261434)...executed.
+runsystem(rm -f /tmp/w18-test-20142271100)...executed.
 
 Package gnuplottex Info: Automatically converting gnuplot files. on input line 
 77.
@@ -817,10 +817,13 @@ LaTeX Font Info:    Font shape `OML/cmr/bx/it' in size <7> not available
 (Font)              Font shape `OML/cmm/b/it' tried instead on input line 57.
 LaTeX Font Info:    Font shape `OML/cmr/bx/it' in size <5> not available
 (Font)              Font shape `OML/cmm/b/it' tried instead on input line 57.
- [4
 
-]
-<random_weights_inv.png, id=135, 576.1525pt x 233.87375pt>
+
+LaTeX Warning: Citation `Gri2001' on page 4 undefined on input line 57.
+
+[4
+
+] <random_weights_inv.png, id=75, 576.1525pt x 233.87375pt>
 File: random_weights_inv.png Graphic file (type png)
 
 <use random_weights_inv.png>
@@ -836,7 +839,7 @@ LaTeX Font Info:    Font shape `OML/cmr/bx/it' in size <8> not available
 (Font)              Font shape `OML/cmm/b/it' tried instead on input line 115.
 LaTeX Font Info:    Font shape `OML/cmr/bx/it' in size <6> not available
 (Font)              Font shape `OML/cmm/b/it' tried instead on input line 115.
- <uniform_example_inv.png, id=146, 563.10374pt x 476.78125pt>
+ <uniform_example_inv.png, id=86, 563.10374pt x 476.78125pt>
 File: uniform_example_inv.png Graphic file (type png)
 
 <use uniform_example_inv.png>
@@ -847,11 +850,11 @@ Overfull \hbox (0.79999pt too wide) in paragraph at lines 123--124
 [][] 
  []
 
-<uniform.png, id=150, 456.7464pt x 216.81pt>
+<uniform.png, id=90, 456.7464pt x 216.81pt>
 File: uniform.png Graphic file (type png)
  <use uniform.png>
 Package pdftex.def Info: uniform.png used on input line 137.
-(pdftex.def)             Requested size: 227.62204pt x 108.05074pt.
+(pdftex.def)             Requested size: 199.16928pt x 94.54315pt.
 \openout3 = `report-gnuplottex-fig1.gnuplot'.
 
 
@@ -859,13 +862,37 @@ Opening gnuplot stream report-gnuplottex-fig1.gnuplot
 runsystem(gnuplot report-gnuplottex-fig1.gnuplot)...executed.
 
 Package gnuplottex Info: report-gnuplottex-fig1.gnuplot converted on input line
- 149.
+ 152.
 
 (./report-gnuplottex-fig1.tex
-\plotpoint=\box36
+Package epstopdf Info: Source file: <report-gnuplottex-fig1.eps>
+(epstopdf)                    date: 2014-02-27 18:20:38
+(epstopdf)                    size: 21292 bytes
+(epstopdf)             Output file: <report-gnuplottex-fig1-eps-converted-to.pd
+f>
+(epstopdf)                    date: 2014-02-27 18:19:15
+(epstopdf)                    size: 5126 bytes
+(epstopdf)             Command: <epstopdf --outfile=report-gnuplottex-fig1-eps-
+converted-to.pdf report-gnuplottex-fig1.eps>
+(epstopdf)             \includegraphics on input line 112.
+runsystem(epstopdf --outfile=report-gnuplottex-fig1-eps-converted-to.pdf report
+-gnuplottex-fig1.eps)...executed.
+
+Package epstopdf Info: Result file: <report-gnuplottex-fig1-eps-converted-to.pd
+f>
+(epstopdf)                    date: 2014-02-27 18:20:38
+(epstopdf)                    size: 5126 bytes.
+
+<report-gnuplottex-fig1-eps-converted-to.pdf, id=91, 361.35pt x 252.945pt>
+File: report-gnuplottex-fig1-eps-converted-to.pdf Graphic file (type pdf)
+
+<use report-gnuplottex-fig1-eps-converted-to.pdf>
+Package pdftex.def Info: report-gnuplottex-fig1-eps-converted-to.pdf used on in
+put line 112.
+(pdftex.def)             Requested size: 361.34912pt x 252.94438pt.
 )
 LaTeX Font Info:    Font shape `OML/cmr/bx/it' in size <9> not available
-(Font)              Font shape `OML/cmm/b/it' tried instead on input line 150.
+(Font)              Font shape `OML/cmm/b/it' tried instead on input line 153.
 \openout3 = `report-gnuplottex-fig2.gnuplot'.
 
 
@@ -873,22 +900,33 @@ Opening gnuplot stream report-gnuplottex-fig2.gnuplot
 runsystem(gnuplot report-gnuplottex-fig2.gnuplot)...executed.
 
 Package gnuplottex Info: report-gnuplottex-fig2.gnuplot converted on input line
- 161.
+ 164.
 
-(./report-gnuplottex-fig2.tex)
+(./report-gnuplottex-fig2.tex
+\plotpoint=\box36
+)
 LaTeX Font Info:    Font shape `OML/cmr/bx/it' in size <12> not available
-(Font)              Font shape `OML/cmm/b/it' tried instead on input line 167.
+(Font)              Font shape `OML/cmm/b/it' tried instead on input line 170.
 
 
 Package hyperref Warning: Token not allowed in a PDF string (PDFDocEncoding):
-(hyperref)                removing `math shift' on input line 167.
+(hyperref)                removing `math shift' on input line 170.
 
 
 Package hyperref Warning: Token not allowed in a PDF string (PDFDocEncoding):
-(hyperref)                removing `math shift' on input line 167.
+(hyperref)                removing `math shift' on input line 170.
 
 [6 <./random_weights_inv.png> <./uniform_example_inv.png>] [7 <./uniform.png (P
-NG copy)>] [8]
+NG copy)> <./report-gnuplottex-fig1-eps-converted-to.pdf>]
+LaTeX Font Info:    Try loading font information for OMS+cmr on input line 173.
+
+
+(/usr/share/texlive/texmf-dist/tex/latex/base/omscmr.fd
+File: omscmr.fd 1999/05/25 v2.5h Standard LaTeX font definitions
+)
+LaTeX Font Info:    Font shape `OMS/cmr/m/n' in size <10> not available
+(Font)              Font shape `OMS/cmsy/m/n' tried instead on input line 173.
+ [8]
 Chapter 3.
 [9
 
@@ -905,48 +943,63 @@ Chapter 6.
 (./report.bbl [12
 
 ])
-Package atveryend Info: Empty hook `BeforeClearDocument' on input line 191.
+Package atveryend Info: Empty hook `BeforeClearDocument' on input line 201.
  [13
 
 ]
-Package atveryend Info: Empty hook `AfterLastShipout' on input line 191.
+Package atveryend Info: Empty hook `AfterLastShipout' on input line 201.
  (./report.aux)
-Package atveryend Info: Executing hook `AtVeryEndDocument' on input line 191.
-Package atveryend Info: Executing hook `AtEndAfterFileList' on input line 191.
-Package rerunfilecheck Info: File `report.out' has not changed.
-(rerunfilecheck)             Checksum: 88C0CC1D306BB7877A7F0424CCA24EE8;1121.
-Package atveryend Info: Empty hook `AtVeryVeryEnd' on input line 191.
+Package atveryend Info: Executing hook `AtVeryEndDocument' on input line 201.
+Package atveryend Info: Executing hook `AtEndAfterFileList' on input line 201.
+
+
+Package rerunfilecheck Warning: File `report.out' has changed.
+(rerunfilecheck)                Rerun to get outlines right
+(rerunfilecheck)                or use package `bookmark'.
+
+Package rerunfilecheck Info: Checksums for `report.out':
+(rerunfilecheck)             Before: 6E77146284C35F0A734FB432F6F28A11;544
+(rerunfilecheck)             After:  88C0CC1D306BB7877A7F0424CCA24EE8;1121.
+
+LaTeX Warning: There were undefined references.
+
+
+LaTeX Warning: Label(s) may have changed. Rerun to get cross-references right.
+
+Package atveryend Info: Empty hook `AtVeryVeryEnd' on input line 201.
  ) 
 Here is how much of TeX's memory you used:
- 9391 strings out of 493485
- 144199 string characters out of 3143527
- 407314 words of memory out of 3000000
- 12468 multiletter control sequences out of 15000+200000
- 19196 words of font info for 76 fonts, out of 3000000 for 9000
+ 9432 strings out of 493485
+ 144812 string characters out of 3143527
+ 356325 words of memory out of 3000000
+ 12493 multiletter control sequences out of 15000+200000
+ 19504 words of font info for 77 fonts, out of 3000000 for 9000
  957 hyphenation exceptions out of 8191
- 40i,14n,74p,894b,403s stack positions out of 5000i,500n,10000p,200000b,50000s
-</usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmex10.pfb></us
-r/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi10.pfb></usr/shar
-e/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi12.pfb></usr/share/texl
-ive/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi7.pfb></usr/share/texlive/tex
-mf-dist/fonts/type1/public/amsfonts/cm/cmmi9.pfb></usr/share/texlive/texmf-dist
-/fonts/type1/public/amsfonts/cm/cmmib10.pfb></usr/share/texlive/texmf-dist/font
-s/type1/public/amsfonts/cmextra/cmmib7.pfb></usr/share/texlive/texmf-dist/fonts
-/type1/public/amsfonts/cm/cmr10.pfb></usr/share/texlive/texmf-dist/fonts/type1/
-public/amsfonts/cm/cmr12.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/
-amsfonts/cm/cmr5.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts
-/cm/cmr6.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmr7
-.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmr8.pfb></u
-sr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmr9.pfb></usr/share
-/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmssbx10.pfb></usr/share/tex
-live/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy10.pfb></usr/share/texlive/t
-exmf-dist/fonts/type1/public/amsfonts/cm/cmsy7.pfb></usr/share/texlive/texmf-di
-st/fonts/type1/public/amsfonts/cm/cmti10.pfb></usr/share/texlive/texmf-dist/fon
-ts/type1/public/amsfonts/cm/cmti8.pfb>
-Output written on report.pdf (13 pages, 298959 bytes).
+ 40i,14n,74p,894b,455s stack positions out of 5000i,500n,10000p,200000b,50000s
+</usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmbx10.pfb></us
+r/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmex10.pfb></usr/shar
+e/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi10.pfb></usr/share/texl
+ive/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi12.pfb></usr/share/texlive/te
+xmf-dist/fonts/type1/public/amsfonts/cm/cmmi7.pfb></usr/share/texlive/texmf-dis
+t/fonts/type1/public/amsfonts/cm/cmmi9.pfb></usr/share/texlive/texmf-dist/fonts
+/type1/public/amsfonts/cm/cmmib10.pfb></usr/share/texlive/texmf-dist/fonts/type
+1/public/amsfonts/cmextra/cmmib7.pfb></usr/share/texlive/texmf-dist/fonts/type1
+/public/amsfonts/cm/cmr10.pfb></usr/share/texlive/texmf-dist/fonts/type1/public
+/amsfonts/cm/cmr12.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfon
+ts/cm/cmr5.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cm
+r6.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmr7.pfb><
+/usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmr8.pfb></usr/sha
+re/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmr9.pfb></usr/share/texli
+ve/texmf-dist/fonts/type1/public/amsfonts/cm/cmssbx10.pfb></usr/share/texlive/t
+exmf-dist/fonts/type1/public/amsfonts/cm/cmsy10.pfb></usr/share/texlive/texmf-d
+ist/fonts/type1/public/amsfonts/cm/cmsy7.pfb></usr/share/texlive/texmf-dist/fon
+ts/type1/public/amsfonts/cm/cmsy9.pfb></usr/share/texlive/texmf-dist/fonts/type
+1/public/amsfonts/cm/cmti10.pfb></usr/share/texlive/texmf-dist/fonts/type1/publ
+ic/amsfonts/cm/cmti8.pfb>
+Output written on report.pdf (13 pages, 311017 bytes).
 PDF statistics:
- 272 PDF objects out of 1000 (max. 8388607)
- 231 compressed objects within 3 object streams
+ 232 PDF objects out of 1000 (max. 8388607)
+ 189 compressed objects within 2 object streams
  43 named destinations out of 1000 (max. 500000)
- 168 words of extra memory for PDF output out of 10000 (max. 10000000)
+ 93 words of extra memory for PDF output out of 10000 (max. 10000000)
 

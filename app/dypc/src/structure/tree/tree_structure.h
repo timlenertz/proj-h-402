@@ -2,6 +2,7 @@
 #define DYPC_TREE_STRUCTURE_H_
 
 #include "../structure.h"
+#include "../../enums.h"
 #include "../../cuboid.h"
 #include "../../point.h"
 #include "../../progress.h"
@@ -27,7 +28,7 @@ public:
 protected:
 	const std::size_t leaf_capacity_;
 	const float mipmap_factor_;
-	const downsampling_mode_t downsampling_mode_;
+	const downsampling_mode downsampling_mode_;
 	const std::size_t downsampling_maximal_number_of_points_;
 
 	std::map<const node*, uniform_downsampling_previous_results_t> node_uniform_downsampling_previous_results_;
@@ -38,13 +39,13 @@ protected:
 	
 	void downsample_points_in_node_(float ratio, const node&, const cuboid&, PointsContainer&, unsigned depth);
 
-	tree_structure(std::size_t leaf_cap, float mmfac, downsampling_mode_t dmode, std::size_t dmax);
+	tree_structure(std::size_t leaf_cap, float mmfac, downsampling_mode dmode, std::size_t dmax);
 	
 	void unload_model_();
 	void load_model_(model& mod, const cuboid& cub, unsigned depth = 0);
 
 public:
-	tree_structure(std::size_t leaf_cap, float mmfac, downsampling_mode_t dmode, std::size_t dmax, model& mod);
+	tree_structure(std::size_t leaf_cap, float mmfac, downsampling_mode dmode, std::size_t dmax, model& mod);
 	
 	std::size_t number_of_points(std::ptrdiff_t lvl = 0) const { assert(lvl >= 0 && lvl < levels); return all_points_[lvl].size(); }
 	std::size_t number_of_nodes() const { return root_.number_of_nodes_in_branch(); }
@@ -67,8 +68,8 @@ template<class Splitter, std::size_t Levels, class PointsContainer>
 void tree_structure<Splitter, Levels, PointsContainer>::downsample_points_in_node_(float ratio, const node& nd, const cuboid& cub, PointsContainer& output, unsigned depth) {
 	if(nd.is_leaf() || !downsampling_maximal_number_of_points_ || nd.number_of_points() <= downsampling_maximal_number_of_points_) {
 		float area = cub.area();
-		if(downsampling_mode_ == random_downsampling_mode) random_downsampling(nd.points_begin(), nd.points_end(), ratio, output);
-		else if(downsampling_mode_ == uniform_downsampling_mode) uniform_downsampling(nd.points_begin(), nd.points_end(), ratio, area, output, node_uniform_downsampling_previous_results_[&nd]);
+		if(downsampling_mode_ == downsampling_mode::random) random_downsampling(nd.points_begin(), nd.points_end(), ratio, output);
+		else if(downsampling_mode_ == downsampling_mode::uniform) uniform_downsampling(nd.points_begin(), nd.points_end(), ratio, area, output, node_uniform_downsampling_previous_results_[&nd]);
 		
 	} else {
 		for(std::ptrdiff_t i = 0; i < Splitter::number_of_node_children; ++i) {
@@ -80,7 +81,7 @@ void tree_structure<Splitter, Levels, PointsContainer>::downsample_points_in_nod
 
 
 template<class Splitter, std::size_t Levels, class PointsContainer>
-inline tree_structure<Splitter, Levels, PointsContainer>::tree_structure(std::size_t leaf_cap, float mmfac, downsampling_mode_t dmode, std::size_t dmax) :
+inline tree_structure<Splitter, Levels, PointsContainer>::tree_structure(std::size_t leaf_cap, float mmfac, downsampling_mode dmode, std::size_t dmax) :
 leaf_capacity_(leaf_cap), mipmap_factor_(mmfac), downsampling_mode_(dmode), downsampling_maximal_number_of_points_(dmax) { }
 
 
@@ -141,7 +142,7 @@ void tree_structure<Splitter, Levels, PointsContainer>::load_model_(model& mod, 
 
 
 template<class Splitter, std::size_t Levels, class PointsContainer>
-tree_structure<Splitter, Levels, PointsContainer>::tree_structure(std::size_t leaf_cap, float mmfac, downsampling_mode_t dmode, std::size_t dmax, model& mod) :
+tree_structure<Splitter, Levels, PointsContainer>::tree_structure(std::size_t leaf_cap, float mmfac, downsampling_mode dmode, std::size_t dmax, model& mod) :
 tree_structure(leaf_cap, mmfac, dmode, dmax) {
 	root_cuboid_ = Splitter::root_cuboid(mod);
 	load_model_(mod, root_cuboid_);

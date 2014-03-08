@@ -4,10 +4,20 @@
 #include <stddef.h>
 
 typedef enum {
-	dypc_octree_tree_structure_type = 0,
+	dypc_cubes_structure_type = 0,
+	dypc_cubes_mipmap_structure_type,
+	dypc_octree_tree_structure_type,
 	dypc_kdtree_tree_structure_type,
 	dypc_kdtree_half_tree_structure_type
-} dypc_tree_structure_type;
+} dypc_structure_type;
+
+
+typedef enum {
+	dypc_direct_loader_type = 0,
+	dypc_cubes_loader_type,
+	dypc_cubes_mipmap_loader_type,
+	dypc_tree_loader_type
+} dypc_loader_type;
 
 
 typedef enum {
@@ -23,9 +33,24 @@ typedef enum {
 } dypc_downsampling_mode;
 
 
+typedef enum {
+	dypc_minimal_cuboid_distance_mode = 0,
+	dypc_maximal_cuboid_distance_mode,
+	dypc_mean_cuboid_distance_mode,
+	dypc_center_cuboid_distance_mode
+} dypc_cuboid_distance_mode;
+
+
 typedef float dypc_vector3[3];
 typedef float dypc_quaternion[4];
 typedef float dypc_matrix4[16];
+
+typedef struct {
+	dypc_vector3 position;
+	dypc_vector3 velocity;
+	dypc_quaternion orientation;
+	dypc_matrix4 view_projection_matrix;
+} dypc_loader_request;
 
 typedef struct {
 	float x, y, z;

@@ -29,5 +29,20 @@ cubes_structure_loader::adapt_result_t cubes_structure_loader::adapt_settings_(s
 	else return result;
 }
 
+double cubes_structure_loader::get_setting(const std::string& setting) const {
+	if(setting == "downsampling_distance") return downsampling_distance_;
+	else if(setting == "frustum_culling") return (frustum_culling_ ? 1.0 : 0.0);
+	else if(setting == "downsampling_level") return downsampling_level_;
+	else if(setting == "secondary_pass_distance") return secondary_pass_distance_;
+	else throw std::invalid_argument("Invalid loader setting");
+}
+
+void cubes_structure_loader::set_setting(const std::string& setting, double value) {
+	if(setting == "downsampling_distance") downsampling_distance_ = value;
+	else if(setting == "frustum_culling") frustum_culling_ = (value != 0.0);
+	else if(setting == "downsampling_level") downsampling_level_ = value;
+	else if(setting == "secondary_pass_distance") secondary_pass_distance_ = value;
+	else throw std::invalid_argument("Invalid loader setting");
+}
 
 }
