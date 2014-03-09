@@ -10,9 +10,19 @@
 
 namespace dypc {
 
-
+/**
+ * Write tree structure to HDF file.
+ * Uses piecewise tree structure: The entire structure (all pieces) will get written to HDF, but only
+ * one piece is loaded into memory at a time. Limits memory usage, and allows for huge models to be
+ * written into the file.
+ * @tparam Splitter Splitter that defined the tree structure.
+ * @tparam Levels Number of mipmap levels.
+ * @tparam PointsCountainer Container used to hold arrays (std::vector, std::deque)
+ * @param filename Path of HDF file
+ * @param s The piecewise tree structure.
+ */
 template<class Splitter, std::size_t Levels, class PointsContainer>
-void write_to_hdf_piecewise(const std::string& filename, tree_structure_piecewise<Splitter, Levels, PointsContainer>& s) {
+void write_to_hdf(const std::string& filename, tree_structure_piecewise<Splitter, Levels, PointsContainer>& s) {
 	using Structure = tree_structure_piecewise<Splitter, Levels, PointsContainer>;
 	using hdf_node = typename tree_structure_hdf_file<Structure>::hdf_node;
 	using structure_node = typename tree_structure_piecewise<Splitter, Levels, PointsContainer>::node;
@@ -66,7 +76,7 @@ void write_to_hdf_piecewise(const std::string& filename, tree_structure_piecewis
 			const auto& pts = s.points_at_level(lvl);
 			file.write_points(pts.begin(), pts.end(), lvl, data_output_offsets[lvl]);
 			data_output_offsets[lvl] += pts.size();		
-			increment_progress();
+			//increment_progress();
 		}
 		//});
 		
@@ -112,7 +122,7 @@ void write_to_hdf_piecewise(const std::string& filename, tree_structure_piecewis
 	
 	add_piece_node(s.root_piece_node(), s.root_piece_cuboid(), 0);
 		
-	//file.write_nodes(hdf_nodes.begin(), hdf_nodes.end());
+	file.write_nodes(hdf_nodes.begin(), hdf_nodes.end());
 }
 
 

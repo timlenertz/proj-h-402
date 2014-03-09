@@ -36,7 +36,8 @@ private:
 	const float mipmap_factor_;
 	const downsampling_mode downsampling_mode_;
 	
-	std::map<cube_index_t, cube> cubes_;
+	using cubes_t = std::map<cube_index_t, cube>;
+	cubes_t cubes_;
 
 	void add_point_(const point& pt);
 

@@ -15,24 +15,18 @@ void cubes_structure_sqlite_loader::write(const std::string& filename, const cub
 	
 	insert_config(s.get_side_length());
 	
-	progress("Writing Cubes Structure to SQLite...", s.cubes().size(), 30, [&]() {
-		std::size_t written_cubes = 0;
-		database.transaction([&]() -> bool {
-			for(const auto& p : s.cubes()) {
-				const auto& idx = p.first;
-				const cubes_structure::cube& cube = p.second;
-				insert_cube(std::get<0>(idx), std::get<1>(idx), std::get<2>(idx), cube.number_of_points());
-				auto cube_id = database.last_insert_id();
-				
-				for(const auto& pt : cube.weighted_points()) {					
-					insert_point(cube_id, pt.x, pt.y, pt.z, pt.r, pt.g, pt.b, pt.weight);
-				}
-				
-				set_progress(++written_cubes);
-			}
+	database.transaction([&]() -> bool {
+		progress_foreach(s.cubes(), "Writing Cubes Structure to SQLite...", [&](const cubes_structure::cubes_t::value_type& p) {
+			const auto& idx = p.first;
+			const cubes_structure::cube& cube = p.second;
+			insert_cube(std::get<0>(idx), std::get<1>(idx), std::get<2>(idx), cube.number_of_points());
+			auto cube_id = database.last_insert_id();
 			
-			return true;
+			for(const auto& pt : cube.weighted_points()) {					
+				insert_point(cube_id, pt.x, pt.y, pt.z, pt.r, pt.g, pt.b, pt.weight);
+			}
 		});
+		return true;
 	});
 }
 	

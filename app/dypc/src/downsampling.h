@@ -15,6 +15,15 @@ namespace dypc {
 
 using uniform_downsampling_previous_results_t = std::map<std::size_t, float>;
 
+/**
+ * Apply random downsampling.
+ * @tparam Iterator Iterator to point set.
+ * @tparam OutputContainer Container type for output.
+ * @param pt_begin Begin iterator of points.
+ * @param pt_end End iterator of points.
+ * @param ratio Downsampling ratio.
+ * @param output Container to receive output set.
+ */
 template<class Iterator, class OutputContainer>
 void random_downsampling(Iterator pt_begin, Iterator pt_end, float ratio, OutputContainer& output) {
 	ratio *= RAND_MAX;
@@ -66,7 +75,7 @@ float uniform_downsampling_side_length(Iterator pt_begin, Iterator pt_end, float
 	if(maximal_number_of_points - minimal_number_of_points <= threshold) return attempt_side_length;
 	
 	
-	progress("Finding uniform downsampling cube size", 0, 0, [&]() {
+	progress("Finding uniform downsampling cube size", [&](progress_handle& pr) {
 		std::size_t attempt_number_of_points;
 		do {			
 			attempt_number_of_points = 0;
@@ -92,7 +101,7 @@ float uniform_downsampling_side_length(Iterator pt_begin, Iterator pt_end, float
 			else maximal_side_length = attempt_side_length;		
 			attempt_side_length = minimal_side_length + (maximal_side_length - minimal_side_length)/2;
 			
-			increment_progress();
+			pr.pulse();
 			
 			std::cout << "expected: " << expected_number_of_points << ", got: " << attempt_number_of_points << "; side: " << attempt_side_length << std::endl;
 		} while(std::abs(attempt_number_of_points - expected_number_of_points) > threshold);
@@ -116,41 +125,36 @@ void uniform_downsampling(Iterator pt_begin, Iterator pt_end, float ratio, float
 	float side = uniform_downsampling_side_length(pt_begin, pt_end, ratio, bounding_area, previous_results);
 	
 	using cube_index_t = std::tuple<long, long, long>;
-	std::map<cube_index_t, std::vector<point>> cubes;
+	using cubes_t = std::map<cube_index_t, std::vector<point>>;
+	cubes_t cubes;
 	
-	progress("Computing uniform downsampling cubes", number_of_points, [&]() {
-		for(Iterator pt = pt_begin; pt != pt_end; ++pt) {
-			cube_index_t idx(pt->x / side, pt->y / side, pt->z / side);
-			cubes[idx].push_back(*pt);
-			increment_progress();
-		}
+	progress_foreach(pt_begin, pt_end, "Computing uniform downsampling cubes", [&](const point& pt) {
+		cube_index_t idx(pt.x / side, pt.y / side, pt.z / side);
+		cubes[idx].push_back(pt);
 	});
 	
-	progress("Computing uniform downsampling points", cubes.size(), [&]() {
-		for(const auto& p : cubes) {
-			const auto& cube = p.second;
-			
-			glm::vec3 center(0, 0, 0);
-			for(const point& pt : cube) center += glm::vec3(pt.x, pt.y, pt.z);
-			center /= cube.size(); 
-			
-			float min_distance = INFINITY;
-			const point* median_point = nullptr;
-			for(const point& pt : cube) {
-				float distance = glm::distance(center, glm::vec3(pt.x, pt.y, pt.z));
-				if(distance < min_distance) {
-					min_distance = distance;
-					median_point = &pt;
-				}
+	
+	progress_foreach(cubes, "Computing uniform downsampling points", [&](const cubes_t::value_type& p) {
+		const auto& cube = p.second;
+		
+		glm::vec3 center(0, 0, 0);
+		for(const point& pt : cube) center += glm::vec3(pt.x, pt.y, pt.z);
+		center /= cube.size(); 
+		
+		float min_distance = INFINITY;
+		const point* median_point = nullptr;
+		for(const point& pt : cube) {
+			float distance = glm::distance(center, glm::vec3(pt.x, pt.y, pt.z));
+			if(distance < min_distance) {
+				min_distance = distance;
+				median_point = &pt;
 			}
-			
-			output.emplace_back(
-				center.x, center.y, center.z,
-				median_point->r, median_point->g, median_point->b
-			);
-			
-			increment_progress();
 		}
+		
+		output.emplace_back(
+			center.x, center.y, center.z,
+			median_point->r, median_point->g, median_point->b
+		);
 	});
 }
 

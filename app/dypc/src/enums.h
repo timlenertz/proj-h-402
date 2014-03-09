@@ -5,6 +5,9 @@
 
 namespace dypc {
 
+/**
+ * Types of structures.
+ */
 enum class structure_type {
 	cubes = dypc_cubes_structure_type,
 	cubes_mipmap = dypc_cubes_mipmap_structure_type,
@@ -14,6 +17,9 @@ enum class structure_type {
 };
 
 
+/**
+ * Types of loaders.
+ */
 enum class loader_type {
 	direct = dypc_direct_loader_type,
 	cubes = dypc_cubes_loader_type,

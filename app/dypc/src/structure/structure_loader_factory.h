@@ -14,7 +14,19 @@ class loader;
 class tree_structure_loader;
 class model;
 
+/**
+ * Read structure type information from HDF file.
+ * @param filename Path of HDF file
+ * @return Pair of structure type, and number of mipmap levels
+ */
 std::pair<structure_type, std::size_t> read_hdf_structure_file_type(const std::string& filename);
+
+/**
+ * Write structure type information into HDF file.
+ * @param filename Path of HDF file
+ * @param type Structure type
+ * @param levels Mipmap levels
+ */
 void write_hdf_structure_file_type(const std::string& filename, structure_type type, std::size_t levels = 0);
 std::pair<structure_type, std::size_t> read_sqlite_structure_file_type(const std::string& filename);
 void write_sqlite_structure_file_type(const std::string& filename, structure_type type, std::size_t levels = 0);

@@ -9,10 +9,17 @@
 namespace dypc {
 
 class model {
+private:
+	bool has_bounds_() const {
+		return (minimum_ != maximum_);
+	}
+		
 protected:
 	std::size_t number_of_points_ = 0;
-	glm::vec3 minimum_;
-	glm::vec3 maximum_;
+	mutable glm::vec3 minimum_;
+	mutable glm::vec3 maximum_;
+
+	virtual void compute_bounds_() { }
 	
 public:
 	class iterator;
@@ -20,16 +27,26 @@ public:
 	iterator begin();
 	iterator end();
 	
+	glm::vec3 get_minimum() {
+		if(! has_bounds_()) this->compute_bounds_();
+		return minimum_;
+	}
+	
+	glm::vec3 get_maximum() {
+		if(! has_bounds_()) this->compute_bounds_();
+		return maximum_;
+	}
+	
 	std::size_t number_of_points() const { return number_of_points_; }
-	float x_minimum() const { return minimum_.x; }
-	float x_maximum() const { return maximum_.x; }
-	float x_range() const { return maximum_.x - minimum_.x; }
-	float y_minimum() const { return minimum_.y; }
-	float y_maximum() const { return maximum_.y; }
-	float y_range() const { return maximum_.y - minimum_.y; }
-	float z_minimum() const { return minimum_.z; }
-	float z_maximum() const { return maximum_.z; }
-	float z_range() const { return maximum_.z - minimum_.z; }
+	float x_minimum() { return get_minimum().x; }
+	float x_maximum() { return get_maximum().x; }
+	float x_range() { return get_maximum().x - get_minimum().x; }
+	float y_minimum() { return get_minimum().y; }
+	float y_maximum() { return get_maximum().y; }
+	float y_range() { return get_maximum().y - get_minimum().y; }
+	float z_minimum() { return get_minimum().z; }
+	float z_maximum() { return get_maximum().z; }
+	float z_range() { return get_maximum().z - get_minimum().z; }
 	
 	virtual ~model() { }
 	

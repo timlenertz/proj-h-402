@@ -15,7 +15,7 @@ public:
 
 	struct node_points_information { };
 
-	static cuboid root_cuboid(const model& mod) {
+	static cuboid root_cuboid(model& mod) {
 		return cuboid(
 			glm::vec3(mod.x_minimum(), mod.y_minimum(), mod.z_minimum()),
 			glm::vec3(mod.x_range(), mod.y_range(), mod.z_range())

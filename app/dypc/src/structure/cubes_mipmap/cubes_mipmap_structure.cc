@@ -26,20 +26,17 @@ void cubes_mipmap_structure::add_point_(const point& pt) {
 
 cubes_mipmap_structure::cubes_mipmap_structure(float side, std::size_t mmlvl, float mmfac, downsampling_mode dmode, model& mod) :
 side_length_(side), mipmap_levels_(mmlvl), mipmap_factor_(mmfac), downsampling_mode_(dmode) {
-	progress("Creating Cubes Structure...", mod.number_of_points(), 250000, [&]() {
-		std::size_t points = 0;
-		for(const auto& pt : mod) {
-			add_point_(pt);
-			set_progress(++points);
-		}
-	});
-
-	progress("Downsampling...", cubes_.size(), 10, [&]() {
-		for(auto& p : cubes_) {
-			p.second.generate_downsampling();
-			increment_progress();
-		}
-	});
+	using namespace std::placeholders;
+	
+	progress_foreach(
+		mod.begin(), mod.end(), mod.number_of_points(), "Creating Cubes Structure...",
+		std::bind(&cubes_mipmap_structure::add_point_, *this, _1)
+	);
+	
+	progress_foreach(
+		cubes_, "Downsampling...",
+		[&](cubes_t::value_type& c) { c.second.generate_downsampling(); }
+	);
 }
 
 

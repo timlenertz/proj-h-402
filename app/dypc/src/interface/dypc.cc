@@ -4,72 +4,68 @@
 #include <stack>
 #include <string>
 
-struct progress {
-	progress(const char* lbl, unsigned max, const progress& parent) :
-		label(lbl), maximum(max), value(0), step_size(max / 100), depth(parent.depth + 1) { }
-	progress(const char* lbl, unsigned max) :
-		label(lbl), maximum(max), value(0), step_size(max / 100), depth(0) { }
+
+class progress_view {
+private:
+	progress_view* parent_;
+	std::ptrdiff_t depth_;
+	unsigned maximum_;
+	unsigned value_;
+	std::string label_;
+
+	void print_ident_() const {
+		for(std::ptrdiff_t i = 0; i < depth_; ++i) std::cout << "   ";
+	}
 	
-	std::string label;
-	unsigned maximum;
-	unsigned value;
-	unsigned step_size;
-	unsigned depth;
+	void print_bar_() const {
+		const std::ptrdiff_t len = 70;
+		if(maximum_ != 0) {
+			const std::ptrdiff_t split = len * value_ / maximum_;
+			std::cout << '[';
+			for(std::ptrdiff_t i = 0; i < len; ++i) std::cout << (i < split ? '=' : ' ');
+			std::cout << ']';			
+		}
+	}
+
+public:
+	progress_view(const std::string& lab, unsigned mx, progress_view* par) :
+	parent_(par), maximum_(mx), value_(0), label_(lab) {
+		depth_ = 0;
+		while(par) {
+			++depth_;
+			par = par->parent_;
+		}
+		
+		print_ident_();
+		std::cout << label_ << std::endl;
+	}
+	
+	void set(unsigned val) {
+		value_ = val;
+		print_ident_();
+		print_bar_();
+		std::cout << std::endl;
+	}
 };
 
-static std::vector<std::stack<progress>> progresses_ = std::vector<std::stack<progress>>();
 
-
-static dypc_progress open_progress_(const char* label, int maximum, dypc_progress parent) {
-	dypc_progress p = nullptr;
-	if(parent) {
-		for(auto& stack : progresses_) if(&stack.top() == (progress*)&parent) {
-			stack.emplace(label, maximum, stack.top());
-			p = &stack.top();
-			for(std::ptrdiff_t i = stack.size(); i > 1; --i) std::cout << "   ";
-			break;
-		}
-	} else {
-		progresses_.emplace_back();
-		progresses_.back().emplace(label, maximum);
-		p = &progresses_.back().top();
-	}
-	std::cout << label << std::endl;
-	return p;
+static dypc_progress open_progress_(const char* label, unsigned maximum, dypc_progress par) {
+	progress_view* parent = (progress_view*)par;
+	progress_view* progress = new progress_view(label, maximum, parent);
+	return (dypc_progress)progress;
 }
 
-static void set_progress_(dypc_progress id, unsigned value) {
-	progress& p = *(progress*)id;
-	
-	unsigned old_value = p.value;
-	if(value > p.maximum) value = p.maximum;
-	if(value/p.step_size != p.value/p.step_size) {
-		p.value = value;
-		
-		constexpr std::ptrdiff_t width = 70;
-		std::ptrdiff_t split = p.value * width / p.maximum;
-		for(std::ptrdiff_t i = p.depth; i > 1; --i) std::cout << "   ";
-		std::cout << '[';
-		for(std::ptrdiff_t i = 0; i < width; ++i) std::cout << ((i < split) ? '#' : ' ');
-		std::cout << "]\n";
-	}
+static void set_progress_(dypc_progress pr, unsigned value) {
+	progress_view* progress = (progress_view*)pr;
+	progress->set(value);
 }
 
-static unsigned get_progress_(dypc_progress id) {
-	progress& p = *(progress*)id;
-	return p.value;
+static void close_progress_(dypc_progress pr) {
+	progress_view* progress = (progress_view*)pr;
+	delete progress;
 }
 
-static void close_progress_(dypc_progress id) {
-	for(auto it = progresses_.begin(); it != progresses_.end(); ++it) {
-		auto& stack = *it;
-		if(&stack.top() == (progress*)&id) {
-			stack.pop();
-			if(stack.empty()) progresses_.erase(it);
-			break;
-		}
-	}
-}
+
 
 static void error_message_(const char* title, const char* msg) {
 	std::cerr << title << ": \n" << msg << std::endl;
@@ -95,7 +91,6 @@ static int user_choice_(const char* title, const char** choices) {
 static dypc_callbacks callbacks_ = {
 	&open_progress_,
 	&set_progress_,
-	&get_progress_,
 	&close_progress_,
 	&error_message_
 };

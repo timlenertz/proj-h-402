@@ -73,7 +73,7 @@ struct write_tree_structure_to_hdf_ {
 
 	template<class Structure>
 	result_t call(structure& s) const {
-		write_to_hdf_piecewise(filename, dynamic_cast<Structure&>(s));
+		write_to_hdf(filename, dynamic_cast<Structure&>(s));
 	}
 };
 

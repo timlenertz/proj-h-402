@@ -4,7 +4,6 @@
 #include "tree_structure.h"
 #include <vector>
 #include <stack>
-#include <iostream>
 
 namespace dypc {
 
@@ -80,9 +79,7 @@ tree_structure_piecewise<Splitter, Levels, PointsContainer>::tree_structure_piec
 
 
 template<class Splitter, std::size_t Levels, class PointsContainer>
-tree_structure_piecewise<Splitter, Levels, PointsContainer>::tree_structure_piecewise(std::size_t leaf_cap, float mmfac, downsampling_mode dmode, std::size_t dmax, model& mod, std::ptrdiff_t maxnum) : super(leaf_cap, mmfac, dmode, dmax), model_(mod), model_root_cuboid_(Splitter::root_cuboid(mod)), maximal_number_of_points_per_piece_(maxnum) {	
-	std::cout << maxnum << std::endl;
-	
+tree_structure_piecewise<Splitter, Levels, PointsContainer>::tree_structure_piecewise(std::size_t leaf_cap, float mmfac, downsampling_mode dmode, std::size_t dmax, model& mod, std::ptrdiff_t maxnum) : super(leaf_cap, mmfac, dmode, dmax), model_(mod), model_root_cuboid_(Splitter::root_cuboid(mod)), maximal_number_of_points_per_piece_(maxnum) {		
 	std::stack<piece> pieces_stack;
 	pieces_stack.push({ model_root_cuboid_, mod.number_of_points(), 0, 0, root_piece_node_ });
 	

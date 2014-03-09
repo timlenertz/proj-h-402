@@ -6,7 +6,7 @@
 
 namespace dypc {
 
-cuboid octree_structure_splitter::root_cuboid(const model& mod) {
+cuboid octree_structure_splitter::root_cuboid(model& mod) {
 	glm::vec3 origin(mod.x_minimum(), mod.y_minimum(), mod.z_minimum());
 	float side_length = std::max({ mod.x_range(), mod.y_range(), mod.z_range() });
 	origin[0] -= (side_length - mod.x_range())/2;

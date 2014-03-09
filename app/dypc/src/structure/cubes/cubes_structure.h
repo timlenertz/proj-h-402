@@ -26,10 +26,13 @@ public:
 			std::floor(pt[2] / side_length_)
 		);
 	}
+	
+	using cubes_t = std::map<cube_index_t, cube>;
 		
 private:
 	const float side_length_;
-	std::map<cube_index_t, cube> cubes_;
+	
+	cubes_t cubes_;
 
 	void add_point_(const point& pt);
 
@@ -39,7 +42,7 @@ public:
 	float get_side_length() const { return side_length_; }
 	
 	std::size_t total_number_of_points() const;
-	const std::map<cube_index_t, cube>& cubes() const { return cubes_; }
+	const cubes_t& cubes() const { return cubes_; }
 	std::size_t size() const;	
 };
 

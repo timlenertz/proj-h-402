@@ -50,5 +50,7 @@ clean :
 mrproper : clean
 	$(RM) -rf include/ lib/
 
+doc : $(CPP) $(OBJ)
+	doxygen Doxyfile
 
 -include $(DEP)

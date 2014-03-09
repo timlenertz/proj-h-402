@@ -4,10 +4,6 @@
 #include <glm/glm.hpp>
 #include <cstdint>
 
-#ifndef __gl_h_
-typedef unsigned GLuint;
-#endif
-
 namespace dypc {
 
 class point {

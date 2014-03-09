@@ -12,9 +12,8 @@ extern "C" {
 typedef void* dypc_progress;
 
 typedef struct {
-	dypc_progress (*open_progress)(const char* label, int maximum, dypc_progress parent);
+	dypc_progress (*open_progress)(const char* label, unsigned maximum, dypc_progress parent);
 	void (*set_progress)(dypc_progress id, unsigned value);
-	unsigned (*get_progress)(dypc_progress id);
 	void (*close_progress)(dypc_progress id);
 	
 	void (*error_message)(const char* title, const char* msg);

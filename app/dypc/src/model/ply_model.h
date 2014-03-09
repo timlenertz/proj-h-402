@@ -29,9 +29,11 @@ private:
 	std::ptrdiff_t b_;
 	
 	void read_header_();
-	void find_limits_();
 	
 	float extract_flipped_endianness_float_(const unsigned char*) const;
+
+protected:
+	void compute_bounds_() override;
 	
 public:
 	ply_model(const std::string& filename, float scale);

@@ -19,7 +19,6 @@ filename_(filename), file_(filename, std::ios_base::in | std::ios_base::binary),
 	if(file_.fail()) throw std::runtime_error("Could not open PLY file");
 	file_.exceptions(std::ios_base::failbit);
 	read_header_();
-	find_limits_();
 	rewind();
 }
 
@@ -38,9 +37,7 @@ r_(mod.r_), g_(mod.g_), b_(mod.b_) {
 	file_.seekg(pos);
 }
 
-
-
-void ply_model::find_limits_() {
+void ply_model::compute_bounds_() {
 	rewind();
 	point pt; next_point(pt);
 	minimum_ = maximum_ = pt;

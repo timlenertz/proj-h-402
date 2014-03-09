@@ -99,15 +99,14 @@ void tree_structure<Splitter, Levels, PointsContainer>::load_model_(model& mod, 
 	root_cuboid_ = cub;
 	
 	PointsContainer all_points_unordered;
-	progress("Collecting points from model...", mod.number_of_points(), [&]() {
-		for(const auto& pt : mod) {
-			if(! cub.in_range(pt)) continue;
-			all_points_unordered.push_back(pt);
-			increment_progress();
-		}
+	
+	progress_foreach(mod.begin(), mod.end(), mod.number_of_points(), "Collecting points from model...", [&](const point& pt) {
+		if(! cub.in_range(pt)) return;
+		all_points_unordered.push_back(pt);
 	});
-	progress("Adding points with info to tree...", all_points_unordered.size(), [&]() {
-		root_.add_points_with_information(all_points_unordered, root_cuboid_, depth, leaf_capacity_);
+
+	progress(all_points_unordered.size(), "Adding points with info to tree...", [&](progress_handle& pr) {
+		root_.add_points_with_information(all_points_unordered, root_cuboid_, depth, leaf_capacity_, pr);
 	});
 
 	root_.move_out_points(all_points_[0]);
@@ -121,16 +120,13 @@ void tree_structure<Splitter, Levels, PointsContainer>::load_model_(model& mod, 
 		
 		downsample_points_in_node_(ratio, root_, root_cuboid_, downsampled, depth);
 
-		progress("Adding downsampled points, level " + std::to_string(lvl) + "...", downsampled.size(), [&]() {
-			auto& level_points = all_points_[lvl];
-			std::size_t c = 0;
-			for(const point& pt : downsampled) {			
-				root_.add_higher_level_point(lvl, pt, root_cuboid_, depth, leaf_capacity_);
-				increment_progress();
-			}
-			root_.move_out_points(level_points, lvl);
-			root_.finalize_move_out(level_points, lvl);
+		auto& level_points = all_points_[lvl];
+		std::size_t c = 0;
+		progress_foreach(downsampled, "Adding downsampled points, level " + std::to_string(lvl) + "...", [&](const point& pt) {
+			root_.add_higher_level_point(lvl, pt, root_cuboid_, depth, leaf_capacity_);
 		});
+		root_.move_out_points(level_points, lvl);
+		root_.finalize_move_out(level_points, lvl);
 
 		ratio /= mipmap_factor_;
 	}
