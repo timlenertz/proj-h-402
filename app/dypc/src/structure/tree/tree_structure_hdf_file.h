@@ -12,7 +12,9 @@
 
 namespace dypc {
 
-
+/**
+ * 
+ */
 template<class Structure>
 class tree_structure_hdf_file {
 public:
@@ -23,9 +25,16 @@ public:
 		glm::vec3 cuboid_sides;
 		std::uint32_t children[Structure::number_of_node_children];
 		
-		bool is_leaf() const { return (children[0] == 0); }
+		static constexpr std::ptrdiff_t no_child_index = -1;
+		
+		bool is_leaf() const {
+			for(auto child : children) if(child) return false;
+			return true;
+		}
+		
 		cuboid node_cuboid() const { return cuboid(cuboid_origin, cuboid_sides); }
-		const hdf_node& child_node(const hdf_node* begin, std::ptrdiff_t i) const { return *(begin + children[i]); }
+		bool has_child(std::ptrdiff_t i) const { return children[i]; }
+		const hdf_node& child_node(const hdf_node* begin, std::ptrdiff_t i) const { assert(has_child(i)); return *(begin + children[i]); }
 		std::ptrdiff_t child_index_for_point(const hdf_node* begin, glm::vec3 pt) const;
 	};
 	
@@ -46,7 +55,8 @@ private:
 	static const H5::CompType point_type_;
 	static const H5::CompType node_type_;
 
-	static constexpr std::size_t maximal_chunk_size_ = 100000;
+	static constexpr std::size_t maximal_chunk_size_ = 1000000;
+	static constexpr hsize_t points_data_set_chunk_size_ = 1000000;
 	
 	template<class Iterator> void write_(Iterator el_begin, Iterator el_end, const H5::DataType& typ, const H5::DataSet&, hsize_t offset);
 	template<class Inserter> void read_insert_(Inserter ins, hsize_t n, const H5::DataType& typ, const H5::DataSet&, hsize_t offset = 0) const;
@@ -54,33 +64,31 @@ private:
 	template<class Element> void write_(Element* el_begin, Element* el_end, const H5::DataType& typ, const H5::DataSet&, hsize_t offset);
 	template<class Element> void read_(Element* ins, hsize_t n, const H5::DataType& typ, const H5::DataSet&, hsize_t offset = 0) const;
 	
+	void initialize_nodes_(hsize_t n);
+	
 public:
 	static H5::CompType initialize_point_type();
 	static H5::CompType initialize_node_type();
 
-	explicit tree_structure_hdf_file(const std::string& filename, bool read_only = true);
-	tree_structure_hdf_file(const std::string& filename, hsize_t max_nodes, hsize_t max_points);
+	tree_structure_hdf_file(const std::string& filename);
+	tree_structure_hdf_file(const std::string& filename, hsize_t max_points);
 
 	std::size_t get_file_size() const { return file_.getFileSize(); }
 
-	std::uint64_t get_number_of_points(std::ptrdiff_t lvl = 0) const {
-		std::uint64_t n;
-		points_data_set_[lvl].openAttribute("count").read(H5::PredType::NATIVE_UINT64, (void*)&n);
-		return n;
+	hsize_t get_number_of_points(std::ptrdiff_t lvl = 0) const {
+		hsize_t dims, maxdims;
+		points_data_set_[lvl].getSpace().getSimpleExtentDims(&dims, &maxdims);
+		return dims;
 	}
 	
-	void set_number_of_points(std::uint64_t n, std::ptrdiff_t lvl = 0) {
-		points_data_set_[lvl].openAttribute("count").write(H5::PredType::NATIVE_UINT64, (const void*)&n);
+	void set_number_of_points(hsize_t n, std::ptrdiff_t lvl = 0) {
+		points_data_set_[lvl].extend(&n);
 	}
 	
-	std::uint32_t get_number_of_nodes() const {
-		std::uint32_t n;
-		nodes_data_set_.openAttribute("count").read(H5::PredType::NATIVE_UINT32, (void*)&n);
-		return n;
-	}
-	
-	void set_number_of_nodes(std::uint32_t n) {
-		nodes_data_set_.openAttribute("count").write(H5::PredType::NATIVE_UINT32, (const void*)&n);
+	hsize_t get_number_of_nodes() const {
+		hsize_t dims, maxdims;
+		nodes_data_set_.getSpace().getSimpleExtentDims(&dims, &maxdims);
+		return dims;
 	}
 	
 	template<class Iterator> void write_points(Iterator pt_begin, Iterator pt_end, std::ptrdiff_t lvl, hsize_t offset = 0) {
@@ -100,18 +108,15 @@ public:
 		read_<point>(buf, n, point_type_, points_data_set_[lvl], offset);
 	}
 	
-	template<class Iterator> void write_nodes(Iterator nd_begin, Iterator nd_end, hsize_t offset = 0) {
-		set_number_of_nodes(offset + (nd_end - nd_begin));
-		write_(nd_begin, nd_end, node_type_, nodes_data_set_, offset);
+	template<class Iterator> void write_nodes(Iterator nd_begin, Iterator nd_end) {
+		initialize_nodes_(nd_end - nd_begin);
+		write_(nd_begin, nd_end, node_type_, nodes_data_set_, 0);
 	}
-	void write_nodes(typename std::vector<hdf_node>::const_iterator pt_begin, typename std::vector<hdf_node>::const_iterator pt_end, hsize_t offset = 0) {
-		write_nodes(&(*pt_begin), &(*pt_end), offset);
+	void write_nodes(typename std::vector<hdf_node>::const_iterator pt_begin, typename std::vector<hdf_node>::const_iterator pt_end) {
+		write_nodes(&(*pt_begin), &(*pt_end));
 	}
-	void write_nodes(typename std::vector<hdf_node>::iterator pt_begin, typename std::vector<hdf_node>::iterator pt_end, hsize_t offset = 0) {
-		write_nodes(&(*pt_begin), &(*pt_end), offset);
-	}
-	void write_node(const hdf_node* nd, hsize_t position) {
-		write_nodes(nd, nd + 1, position);
+	void write_nodes(typename std::vector<hdf_node>::iterator pt_begin, typename std::vector<hdf_node>::iterator pt_end) {
+		write_nodes(&(*pt_begin), &(*pt_end));
 	}
 	template<class Inserter> void read_nodes(Inserter ins, hsize_t n, hsize_t offset = 0) const {
 		read_<Inserter>(ins, n, node_type_, nodes_data_set_, offset);
@@ -130,10 +135,11 @@ template<class Structure>
 std::ptrdiff_t tree_structure_hdf_file<Structure>::hdf_node::child_index_for_point(const hdf_node* begin, glm::vec3 pt) const {
 	assert(node_cuboid().in_range(pt));
 	for(std::ptrdiff_t i = 0; i < Structure::number_of_node_children; ++i) {
+		if(! has_child(i)) continue;
 		const auto& child = child_node(begin, i);
 		if(child.node_cuboid().in_range(pt)) return i;
 	}
-	throw std::logic_error("No child node containing the point");
+	return no_child_index;
 }
 
 
@@ -175,8 +181,8 @@ H5::CompType tree_structure_hdf_file<Structure>::initialize_node_type() {
 
 
 template<class Structure>
-tree_structure_hdf_file<Structure>::tree_structure_hdf_file(const std::string& filename, bool read_only) {
-	file_.openFile(filename, (read_only ? H5F_ACC_RDONLY : H5F_ACC_RDWR));
+tree_structure_hdf_file<Structure>::tree_structure_hdf_file(const std::string& filename) {
+	file_.openFile(filename, H5F_ACC_RDONLY);
 	nodes_data_set_ = file_.openDataSet("nodes");
 	for(std::ptrdiff_t lvl = 0; lvl < Structure::levels; ++lvl) points_data_set_[lvl] = file_.openDataSet(points_set_name_(lvl));
 }
@@ -184,19 +190,24 @@ tree_structure_hdf_file<Structure>::tree_structure_hdf_file(const std::string& f
 
 
 template<class Structure>
-tree_structure_hdf_file<Structure>::tree_structure_hdf_file(const std::string& filename, hsize_t max_nodes, hsize_t max_points) {
+tree_structure_hdf_file<Structure>::tree_structure_hdf_file(const std::string& filename, hsize_t max_points) {
 	file_ = H5::H5File(filename, H5F_ACC_TRUNC);
-	nodes_data_set_ = file_.createDataSet("nodes", node_type_, H5::DataSpace(1, &max_nodes));
-	nodes_data_set_.createAttribute("count", H5::PredType::NATIVE_UINT32, H5::DataSpace(H5S_SCALAR));
-	set_number_of_nodes(0);
 	for(std::ptrdiff_t lvl = 0; lvl < Structure::levels; ++lvl) {
 		auto& set = points_data_set_[lvl];
-		set = file_.createDataSet(points_set_name_(lvl), point_type_, H5::DataSpace(1, &max_points));
-		set.createAttribute("count", H5::PredType::NATIVE_UINT64, H5::DataSpace(H5S_SCALAR));
-		set_number_of_points(0, lvl);
+
+		H5::DSetCreatPropList prop;
+		hsize_t zero = 0, chunk_size = points_data_set_chunk_size_;
+		prop.setChunk(1, &chunk_size);
+		
+		set = file_.createDataSet(points_set_name_(lvl), point_type_, H5::DataSpace(1, &zero, &max_points), prop);
 	}
 }
 
+
+template<class Structure>
+void tree_structure_hdf_file<Structure>::initialize_nodes_(hsize_t n) {
+	nodes_data_set_ = file_.createDataSet("nodes", node_type_, H5::DataSpace(1, &n));
+}
 
 
 template<class Structure> template<class Iterator>
@@ -262,10 +273,11 @@ void tree_structure_hdf_file<Structure>::read_insert_(Inserter ins, hsize_t n, c
 template<class Structure> template<class Element>
 void tree_structure_hdf_file<Structure>::write_(Element* el_begin, Element* el_end, const H5::DataType& typ, const H5::DataSet& set, hsize_t offset) {
 	hsize_t n = el_end - el_begin;
+	if(n == 0) return;
 	H5::DataSpace mem_space(1, &n);
 	H5::DataSpace data_space = set.getSpace();
 	data_space.selectHyperslab(H5S_SELECT_SET, &n, &offset);
-	set.write((const void*) el_begin, typ, mem_space, data_space);
+	set.write((const void*)el_begin, typ, mem_space, data_space);
 }
 
 

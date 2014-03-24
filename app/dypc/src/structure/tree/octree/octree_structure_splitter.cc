@@ -19,9 +19,9 @@ std::ptrdiff_t octree_structure_splitter::node_child_for_point(const point& pt, 
 	assert(cub.is_cube());
 	glm::vec3 c = cub.center();
 	std::ptrdiff_t idx = 0;
-	if(pt.x > c[0]) idx += 1;
-	if(pt.y > c[1]) idx += 2;
-	if(pt.z > c[2]) idx += 4;
+	if(pt.x >= c[0]) idx += 1;
+	if(pt.y >= c[1]) idx += 2;
+	if(pt.z >= c[2]) idx += 4;
 	assert(node_child_cuboid(idx, cub, info, depth).in_range(pt));	
 	return idx;
 }

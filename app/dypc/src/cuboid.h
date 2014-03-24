@@ -39,13 +39,16 @@ public:
 
 	/**
 	 * Check whether point is inside the cuboid.
+	 * Coordinates must be greater of equal to origin, and strictly lower than extremity.
+	 * Bounds can be extended by small value epsilon to avoid missing points near border due to floating point imprecision.
+	 * @param pt Point to check.
+	 //~ * @param ep Epsilon value.
 	 */
-	bool in_range(glm::vec3 pt) const {
-		const float ep = 0.01;
+	bool in_range(glm::vec3 pt, float ep = 0.0f) const {
 		glm::vec3 extr = extremity();
-		return (pt[0] >= origin_[0]-ep) && (pt[0] <= extr[0]+ep)
-		    && (pt[1] >= origin_[1]-ep) && (pt[1] <= extr[1]+ep)
-		    && (pt[2] >= origin_[2]-ep) && (pt[2] <= extr[2]+ep);
+		return (pt[0] >= origin_[0]-ep) && (pt[0] < extr[0]+ep)
+		    && (pt[1] >= origin_[1]-ep) && (pt[1] < extr[1]+ep)
+		    && (pt[2] >= origin_[2]-ep) && (pt[2] < extr[2]+ep);
 	}
 	
 	/**

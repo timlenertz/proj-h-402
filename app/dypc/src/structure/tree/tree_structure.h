@@ -101,9 +101,9 @@ void tree_structure<Splitter, Levels, PointsContainer>::load_model_(model& mod, 
 	PointsContainer all_points_unordered;
 	
 	progress_foreach(mod.begin(), mod.end(), mod.number_of_points(), "Collecting points from model...", [&](const point& pt) {
-		if(! cub.in_range(pt)) return;
-		all_points_unordered.push_back(pt);
+		if(root_cuboid_.in_range(pt)) all_points_unordered.push_back(pt);
 	});
+	std::cout << all_points_unordered.size() << std::endl;
 
 	progress(all_points_unordered.size(), "Adding points with info to tree...", [&](progress_handle& pr) {
 		root_.add_points_with_information(all_points_unordered, root_cuboid_, depth, leaf_capacity_, pr);

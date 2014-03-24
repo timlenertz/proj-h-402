@@ -27,6 +27,11 @@ private:
 		}
 	}
 
+	void move_before_last_bar_() const {
+		std::ptrdiff_t len = 72 + 3 * depth_;
+		for(std::ptrdiff_t i = 0; i < len; ++i) std::cout << '\b';
+	}
+
 public:
 	progress_view(const std::string& lab, unsigned mx, progress_view* par) :
 	parent_(par), maximum_(mx), value_(0), label_(lab) {
@@ -36,15 +41,16 @@ public:
 			par = par->parent_;
 		}
 		
+		std::cout << std::endl;
 		print_ident_();
 		std::cout << label_ << std::endl;
 	}
 	
 	void set(unsigned val) {
 		value_ = val;
+		move_before_last_bar_();
 		print_ident_();
 		print_bar_();
-		std::cout << std::endl;
 	}
 };
 

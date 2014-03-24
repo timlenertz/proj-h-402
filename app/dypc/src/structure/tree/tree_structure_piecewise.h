@@ -4,6 +4,7 @@
 #include "tree_structure.h"
 #include <vector>
 #include <stack>
+#include <list>
 
 namespace dypc {
 
@@ -22,8 +23,18 @@ public:
 
 	public:
 		piece_node() { for(auto& c : children_) c = nullptr; }
-		explicit piece_node(const piece& p) : piece_(&p) { }
+		explicit piece_node(const piece& p) : piece_node(), piece_(&p) { }
 		~piece_node() { if(! is_leaf()) for(piece_node* c : children_) if(c) delete c; }
+	
+		piece_node(const piece_node&) = delete;
+		piece_node& operator=(const piece_node&) = delete;
+		piece_node(piece_node&& nd) : piece_(nd.piece_) {
+			for(std::ptrdiff_t i = 0; i < Splitter::number_of_node_children; ++i) {
+				children_[i] = nd.children_[i];
+				nd.children_[i] = nullptr;
+			}
+		}
+		piece_node& operator=(piece_node&&) = delete;
 	
 		bool is_leaf() const { return piece_; }
 		void set_piece(const piece& p) { piece_ = &p; }
@@ -54,7 +65,7 @@ private:
 
 	model& model_;
 	cuboid model_root_cuboid_;
-	std::vector<piece> pieces_;
+	std::list<piece> pieces_;
 	piece_node root_piece_node_;
 	
 public:
@@ -67,7 +78,6 @@ public:
 	void load_piece(const piece&);
 	std::size_t number_of_pieces() const { return pieces_.size(); }
 	
-	std::size_t total_number_of_nodes_upper_bound() const;
 	std::size_t total_number_of_points() const { return model_.number_of_points(); }
 };
 
@@ -83,7 +93,9 @@ tree_structure_piecewise<Splitter, Levels, PointsContainer>::tree_structure_piec
 	std::stack<piece> pieces_stack;
 	pieces_stack.push({ model_root_cuboid_, mod.number_of_points(), 0, 0, root_piece_node_ });
 	
-	while(! pieces_stack.empty()) {
+	progress(mod.number_of_points(), "Determining tree structure pieces...", [&](progress_handle& pr) {
+
+	while(! pieces_stack.empty()) {		
 		piece p = pieces_stack.top();
 		pieces_stack.pop();
 						
@@ -94,9 +106,17 @@ tree_structure_piecewise<Splitter, Levels, PointsContainer>::tree_structure_piec
 			typename Splitter::node_points_information no_info;
 			
 			for(const point& pt : mod) {
+				assert(model_root_cuboid_.in_range(pt));
 				if(! p.root_cuboid.in_range(pt)) continue;
 				std::ptrdiff_t i = Splitter::node_child_for_point(pt, p.root_cuboid, no_info, p.depth);
 				++children_number_of_points[i];
+				
+				#ifndef NDEBUG
+				for(std::ptrdiff_t j = 0; j < Splitter::number_of_node_children; ++j) {
+					cuboid cub = Splitter::node_child_cuboid(j, p.root_cuboid, no_info, p.depth);
+					assert(cub.in_range(pt) == (i == j));
+				}
+				#endif
 			}
 			
 			std::ptrdiff_t offset = 0;
@@ -105,37 +125,38 @@ tree_structure_piecewise<Splitter, Levels, PointsContainer>::tree_structure_piec
 				if(n == 0) continue;
 								
 				cuboid cub = Splitter::node_child_cuboid(i, p.root_cuboid, no_info, p.depth);
+				
 				pieces_stack.push({ cub, n, offset, p.depth + 1, p.node.child(i) });
 				offset += n;
 			}
 			
 		} else {
 			pieces_.push_back(p);
-			piece& copy = pieces_.back();
-			copy.node.set_piece(copy);
+			piece& stored_piece = pieces_.back();
+			stored_piece.node.set_piece(stored_piece);
+				
+			pr.increment(p.number_of_points);
 		}
 	}
 	
-	for(const auto& p : pieces_) std::cout << "piece " << p.offset << " nb:" << p.number_of_points << " depth: " << p.depth << std::endl;
+	/*
+	std::size_t total=0;
+	std::cout << "pieces" << std::endl;
+	for(const auto& p : pieces_) {
+		total += p.number_of_points;
+		std::cout << "piece " << p.offset << " nb:" << p.number_of_points << " depth: " << p.depth << " total: " << total << std::endl;
+	}
+	std::cout << "model total: " << model_.number_of_points() << std::endl;
+	*/
+	
+	});
 }
 
 
 template<class Splitter, std::size_t Levels, class PointsContainer>
 void tree_structure_piecewise<Splitter, Levels, PointsContainer>::load_piece(const piece& p) {
 	super::load_model_(model_, p.root_cuboid, p.depth);
-}
-
-
-
-template<class Splitter, std::size_t Levels, class PointsContainer>
-std::size_t tree_structure_piecewise<Splitter, Levels, PointsContainer>::total_number_of_nodes_upper_bound() const {
-	std::size_t level_nodes = total_number_of_points() / super::leaf_capacity_;
-	std::size_t total = level_nodes;
-	while(level_nodes > 1) {
-		level_nodes = (level_nodes + 1) / Splitter::number_of_node_children;
-		total += level_nodes;
-	}
-	return total;
+	assert(super::number_of_points() == p.number_of_points);
 }
 
 

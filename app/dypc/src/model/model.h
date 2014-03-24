@@ -38,6 +38,7 @@ public:
 	}
 	
 	std::size_t number_of_points() const { return number_of_points_; }
+	std::size_t size() const { return number_of_points(); }
 	float x_minimum() { return get_minimum().x; }
 	float x_maximum() { return get_maximum().x; }
 	float x_range() { return get_maximum().x - get_minimum().x; }

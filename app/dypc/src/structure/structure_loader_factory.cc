@@ -18,7 +18,6 @@
 #include "tree/tree_structure_memory_occluding_loader.h"
 #include "tree/tree_structure_memory_simple_loader.h"
 #include "tree/tree_structure_hdf_loader.h"
-#include "tree/tree_structure_hdf_simple_loader.h"
 #include "tree/tree_structure_hdf_write.h"
 #include "tree/tree_structure_piecewise_hdf_write.h"
 
@@ -198,11 +197,11 @@ loader* create_structure_file_loader(const std::string& filename, tree_structure
 
 
 void write_tree_structure_file(const std::string& filename, structure_type type, unsigned levels, std::size_t leaf_cap, float mmfac, downsampling_mode dmode, std::size_t dmax, model& mod) {
-	const std::size_t maximal_number_of_points_per_piece = 10000;//16 * 1024 * 1024;
+	const std::size_t maximal_number_of_points_per_piece = 24 * 1024 * 1024;
 	
 	auto ext = file_path_extension(filename);
 	std::unique_ptr<structure> s( call_(create_tree_structure_(), type, levels, leaf_cap, mmfac, dmode, dmax, mod, maximal_number_of_points_per_piece) );
-	
+
 	if(ext == "hdf") {
 		write_tree_structure_to_hdf_ f {filename};
 		call_(f, type, levels, *s);

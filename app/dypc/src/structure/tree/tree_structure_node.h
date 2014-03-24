@@ -46,8 +46,8 @@ public:
 		for(std::ptrdiff_t i = 0; i < Splitter::number_of_node_children; ++i) delete children_[i];
 	}
 	
-	const tree_structure_node& child(std::ptrdiff_t i) const { assert(i >= 0 && i < Splitter::number_of_node_children); return *children_[i]; }
-	tree_structure_node& child(std::ptrdiff_t i) { assert(i >= 0 && i < Splitter::number_of_node_children); return *children_[i]; }
+	const tree_structure_node& child(std::ptrdiff_t i) const { assert(i >= 0 && i < Splitter::number_of_node_children && children_[i]); return *children_[i]; }
+	tree_structure_node& child(std::ptrdiff_t i) { assert(i >= 0 && i < Splitter::number_of_node_children && children_[i]); return *children_[i]; }
 	
 	point_iterator points_begin(std::ptrdiff_t lvl = 0) const { assert(lvl >= 0 && lvl < Levels); return point_sets_[lvl].points_iterator; }
 	point_iterator points_end(std::ptrdiff_t lvl = 0) const { assert(lvl >= 0 && lvl < Levels); return point_sets_[lvl].points_iterator + point_sets_[lvl].number_of_points; }

@@ -63,7 +63,7 @@ std::size_t tree_structure_memory_ordered_loader<Structure>::extract_points_(poi
 		
 		position_path_.push_back({ child_node, i, child_cuboid });
 	}
-	
+		
 	std::size_t c = 0;
 	std::ptrdiff_t previous_i = -1;
 	unsigned depth = position_path_.size();
