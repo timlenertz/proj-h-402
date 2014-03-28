@@ -18,11 +18,11 @@ void dypc_delete_loader(dypc_loader);
 
 dypc_loader dypc_create_cubes_structure_loader(dypc_model mod, float side);
 dypc_loader dypc_create_mipmap_cubes_structure_loader(dypc_model mod, float side, unsigned levels, float mmfac, dypc_downsampling_mode dmode);
-dypc_loader dypc_create_tree_structure_loader(dypc_model mod, dypc_structure_type str, unsigned levels, dypc_size leaf_cap, float mmfac, dypc_downsampling_mode dmode, dypc_size dmax, dypc_tree_structure_loader_type ltype);
+dypc_loader dypc_create_tree_structure_loader(dypc_model mod, dypc_structure_type str, unsigned levels, dypc_size leaf_cap, dypc_size dmin, float damount, dypc_downsampling_mode dmode, dypc_tree_structure_loader_type ltype);
 
 void dypc_write_cubes_structure_to_file(const char* filename, dypc_model mod, float side);
 void dypc_write_mipmap_cubes_structure_to_file(const char* filename, dypc_model mod, float side, unsigned levels, float mmfac, dypc_downsampling_mode dmode);
-void dypc_write_tree_structure_to_file(const char* filename, dypc_model mod, dypc_structure_type str, unsigned levels, dypc_size leaf_cap, float mmfac, dypc_downsampling_mode dmode, dypc_size dmax);
+void dypc_write_tree_structure_to_file(const char* filename, dypc_model mod, dypc_structure_type str, unsigned levels, dypc_size leaf_cap, dypc_size dmin, float damount, dypc_downsampling_mode dmode);
 
 dypc_loader_type dypc_loader_loader_type(dypc_loader);
 const char* dypc_loader_name(dypc_loader);

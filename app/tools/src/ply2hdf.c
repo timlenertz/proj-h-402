@@ -8,7 +8,7 @@ int main(int argc, const char* argv[]) {
 	const char* hdf = argv[2];
 	
 	printf("Opening PLY file...\n");
-	dypc_model model = dypc_create_ply_model(ply, 1.0);
+	dypc_model model = dypc_create_ply_model(ply, 10.0);
 	if(! model) { printf("Could not load model."); return 1; }
 	
 	printf("Writing tree structure into HDF...\n");
@@ -17,8 +17,8 @@ int main(int argc, const char* argv[]) {
 		model,
 		dypc_octree_tree_structure_type,
 		16,
-		1000,
-		1.4,
+		10000,
+		1.3,
 		dypc_random_downsampling_mode,
 		0
 	);

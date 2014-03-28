@@ -46,6 +46,9 @@ private:
 	H5::DataSpace points_data_space_;
 	H5::DataSet points_data_set_;
 		
+protected:
+	std::size_t extract_points_(point_buffer_t points, std::size_t capacity, const loader::request_t&);
+
 public:
 	static void write(const std::string& file, const cubes_structure&);
 	
@@ -53,11 +56,9 @@ public:
 
 	std::string loader_name() const override { return "Cubes Structure HDF Loader"; }
 
-protected:
-	std::size_t extract_points_(point_buffer_t points, std::size_t capacity, const loader::request_t&);
-	std::size_t memory_size_() const override;
-	std::size_t file_size_() const override;
-	std::size_t total_points_() const override;
+	std::size_t memory_size() const override;
+	std::size_t rom_size() const override;
+	std::size_t number_of_points() const override;
 
 };
 

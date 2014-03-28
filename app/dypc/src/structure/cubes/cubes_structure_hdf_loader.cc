@@ -144,15 +144,15 @@ std::size_t cubes_structure_hdf_loader::extract_points_(point_buffer_t points, s
 }
 
 	
-std::size_t cubes_structure_hdf_loader::memory_size_() const {
+std::size_t cubes_structure_hdf_loader::memory_size() const {
 	return cube_entries_.size() * sizeof(cube_entry);
 }
 
-std::size_t cubes_structure_hdf_loader::file_size_() const {
+std::size_t cubes_structure_hdf_loader::rom_size() const {
 	return file_.getFileSize();
 }
 
-std::size_t cubes_structure_hdf_loader::total_points_() const {
+std::size_t cubes_structure_hdf_loader::number_of_points() const {
 	return points_data_space_.getSimpleExtentNpoints();
 }
 

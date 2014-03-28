@@ -96,6 +96,10 @@ public:
 	
 	virtual double get_setting(const std::string&) const { throw std::logic_error("No configuration for loader"); }
 	virtual void set_setting(const std::string&, double) { throw std::logic_error("No configuration for loader"); }
+	
+	virtual std::size_t memory_size() const { return 0; }
+	virtual std::size_t rom_size() const { return 0; }
+	virtual std::size_t number_of_points() const = 0;
 };
 	
 }

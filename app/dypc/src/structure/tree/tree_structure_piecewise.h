@@ -5,11 +5,14 @@
 #include <vector>
 #include <stack>
 #include <list>
+#include <cmath>
 
 namespace dypc {
 
-template<class Splitter, std::size_t Levels, class PointsContainer = std::vector<point>>
+template<class Splitter, std::size_t Levels, class PointsContainer = std::vector<point>, class PiecesSplitter = Splitter>
 class tree_structure_piecewise : public tree_structure<Splitter, Levels, PointsContainer> {
+	static_assert(Splitter::number_of_node_children >= PiecesSplitter::number_of_node_children, "Pieces splitter cannot have more children than nodes splitter");
+	
 private:
 	using super = tree_structure<Splitter, Levels, PointsContainer>;
 
@@ -19,7 +22,7 @@ public:
 	class piece_node {
 	private:
 		const piece* piece_ = nullptr;
-		piece_node* children_[Splitter::number_of_node_children];
+		piece_node* children_[PiecesSplitter::number_of_node_children];
 
 	public:
 		piece_node() { for(auto& c : children_) c = nullptr; }
@@ -29,7 +32,7 @@ public:
 		piece_node(const piece_node&) = delete;
 		piece_node& operator=(const piece_node&) = delete;
 		piece_node(piece_node&& nd) : piece_(nd.piece_) {
-			for(std::ptrdiff_t i = 0; i < Splitter::number_of_node_children; ++i) {
+			for(std::ptrdiff_t i = 0; i < PiecesSplitter::number_of_node_children; ++i) {
 				children_[i] = nd.children_[i];
 				nd.children_[i] = nullptr;
 			}
@@ -41,7 +44,7 @@ public:
 		const piece& get_piece() const { assert(is_leaf()); return *piece_; }
 		
 		bool has_child(std::ptrdiff_t i) const {
-			assert(! is_leaf() && i >= 0 && i < Splitter::number_of_node_children);
+			assert(! is_leaf() && i >= 0 && i < PiecesSplitter::number_of_node_children);
 			return children_[i];
 		}
 		piece_node& child(std::ptrdiff_t i) {
@@ -69,8 +72,8 @@ private:
 	piece_node root_piece_node_;
 	
 public:
-	tree_structure_piecewise(std::size_t leaf_cap, float mmfac, downsampling_mode dmode, std::size_t dmax, model& mod);
-	tree_structure_piecewise(std::size_t leaf_cap, float mmfac, downsampling_mode dmode, std::size_t dmax, model& mod, std::ptrdiff_t maxnum);
+	tree_structure_piecewise(std::size_t leaf_cap, std::size_t dmin, float damount, downsampling_mode dmode, model& mod);
+	tree_structure_piecewise(std::size_t leaf_cap, std::size_t dmin, float damount, downsampling_mode dmode, model& mod, std::ptrdiff_t maxnum);
 	
 	const piece_node& root_piece_node() const { return root_piece_node_; }
 	const cuboid& root_piece_cuboid() const { return model_root_cuboid_; }
@@ -79,17 +82,18 @@ public:
 	std::size_t number_of_pieces() const { return pieces_.size(); }
 	
 	std::size_t total_number_of_points() const { return model_.number_of_points(); }
+	std::size_t total_number_of_points_upper_bound(std::ptrdiff_t lvl) const;
 };
 
 
 
-template<class Splitter, std::size_t Levels, class PointsContainer>
-tree_structure_piecewise<Splitter, Levels, PointsContainer>::tree_structure_piecewise(std::size_t leaf_cap, float mmfac, downsampling_mode dmode, std::size_t dmax, model& mod) : super(leaf_cap, mmfac, dmode, dmax, mod), model_(mod), model_root_cuboid_(Splitter::root_cuboid(mod)), maximal_number_of_points_per_piece_(0) { }
+template<class Splitter, std::size_t Levels, class PointsContainer, class PiecesSplitter>
+tree_structure_piecewise<Splitter, Levels, PointsContainer, PiecesSplitter>::tree_structure_piecewise(std::size_t leaf_cap, std::size_t dmin, float damount, downsampling_mode dmode, model& mod) : super(leaf_cap, dmin, damount, dmode, mod), model_(mod), model_root_cuboid_(Splitter::root_cuboid(mod)), maximal_number_of_points_per_piece_(0) { }
 
 
 
-template<class Splitter, std::size_t Levels, class PointsContainer>
-tree_structure_piecewise<Splitter, Levels, PointsContainer>::tree_structure_piecewise(std::size_t leaf_cap, float mmfac, downsampling_mode dmode, std::size_t dmax, model& mod, std::ptrdiff_t maxnum) : super(leaf_cap, mmfac, dmode, dmax), model_(mod), model_root_cuboid_(Splitter::root_cuboid(mod)), maximal_number_of_points_per_piece_(maxnum) {		
+template<class Splitter, std::size_t Levels, class PointsContainer, class PiecesSplitter>
+tree_structure_piecewise<Splitter, Levels, PointsContainer, PiecesSplitter>::tree_structure_piecewise(std::size_t leaf_cap, std::size_t dmin, float damount, downsampling_mode dmode, model& mod, std::ptrdiff_t maxnum) : super(leaf_cap, dmin, damount, dmode, mod), model_(mod), model_root_cuboid_(Splitter::root_cuboid(mod)), maximal_number_of_points_per_piece_(maxnum) {		
 	std::stack<piece> pieces_stack;
 	pieces_stack.push({ model_root_cuboid_, mod.number_of_points(), 0, 0, root_piece_node_ });
 	
@@ -100,31 +104,33 @@ tree_structure_piecewise<Splitter, Levels, PointsContainer>::tree_structure_piec
 		pieces_stack.pop();
 						
 		if(maximal_number_of_points_per_piece_ && (p.number_of_points > maximal_number_of_points_per_piece_) && !p.node.is_leaf()) {
-			std::size_t children_number_of_points[Splitter::number_of_node_children];
+			std::size_t children_number_of_points[PiecesSplitter::number_of_node_children];
 			for(auto& np : children_number_of_points) np = 0; 
 			
-			typename Splitter::node_points_information no_info;
+			typename PiecesSplitter::node_points_information no_info;
 			
-			for(const point& pt : mod) {
+			progress_foreach(mod, "Counting points in child pieces", [&](const point& pt) {
 				assert(model_root_cuboid_.in_range(pt));
-				if(! p.root_cuboid.in_range(pt)) continue;
-				std::ptrdiff_t i = Splitter::node_child_for_point(pt, p.root_cuboid, no_info, p.depth);
+				if(! p.root_cuboid.in_range(pt)) return;
+				std::ptrdiff_t i = PiecesSplitter::node_child_for_point(pt, p.root_cuboid, no_info, p.depth);
 				++children_number_of_points[i];
 				
+				//for(std::ptrdiff_t i= 0; i < PiecesSplitter::number_of_node_children; ++i) std::cout << "Child " << i << ": " << children_number_of_points[i] << std::endl;
+				
 				#ifndef NDEBUG
-				for(std::ptrdiff_t j = 0; j < Splitter::number_of_node_children; ++j) {
-					cuboid cub = Splitter::node_child_cuboid(j, p.root_cuboid, no_info, p.depth);
+				for(std::ptrdiff_t j = 0; j < PiecesSplitter::number_of_node_children; ++j) {
+					cuboid cub = PiecesSplitter::node_child_cuboid(j, p.root_cuboid, no_info, p.depth);
 					assert(cub.in_range(pt) == (i == j));
 				}
 				#endif
-			}
+			});
 			
 			std::ptrdiff_t offset = 0;
-			for(std::ptrdiff_t i = 0; i < Splitter::number_of_node_children; ++i) {
+			for(std::ptrdiff_t i = 0; i < PiecesSplitter::number_of_node_children; ++i) {
 				std::size_t n = children_number_of_points[i];
 				if(n == 0) continue;
 								
-				cuboid cub = Splitter::node_child_cuboid(i, p.root_cuboid, no_info, p.depth);
+				cuboid cub = PiecesSplitter::node_child_cuboid(i, p.root_cuboid, no_info, p.depth);
 				
 				pieces_stack.push({ cub, n, offset, p.depth + 1, p.node.child(i) });
 				offset += n;
@@ -153,10 +159,18 @@ tree_structure_piecewise<Splitter, Levels, PointsContainer>::tree_structure_piec
 }
 
 
-template<class Splitter, std::size_t Levels, class PointsContainer>
-void tree_structure_piecewise<Splitter, Levels, PointsContainer>::load_piece(const piece& p) {
+template<class Splitter, std::size_t Levels, class PointsContainer, class PiecesSplitter>
+void tree_structure_piecewise<Splitter, Levels, PointsContainer, PiecesSplitter>::load_piece(const piece& p) {
 	super::load_model_(model_, p.root_cuboid, p.depth);
 	assert(super::number_of_points() == p.number_of_points);
+}
+
+
+template<class Splitter, std::size_t Levels, class PointsContainer, class PiecesSplitter>
+std::size_t tree_structure_piecewise<Splitter, Levels, PointsContainer, PiecesSplitter>::total_number_of_points_upper_bound(std::ptrdiff_t lvl) const {
+	std::size_t n = total_number_of_points();
+	float ratio = std::pow(super::mipmap_factor_, lvl);
+	return ratio * n;
 }
 
 

@@ -51,15 +51,15 @@ std::size_t cubes_structure_memory_loader::extract_points_(point_buffer_t points
 
 }
 	
-std::size_t cubes_structure_memory_loader::memory_size_() const {
+std::size_t cubes_structure_memory_loader::memory_size() const {
 	return structure_.size();
 }
 
-std::size_t cubes_structure_memory_loader::file_size_() const {
+std::size_t cubes_structure_memory_loader::rom_size() const {
 	return 0;
 }
 
-std::size_t cubes_structure_memory_loader::total_points_() const {
+std::size_t cubes_structure_memory_loader::number_of_points() const {
 	return structure_.total_number_of_points();
 }
 

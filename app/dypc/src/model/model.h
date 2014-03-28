@@ -5,6 +5,7 @@
 #include <iterator>
 #include <glm/glm.hpp>
 #include "../point.h"
+#include "../cuboid.h"
 
 namespace dypc {
 
@@ -48,6 +49,13 @@ public:
 	float z_minimum() { return get_minimum().z; }
 	float z_maximum() { return get_maximum().z; }
 	float z_range() { return get_maximum().z - get_minimum().z; }
+	
+	cuboid bounding_cuboid() {
+		return cuboid(
+			glm::vec3(x_minimum(), y_minimum(), z_minimum()),
+			glm::vec3(x_range(), y_range(), z_range())
+		);
+	}
 	
 	virtual ~model() { }
 	

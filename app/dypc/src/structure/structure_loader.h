@@ -34,10 +34,6 @@ protected:
 	
 	virtual std::size_t extract_points_(point_buffer_t points, std::size_t capacity, const loader::request_t&) = 0;
 	virtual adapt_result_t adapt_settings_(std::size_t last_extracted, std::size_t capacity) { return adapt_stabilize; }
-	
-	virtual std::size_t memory_size_() const = 0;
-	virtual std::size_t file_size_() const = 0;
-	virtual std::size_t total_points_() const = 0;
 };
 
 }

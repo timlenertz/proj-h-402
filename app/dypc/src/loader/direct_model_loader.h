@@ -37,6 +37,8 @@ public:
 	std::string loader_name() const override { return "Direct Model Loader"; }
 
 	loader_type get_loader_type() const override { return loader_type::direct; }
+	
+	std::size_t number_of_points() const override { return model_->number_of_points(); }
 };
 
 

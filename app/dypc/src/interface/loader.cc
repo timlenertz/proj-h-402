@@ -58,15 +58,15 @@ dypc_loader dypc_create_mipmap_cubes_structure_loader(dypc_model m, float side, 
 }
 
 
-dypc_loader dypc_create_tree_structure_loader(dypc_model m, dypc_structure_type str, unsigned levels, dypc_size leaf_cap, float mmfac, dypc_downsampling_mode dmode, dypc_size dmax, dypc_tree_structure_loader_type ltype) {
+dypc_loader dypc_create_tree_structure_loader(dypc_model m, dypc_structure_type str, unsigned levels, dypc_size leaf_cap, dypc_size dmin, float damount, dypc_downsampling_mode dmode, dypc_tree_structure_loader_type ltype) {
 	dypc::model* mod = (dypc::model*)m;
 	dypc::tree_structure_loader* ld = dypc::create_tree_structure_memory_loader(
 		(dypc::structure_type)(str),
 		levels, 
 		leaf_cap,
-		mmfac,
+		dmin,
+		damount,
 		(dypc::downsampling_mode)(dmode),
-		dmax,
 		*mod,
 		(dypc::tree_structure_loader_type)(ltype)
 	);
@@ -94,16 +94,16 @@ void dypc_write_mipmap_cubes_structure_to_file(const char* filename, dypc_model 
 	if(ext == "hdf") dypc::cubes_mipmap_structure_hdf_loader::write(filename, s);
 }
 
-void dypc_write_tree_structure_to_file(const char* filename, dypc_model m, dypc_structure_type str, unsigned levels, dypc_size leaf_cap, float mmfac, dypc_downsampling_mode dmode, dypc_size dmax) {
+void dypc_write_tree_structure_to_file(const char* filename, dypc_model m, dypc_structure_type str, unsigned levels, dypc_size leaf_cap, dypc_size dmin, float damount, dypc_downsampling_mode dmode) {
 	dypc::model* mod = (dypc::model*)m;
 	dypc::write_tree_structure_file(
 		filename,
 		(dypc::structure_type)(str),
 		levels,
 		leaf_cap,
-		mmfac,
+		dmin,
+		damount,
 		(dypc::downsampling_mode)(dmode),
-		dmax,
 		*mod
 	);
 }

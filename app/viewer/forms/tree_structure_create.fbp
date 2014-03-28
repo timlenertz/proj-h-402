@@ -91,7 +91,7 @@
                                 <property name="font"></property>
                                 <property name="hidden">0</property>
                                 <property name="id">wxID_ANY</property>
-                                <property name="label">Leaf Capacity:</property>
+                                <property name="label">Leaf capacity:</property>
                                 <property name="maximum_size"></property>
                                 <property name="minimum_size"></property>
                                 <property name="name">capacity_label</property>
@@ -216,7 +216,7 @@
                                 <property name="font"></property>
                                 <property name="hidden">0</property>
                                 <property name="id">wxID_ANY</property>
-                                <property name="label">Mipmap Levels:</property>
+                                <property name="label">Mipmap levels:</property>
                                 <property name="maximum_size"></property>
                                 <property name="minimum_size"></property>
                                 <property name="name">levels_label</property>
@@ -322,7 +322,7 @@
                     <property name="proportion">0</property>
                     <object class="wxBoxSizer" expanded="1">
                         <property name="minimum_size"></property>
-                        <property name="name">factor_sizer</property>
+                        <property name="name">amount_sizer</property>
                         <property name="orient">wxHORIZONTAL</property>
                         <property name="permission">none</property>
                         <object class="sizeritem" expanded="1">
@@ -337,10 +337,10 @@
                                 <property name="font"></property>
                                 <property name="hidden">0</property>
                                 <property name="id">wxID_ANY</property>
-                                <property name="label">Mipmap Factor:</property>
+                                <property name="label">Downsampling amount:</property>
                                 <property name="maximum_size"></property>
                                 <property name="minimum_size"></property>
-                                <property name="name">factor_label</property>
+                                <property name="name">amount_label</property>
                                 <property name="permission">none</property>
                                 <property name="pos"></property>
                                 <property name="size"></property>
@@ -395,7 +395,7 @@
                                 <property name="maximum_size"></property>
                                 <property name="maxlength">4</property>
                                 <property name="minimum_size"></property>
-                                <property name="name">factor_text</property>
+                                <property name="name">amount_text</property>
                                 <property name="permission">protected</property>
                                 <property name="pos"></property>
                                 <property name="size">60,-1</property>
@@ -447,7 +447,7 @@
                     <property name="proportion">0</property>
                     <object class="wxBoxSizer" expanded="0">
                         <property name="minimum_size"></property>
-                        <property name="name">dmax_sizer</property>
+                        <property name="name">dmin_sizer</property>
                         <property name="orient">wxHORIZONTAL</property>
                         <property name="permission">none</property>
                         <object class="sizeritem" expanded="1">
@@ -462,10 +462,10 @@
                                 <property name="font"></property>
                                 <property name="hidden">0</property>
                                 <property name="id">wxID_ANY</property>
-                                <property name="label">Maximal downsampling set:</property>
+                                <property name="label">Minimum downsampling output:</property>
                                 <property name="maximum_size"></property>
                                 <property name="minimum_size"></property>
-                                <property name="name">dmax_label</property>
+                                <property name="name">dmin_label</property>
                                 <property name="permission">none</property>
                                 <property name="pos"></property>
                                 <property name="size"></property>
@@ -517,12 +517,12 @@
                                 <property name="font"></property>
                                 <property name="hidden">0</property>
                                 <property name="id">wxID_ANY</property>
-                                <property name="initial">10000000</property>
+                                <property name="initial">1000000</property>
                                 <property name="max">10000000</property>
                                 <property name="maximum_size"></property>
                                 <property name="min">1</property>
                                 <property name="minimum_size"></property>
-                                <property name="name">dmax_spin</property>
+                                <property name="name">dmin_spin</property>
                                 <property name="permission">public</property>
                                 <property name="pos"></property>
                                 <property name="size"></property>

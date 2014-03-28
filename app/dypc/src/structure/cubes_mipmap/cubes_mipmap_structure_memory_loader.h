@@ -20,10 +20,11 @@ public:
 
 protected:
 	std::size_t extract_points_(point_buffer_t points, std::size_t capacity, const loader::request_t&) override;
-	
-	std::size_t memory_size_() const override;
-	std::size_t file_size_() const override;
-	std::size_t total_points_() const override;
+
+public:
+	std::size_t memory_size() const override;
+	std::size_t rom_size() const override;
+	std::size_t number_of_points() const override;
 };
 
 }

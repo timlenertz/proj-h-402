@@ -133,15 +133,15 @@ std::size_t cubes_structure_sqlite_loader::extract_points_(point_buffer_t points
 }
 
 
-std::size_t cubes_structure_sqlite_loader::memory_size_() const {
+std::size_t cubes_structure_sqlite_loader::memory_size() const {
 	return cube_entries_.size() * sizeof(cube_entry);
 }
 
-std::size_t cubes_structure_sqlite_loader::file_size_() const {
+std::size_t cubes_structure_sqlite_loader::rom_size() const {
 	return const_cast<sqlite_database&>(database_).database_size();
 }
 
-std::size_t cubes_structure_sqlite_loader::total_points_() const {
+std::size_t cubes_structure_sqlite_loader::number_of_points() const {
 	auto select_number = const_cast<sqlite_database&>(database_).select("SELECT COUNT(*) FROM points");
 	select_number.next();
 	return select_number.current_row()[0].int_value();

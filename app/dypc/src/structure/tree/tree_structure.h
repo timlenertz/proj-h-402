@@ -1,7 +1,7 @@
 #ifndef DYPC_TREE_STRUCTURE_H_
 #define DYPC_TREE_STRUCTURE_H_
 
-#include "../structure.h"
+#include "../mipmap_structure.h"
 #include "../../enums.h"
 #include "../../cuboid.h"
 #include "../../point.h"
@@ -17,8 +17,17 @@
 
 namespace dypc {
 
+/**
+ * Tree structure where the model is recursively subdivided into cuboid regions.
+ * @tparam Splitter Tree structure splitter which defines how space is subdivided into cuboids.
+ * @tparam Levels Mipmap levels of downsampling to generate.
+ * @tparam PointsContainer Container used to store arrays of points.
+ */
 template<class Splitter, std::size_t Levels, class PointsContainer = std::deque<point>>
-class tree_structure : public structure {
+class tree_structure : public mipmap_structure<Levels> {
+private:
+	using super = mipmap_structure<Levels>;
+
 public:
 	using splitter = Splitter;
 	using node = tree_structure_node<Splitter, Levels, PointsContainer>;
@@ -27,25 +36,18 @@ public:
 	
 protected:
 	const std::size_t leaf_capacity_;
-	const float mipmap_factor_;
-	const downsampling_mode downsampling_mode_;
-	const std::size_t downsampling_maximal_number_of_points_;
-
-	std::map<const node*, uniform_downsampling_previous_results_t> node_uniform_downsampling_previous_results_;
 
 	node root_;
 	cuboid root_cuboid_;
 	PointsContainer all_points_[Levels];
 	
-	void downsample_points_in_node_(float ratio, const node&, const cuboid&, PointsContainer&, unsigned depth);
-
-	tree_structure(std::size_t leaf_cap, float mmfac, downsampling_mode dmode, std::size_t dmax);
+	tree_structure(std::size_t leaf_cap, std::size_t dmin, float damount, downsampling_mode dmode);
 	
 	void unload_model_();
 	void load_model_(model& mod, const cuboid& cub, unsigned depth = 0);
 
 public:
-	tree_structure(std::size_t leaf_cap, float mmfac, downsampling_mode dmode, std::size_t dmax, model& mod);
+	tree_structure(std::size_t leaf_cap, std::size_t dmin, float damount, downsampling_mode dmode, model& mod);
 	
 	std::size_t number_of_points(std::ptrdiff_t lvl = 0) const { assert(lvl >= 0 && lvl < levels); return all_points_[lvl].size(); }
 	std::size_t number_of_nodes() const { return root_.number_of_nodes_in_branch(); }
@@ -65,36 +67,30 @@ public:
 
 
 template<class Splitter, std::size_t Levels, class PointsContainer>
-void tree_structure<Splitter, Levels, PointsContainer>::downsample_points_in_node_(float ratio, const node& nd, const cuboid& cub, PointsContainer& output, unsigned depth) {
-	if(nd.is_leaf() || !downsampling_maximal_number_of_points_ || nd.number_of_points() <= downsampling_maximal_number_of_points_) {
-		float area = cub.area();
-		if(downsampling_mode_ == downsampling_mode::random) random_downsampling(nd.points_begin(), nd.points_end(), ratio, output);
-		else if(downsampling_mode_ == downsampling_mode::uniform) uniform_downsampling(nd.points_begin(), nd.points_end(), ratio, area, output, node_uniform_downsampling_previous_results_[&nd]);
-		
-	} else {
-		for(std::ptrdiff_t i = 0; i < Splitter::number_of_node_children; ++i) {
-			auto child_cuboid = Splitter::node_child_cuboid(i, cub, nd.get_points_information(), depth);
-			downsample_points_in_node_(ratio, nd.child(i), child_cuboid, output, depth + 1);
-		}
-	}
-}
-
-
-template<class Splitter, std::size_t Levels, class PointsContainer>
-inline tree_structure<Splitter, Levels, PointsContainer>::tree_structure(std::size_t leaf_cap, float mmfac, downsampling_mode dmode, std::size_t dmax) :
-leaf_capacity_(leaf_cap), mipmap_factor_(mmfac), downsampling_mode_(dmode), downsampling_maximal_number_of_points_(dmax) { }
-
-
-template<class Splitter, std::size_t Levels, class PointsContainer>
 void tree_structure<Splitter, Levels, PointsContainer>::unload_model_() {
 	root_ = node();
 	for(auto& pts : all_points_) pts.clear();
 }
 
 
+template<class Splitter, std::size_t Levels, class PointsContainer>
+tree_structure<Splitter, Levels, PointsContainer>::tree_structure(std::size_t leaf_cap, std::size_t dmin, float damount, downsampling_mode dmode) :
+super(dmin, damount, dmode), leaf_capacity_(leaf_cap) { }
+
+
+
+template<class Splitter, std::size_t Levels, class PointsContainer>
+tree_structure<Splitter, Levels, PointsContainer>::tree_structure(std::size_t leaf_cap, std::size_t dmin, float damount, downsampling_mode dmode, model& mod) :
+super(dmin, damount, dmode), leaf_capacity_(leaf_cap) {
+	root_cuboid_ = Splitter::root_cuboid(mod);
+	load_model_(mod, root_cuboid_);
+}
+
 
 template<class Splitter, std::size_t Levels, class PointsContainer>
 void tree_structure<Splitter, Levels, PointsContainer>::load_model_(model& mod, const cuboid& cub, unsigned depth) {
+	super::load_model_(mod);
+	
 	unload_model_();
 	root_cuboid_ = cub;
 	
@@ -112,14 +108,13 @@ void tree_structure<Splitter, Levels, PointsContainer>::load_model_(model& mod, 
 	root_.move_out_points(all_points_[0]);
 	root_.finalize_move_out(all_points_[0]);
 	
-	
-	const auto& points = all_points_[0];
-	float ratio = 1.0 / mipmap_factor_;	
+
+
+	uniform_downsampling_previous_results_t previous_results;
 	for(int lvl = 1; lvl < Levels; ++lvl) {
 		PointsContainer downsampled;
+		super::template downsample_points_<typename PointsContainer::const_iterator, PointsContainer>(all_points_unordered.begin(), all_points_unordered.end(), lvl, mod.bounding_cuboid(), downsampled, previous_results);
 		
-		downsample_points_in_node_(ratio, root_, root_cuboid_, downsampled, depth);
-
 		auto& level_points = all_points_[lvl];
 		std::size_t c = 0;
 		progress_foreach(downsampled, "Adding downsampled points, level " + std::to_string(lvl) + "...", [&](const point& pt) {
@@ -127,22 +122,9 @@ void tree_structure<Splitter, Levels, PointsContainer>::load_model_(model& mod, 
 		});
 		root_.move_out_points(level_points, lvl);
 		root_.finalize_move_out(level_points, lvl);
-
-		ratio /= mipmap_factor_;
 	}
-	
-	node_uniform_downsampling_previous_results_.clear();
 }
 
-
-
-
-template<class Splitter, std::size_t Levels, class PointsContainer>
-tree_structure<Splitter, Levels, PointsContainer>::tree_structure(std::size_t leaf_cap, float mmfac, downsampling_mode dmode, std::size_t dmax, model& mod) :
-tree_structure(leaf_cap, mmfac, dmode, dmax) {
-	root_cuboid_ = Splitter::root_cuboid(mod);
-	load_model_(mod, root_cuboid_);
-}
 
 
 template<class Splitter, std::size_t Levels, class PointsContainer>

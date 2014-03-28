@@ -20,18 +20,10 @@ std::ptrdiff_t tree_structure_loader::action_for_node_(const cuboid& cub, std::s
 	float minimal_distance = cub.minimal_distance(req.position);
 	float maximal_distance = cub.maximal_distance(req.position);
 	
-	if(	! is_leaf &&
-		maximal_distance > downsampling_start_distance_ &&
-		maximal_distance - minimal_distance > additional_split_distance_difference_
-	) return action_split;
+	if(	! is_leaf && maximal_distance - minimal_distance > additional_split_distance_difference_) return action_split;
 	
 	float distance = cuboid_distance_(req.position, cub, minimal_distance, maximal_distance, downsampling_node_distance_);
-	
-	std::ptrdiff_t lvl = 0;
-	if(distance >= downsampling_start_distance_) lvl = 1 + (distance - downsampling_start_distance_) / downsampling_step_distance_;
-	if(lvl >= levels) lvl = levels - 1;
-	
-	return lvl;
+	return choose_downsampling_level(levels, distance, downsampling_setting_);
 }
 
 
@@ -61,8 +53,7 @@ float tree_structure_loader::cuboid_distance_(glm::vec3 position, const cuboid& 
 
 
 double tree_structure_loader::get_setting(const std::string& setting) const {
-	if(setting == "downsampling_start_distance") return downsampling_start_distance_;
-	else if(setting == "downsampling_step_distance") return downsampling_step_distance_;
+	if(setting == "downsampling_setting") return downsampling_setting_;
 	else if(setting == "minimal_number_of_points_for_split") return minimal_number_of_points_for_split_;
 	else if(setting == "downsampling_node_distance") return (double)downsampling_node_distance_;
 	else if(setting == "additional_split_distance_difference") return additional_split_distance_difference_;
@@ -70,8 +61,7 @@ double tree_structure_loader::get_setting(const std::string& setting) const {
 }
 
 void tree_structure_loader::set_setting(const std::string& setting, double value) {
-	if(setting == "downsampling_start_distance") downsampling_start_distance_ = value;
-	else if(setting == "downsampling_step_distance") downsampling_step_distance_ = value;
+	if(setting == "downsampling_setting") downsampling_setting_ = value;
 	else if(setting == "minimal_number_of_points_for_split") minimal_number_of_points_for_split_ = value;
 	else if(setting == "downsampling_node_distance") downsampling_node_distance_ = (cuboid_distance_mode)value;
 	else if(setting == "additional_split_distance_difference") additional_split_distance_difference_ = value;
