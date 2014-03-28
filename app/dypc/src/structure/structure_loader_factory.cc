@@ -15,6 +15,8 @@
 #include "cubes_mipmap/cubes_mipmap_structure_memory_loader.h"
 
 #include "tree/tree_structure_simple_loader.h"
+#include "tree/tree_structure_ordered_loader.h"
+#include "tree/tree_structure_sorted_loader.h"
 #include "tree/tree_structure_memory_source.h"
 #include "tree/tree_structure_piecewise.h"
 #include "tree/hdf/tree_structure_hdf_source.h"
@@ -108,11 +110,11 @@ public:
 	}
 };
 
-static tree_structure_loader* create_tree_structure_loader_(tree_structure_loader_type ltype) {
-	return new tree_structure_simple_loader;
-	
+static tree_structure_loader* create_tree_structure_loader_(tree_structure_loader_type ltype) {	
 	switch(ltype) {
 		case tree_structure_loader_type::simple: return new tree_structure_simple_loader;
+		case tree_structure_loader_type::ordered: return new tree_structure_ordered_loader;
+		case tree_structure_loader_type::sorted: return new tree_structure_sorted_loader;
 	}
 	throw std::invalid_argument("Invalid tree structure loader");
 }

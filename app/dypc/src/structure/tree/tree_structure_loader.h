@@ -28,6 +28,8 @@ protected:
 	std::ptrdiff_t action_for_node_(const cuboid&, std::size_t number_of_points, bool is_leaf, const loader::request_t&, std::size_t levels = 1) const;
 	float cuboid_distance_(glm::vec3 position, const cuboid& cub, cuboid_distance_mode type) const;
 	float cuboid_distance_(glm::vec3 position, const cuboid& cub) const;
+	
+	virtual void updated_source_() { }
 		
 public:
 	void set_downsampling_setting(float d) { downsampling_setting_ = d; }
@@ -38,8 +40,8 @@ public:
 	double get_setting(const std::string&) const override;
 	void set_setting(const std::string&, double) override;
 	
-	void take_source(const tree_structure_source* src) { source_.reset(src); }
-	void delete_source() { source_.release(); }
+	void take_source(const tree_structure_source* src) { source_.reset(src); updated_source_(); }
+	void delete_source() { source_.release(); updated_source_(); }
 	
 	loader_type get_loader_type() const override { return loader_type::tree; }
 	

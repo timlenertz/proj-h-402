@@ -23,7 +23,7 @@ typedef enum {
 typedef enum {
 	dypc_simple_tree_structure_loader_type = 0,
 	dypc_ordered_tree_structure_loader_type,
-	dypc_occluding_tree_structure_loader_type
+	dypc_sorted_tree_structure_loader_type
 } dypc_tree_structure_loader_type;
 
 

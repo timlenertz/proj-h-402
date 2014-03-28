@@ -31,7 +31,7 @@ enum class loader_type {
 enum class tree_structure_loader_type {
 	simple = dypc_simple_tree_structure_loader_type,
 	ordered = dypc_ordered_tree_structure_loader_type,
-	occluding = dypc_occluding_tree_structure_loader_type
+	sorted = dypc_sorted_tree_structure_loader_type
 };
 
 enum class downsampling_mode {

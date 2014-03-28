@@ -2,7 +2,7 @@
 
 namespace dypc {
 
-std::size_t tree_structure_simple_loader::extract_node_points_(point_buffer_t points, std::size_t capacity, const loader::request_t& req, const tree_structure_source::node& nd, unsigned depth) const {
+std::size_t tree_structure_simple_loader::extract_node_points_(point_buffer_t points, std::size_t capacity, const loader::request_t& req, const tree_structure_source::node& nd) const {
 	const std::size_t levels = source_->levels();
 	const std::size_t number_of_node_children = source_->number_of_node_children();
 	
@@ -13,7 +13,7 @@ std::size_t tree_structure_simple_loader::extract_node_points_(point_buffer_t po
 		
 	} else if(action == action_split) {
 		std::size_t c = 0;
-		for(std::ptrdiff_t i = 0; i < number_of_node_children; ++i) if(nd.has_child(i)) c += extract_node_points_(points + c, capacity - c, req, nd.child(i), depth + 1);
+		for(std::ptrdiff_t i = 0; i < number_of_node_children; ++i) if(nd.has_child(i)) c += extract_node_points_(points + c, capacity - c, req, nd.child(i));
 		return c;
 		
 	} else {
@@ -22,7 +22,6 @@ std::size_t tree_structure_simple_loader::extract_node_points_(point_buffer_t po
 		
 		return nd.extract_points(points, capacity, lvl);
 	}
-
 }
 
 }

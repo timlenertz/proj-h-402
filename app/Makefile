@@ -1,4 +1,4 @@
-DEPLOY := 0
+DEPLOY := 1
 
 CXX := clang++
 CC := clang

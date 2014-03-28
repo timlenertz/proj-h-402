@@ -39,9 +39,10 @@ private:
 	const structure_node& node_;
 	const map_t& map_;
 	cuboid cuboid_;
+	unsigned depth_;
 
 public:
-	node(const map_t& mp, const structure_node& nd, const cuboid& cub) : map_(mp), node_(nd), cuboid_(cub) { }
+	node(const map_t& mp, const structure_node& nd, const cuboid& cub, unsigned depth) : map_(mp), node_(nd), cuboid_(cub), depth_(depth) { }
 
 	std::size_t number_of_points(std::ptrdiff_t lvl = 0) const override { return node_.number_of_points(); }
 	
@@ -57,6 +58,7 @@ public:
 	bool has_child(std::ptrdiff_t i) const override { return ! is_leaf(); }
 	const node& child(std::ptrdiff_t i) const override { return map_.at(& node_.child(i)); }
 	
+	std::ptrdiff_t child_for_point(glm::vec3 pt) const override;
 	cuboid node_cuboid() const override { return cuboid_; }
 };
 
@@ -72,11 +74,17 @@ tree_structure_source(Structure::levels, Structure::number_of_node_children), st
 
 template<class Structure>
 void tree_structure_memory_source<Structure>::add_node_to_map_(const structure_node& nd, const cuboid& cub, unsigned depth) {
-	map_.emplace(std::piecewise_construct, std::forward_as_tuple(&nd), std::forward_as_tuple(map_, nd, cub));
+	map_.emplace(std::piecewise_construct, std::forward_as_tuple(&nd), std::forward_as_tuple(map_, nd, cub, depth));
 	if(! nd.is_leaf()) for(std::ptrdiff_t i = 0; i < Structure::number_of_node_children; ++i) {
 		cuboid child_cub = Structure::splitter::node_child_cuboid(i, cub, nd.get_points_information(), depth);
 		add_node_to_map_(nd.child(i), child_cub, depth + 1);
 	}
+}
+
+
+template<class Structure>
+std::ptrdiff_t tree_structure_memory_source<Structure>::node::child_for_point(glm::vec3 pt) const {
+	return Structure::splitter::node_child_for_point(pt, cuboid_, node_.get_points_information(), depth_);
 }
 
 }

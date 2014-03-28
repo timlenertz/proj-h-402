@@ -17,6 +17,8 @@ protected:
 public:
 	class node {
 	public:
+		static constexpr std::ptrdiff_t no_child_index = -1;
+	
 		virtual std::size_t number_of_points(std::ptrdiff_t lvl = 0) const = 0;
 		virtual std::size_t extract_points(point_buffer_t buffer, std::size_t capacity, std::ptrdiff_t lvl = 0) const = 0;
 		
@@ -24,6 +26,7 @@ public:
 		virtual bool has_child(std::ptrdiff_t i) const = 0;
 		virtual const node& child(std::ptrdiff_t i) const = 0;
 		
+		virtual std::ptrdiff_t child_for_point(glm::vec3 pt) const = 0;
 		virtual cuboid node_cuboid() const = 0;
 	};
 	

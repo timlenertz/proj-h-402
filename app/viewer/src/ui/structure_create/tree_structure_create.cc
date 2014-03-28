@@ -25,9 +25,9 @@ dypc_loader tree_structure_create::create_memory_loader(dypc_model mod) const {
 	dypc_tree_structure_loader_type ltypes[] = {
 		dypc_simple_tree_structure_loader_type,
 		dypc_ordered_tree_structure_loader_type,
-		dypc_occluding_tree_structure_loader_type
+		dypc_sorted_tree_structure_loader_type
 	};
-	std::vector<std::string> choices = { "Simple", "Ordered", "Occluding" };
+	std::vector<std::string> choices = { "Simple", "Ordered Nodes", "Sorted Points" };
 	std::ptrdiff_t i = user_choice(choices, "Type of tree loader");
 	if(i >= 0 && i < 3) {
 		return dypc_create_tree_structure_loader(mod, structure_type_, selected_levels_(), leaf_cap, dmin, damount, dmode, ltypes[i]);

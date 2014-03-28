@@ -56,6 +56,7 @@ public:
 	bool has_child(std::ptrdiff_t i) const override { return node_.has_child(i); }
 	const node& child(std::ptrdiff_t i) const override { assert(has_child(i)); return source_.nodes_[node_.children[i]]; }
 	
+	std::ptrdiff_t child_for_point(glm::vec3 pt) const override;
 	cuboid node_cuboid() const override { return node_.node_cuboid(); }
 };
 
@@ -71,6 +72,14 @@ tree_structure_source(Levels, NumberOfChildren), file_(filepath) {
 	for(const hdf_node* it = hdf_nodes.get(); it != end; ++it) nodes_.emplace_back(*this, *it);
 }
 
+
+template<std::size_t Levels, std::size_t NumberOfChildren>
+std::ptrdiff_t tree_structure_hdf_source<Levels, NumberOfChildren>::node::child_for_point(glm::vec3 pt) const {
+	for(std::ptrdiff_t i = 0; i < NumberOfChildren; ++i) {
+		if(has_child(i) && child(i).node_cuboid().in_range(pt)) return i;
+	}
+	return no_child_index;
+}
 
 
 

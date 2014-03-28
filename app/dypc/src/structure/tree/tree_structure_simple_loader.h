@@ -7,14 +7,14 @@ namespace dypc {
 
 class tree_structure_simple_loader : public tree_structure_loader {
 public:		
-	std::string loader_name() const override { return "Tree Structure Ordered Loader"; }
+	std::string loader_name() const override { return "Tree Structure Simple Loader"; }
 
 private:
-	std::size_t extract_node_points_(point_buffer_t points, std::size_t capacity, const loader::request_t& req, const tree_structure_source::node& nd, unsigned depth) const;
+	std::size_t extract_node_points_(point_buffer_t points, std::size_t capacity, const loader::request_t& req, const tree_structure_source::node& nd) const;
 	
 protected:
 	std::size_t extract_points_(point_buffer_t points, std::size_t capacity, const loader::request_t& req) override {
-		return extract_node_points_(points, capacity, req, source_->root_node(), 0);
+		return extract_node_points_(points, capacity, req, source_->root_node());
 	}
 };
 
