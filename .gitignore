@@ -2,6 +2,7 @@
 /app/dypc/lib
 /app/dypc/include
 /app/dypc/build
+/app/dypc/doc
 /app/viewer/viewer
 /app/viewer/build
 /app/viewer/forms/*.cpp
