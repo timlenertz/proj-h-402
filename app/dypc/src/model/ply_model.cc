@@ -2,6 +2,7 @@
 #include <utility>
 #include <string>
 #include <cstdlib>
+#include <cstdint>
 #include "ply_model.h"
 #include "../progress.h"
 

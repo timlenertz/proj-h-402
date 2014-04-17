@@ -50,11 +50,16 @@ public:
 	float z_maximum() { return get_maximum().z; }
 	float z_range() { return get_maximum().z - get_minimum().z; }
 	
-	cuboid bounding_cuboid() {
+	cuboid bounding_cuboid(float ep = 0.0) {
+		float two_ep = ep + ep;
 		return cuboid(
-			glm::vec3(x_minimum(), y_minimum(), z_minimum()),
-			glm::vec3(x_range(), y_range(), z_range())
+			glm::vec3(x_minimum() - ep, y_minimum() - ep, z_minimum() - ep),
+			glm::vec3(x_range() + two_ep, y_range() + two_ep, z_range() + two_ep)
 		);
+	}
+	
+	cuboid enclosing_cuboid() {
+		return bounding_cuboid(0.001);
 	}
 	
 	virtual ~model() { }

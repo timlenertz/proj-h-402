@@ -15,11 +15,8 @@ public:
 
 	struct node_points_information { };
 
-	static cuboid root_cuboid(model& mod) {
-		return cuboid(
-			glm::vec3(mod.x_minimum(), mod.y_minimum(), mod.z_minimum()),
-			glm::vec3(mod.x_range(), mod.y_range(), mod.z_range())
-		);
+	static cuboid adjust_root_cuboid(const cuboid& cub) {
+		return cub;
 	}
 	
 	static std::ptrdiff_t node_child_for_point(const point& pt, const cuboid& cub, const node_points_information& info, unsigned depth) { throw std::logic_error("Not implemented"); }

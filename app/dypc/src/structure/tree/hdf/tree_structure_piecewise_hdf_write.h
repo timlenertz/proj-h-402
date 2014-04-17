@@ -31,7 +31,6 @@ void write_to_hdf(const std::string& filename, tree_structure_piecewise<Splitter
 	using hdf_node = typename file_t::hdf_node;
 	using structure_node = typename tree_structure_piecewise<Splitter, Levels, PointsContainer>::node;
 	using piece_node = typename tree_structure_piecewise<Splitter, Levels, PointsContainer>::piece_node;
-	using piece = typename tree_structure_piecewise<Splitter, Levels, PointsContainer>::piece;	
 	
 	std::vector<hdf_node> hdf_nodes;
 	
@@ -77,30 +76,29 @@ void write_to_hdf(const std::string& filename, tree_structure_piecewise<Splitter
 	};
 	
 	
-	
-	auto add_piece = [&](const piece& p, unsigned depth) {
-		s.load_piece(p);
-		
-		auto n = s.number_of_points();
-		if(n == 0) return;
-		
-		root_progress_handle->increment(n);
-		
-		for(std::ptrdiff_t lvl = 0; lvl < Levels; ++lvl) {
-			const auto& pts = s.points_at_level(lvl);
-			file.write_points(pts.begin(), pts.end(), lvl, data_output_offsets[lvl]);
-			data_output_offsets[lvl] += pts.size();		
-		}
-		
-		add_structure_node(s.root_node(), s.root_cuboid(), depth); 
-	};
-	
-	
-	
-	std::function<void(const piece_node&, const cuboid&, unsigned)> add_piece_node = [&](const piece_node& nd, const cuboid& cub, unsigned depth) {				
+	std::function<void(const piece_node&)> add_piece_node = [&](const piece_node& nd) {
 		if(nd.is_leaf()) {
-			const piece& p = nd.get_piece();
-			add_piece(p, depth);
+			s.load_piece(nd);
+			
+			auto n = s.number_of_points();
+			if(n == 0) return;
+			
+			root_progress_handle->increment(n);
+			
+			const auto& pts = s.points_at_level(0);
+			file.write_points(pts.begin(), pts.end(), 0, data_output_offsets[0]);
+			data_output_offsets[0] += pts.size();		
+	
+			for(std::ptrdiff_t lvl = 1; lvl < Levels; ++lvl) {
+				s.load_downsampled_points(lvl);
+				const auto& pts = s.points_at_level(lvl);
+				file.write_points(pts.begin(), pts.end(), lvl, data_output_offsets[lvl]);
+				data_output_offsets[lvl] += pts.size();		
+				s.unload_downsampled_points(lvl);
+			}
+			
+			add_structure_node(s.root_node(), s.root_cuboid(), nd.get_depth()); 
+
 		} else {
 			auto old_data_offsets = data_tree_offsets;
 			
@@ -108,17 +106,16 @@ void write_to_hdf(const std::string& filename, tree_structure_piecewise<Splitter
 			hdf_nodes.push_back(hdf_node());
 			auto hn = hdf_nodes.begin() + old_nodes_count;
 			
+			const cuboid& cub = nd.get_cuboid();
 			hn->cuboid_origin = cub.origin();
 			hn->cuboid_sides = cub.side_lengths();
 			for(std::ptrdiff_t i = 0; i < Splitter::number_of_node_children; ++i) hn->children[i] = 0;
 
-			typename PiecesSplitter::node_points_information no_info;				
 			for(std::ptrdiff_t i = 0; i < PiecesSplitter::number_of_node_children; ++i) {
 				if(! nd.has_child(i)) continue;
-				
-				cuboid child_cub = PiecesSplitter::node_child_cuboid(i, cub, no_info, depth);
+
 				auto previous_nodes_count = hdf_nodes.size();
-				add_piece_node(nd.child(i), child_cub, depth + 1);
+				add_piece_node(nd.child(i));
 				hn = hdf_nodes.begin() + old_nodes_count;
 				hn->children[i] = previous_nodes_count;
 			}
@@ -132,7 +129,7 @@ void write_to_hdf(const std::string& filename, tree_structure_piecewise<Splitter
 	
 	progress(s.total_number_of_points(), "Writing piecewise tree structure points to HDF...", [&](progress_handle& pr) {
 		root_progress_handle = &pr;
-		add_piece_node(s.root_piece_node(), s.root_piece_cuboid(), 0);
+		add_piece_node(s.root_piece_node());
 	});
 		
 	file.write_nodes(hdf_nodes.begin(), hdf_nodes.end());

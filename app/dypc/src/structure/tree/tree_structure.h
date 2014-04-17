@@ -47,11 +47,19 @@ protected:
 	void load_model_(model& mod, const cuboid& cub, unsigned depth = 0);
 
 public:
-	tree_structure(std::size_t leaf_cap, std::size_t dmin, float damount, downsampling_mode dmode, model& mod);
+	tree_structure(std::size_t leaf_cap, std::size_t dmin, float damount, downsampling_mode dmode, model& mod, bool load_all_downsampled = true);
 	
 	std::size_t number_of_points(std::ptrdiff_t lvl = 0) const { assert(lvl >= 0 && lvl < levels); return all_points_[lvl].size(); }
 	std::size_t number_of_nodes() const { return root_.number_of_nodes_in_branch(); }
 	std::size_t size() const;
+	
+	void load_downsampled_points(std::ptrdiff_t lvl, unsigned depth, uniform_downsampling_previous_results_t& previous_results);
+	void unload_downsampled_points(std::ptrdiff_t lvl);
+	
+	void load_downsampled_points(std::ptrdiff_t lvl, unsigned depth = 0) {
+		uniform_downsampling_previous_results_t previous_results;
+		load_downsampled_points(lvl, depth, previous_results);
+	}
 	
 	const node& root_node() const { return root_; }
 	const cuboid& root_cuboid() const { return root_cuboid_; }
@@ -80,10 +88,36 @@ super(dmin, damount, dmode), leaf_capacity_(leaf_cap) { }
 
 
 template<class Splitter, std::size_t Levels, class PointsContainer>
-tree_structure<Splitter, Levels, PointsContainer>::tree_structure(std::size_t leaf_cap, std::size_t dmin, float damount, downsampling_mode dmode, model& mod) :
+tree_structure<Splitter, Levels, PointsContainer>::tree_structure(std::size_t leaf_cap, std::size_t dmin, float damount, downsampling_mode dmode, model& mod, bool load_all_downsampled) :
 super(dmin, damount, dmode), leaf_capacity_(leaf_cap) {
-	root_cuboid_ = Splitter::root_cuboid(mod);
+	root_cuboid_ = Splitter::adjust_root_cuboid(mod.enclosing_cuboid());
 	load_model_(mod, root_cuboid_);
+	if(load_all_downsampled) for(std::ptrdiff_t lvl = 1; lvl < Levels; ++lvl) load_downsampled_points(lvl);
+}
+
+
+template<class Splitter, std::size_t Levels, class PointsContainer>
+void tree_structure<Splitter, Levels, PointsContainer>::load_downsampled_points(std::ptrdiff_t lvl, unsigned depth, uniform_downsampling_previous_results_t& previous_results) {
+	assert(lvl >= 1 && lvl < Levels);
+
+	PointsContainer downsampled;
+	const auto& original_points = all_points_[0];
+	super::template downsample_points_<typename PointsContainer::const_iterator, PointsContainer>(original_points.begin(), original_points.end(), lvl, root_cuboid_, downsampled, previous_results);
+	
+	auto& level_points = all_points_[lvl];
+	std::size_t c = 0;
+	progress_foreach(downsampled, "Adding downsampled points, level " + std::to_string(lvl) + "...", [&](const point& pt) {
+		root_.add_higher_level_point(lvl, pt, root_cuboid_, depth, leaf_capacity_);
+	});
+	root_.move_out_points(level_points, lvl);
+	root_.finalize_move_out(level_points, lvl);
+}
+
+template<class Splitter, std::size_t Levels, class PointsContainer>
+void tree_structure<Splitter, Levels, PointsContainer>::unload_downsampled_points(std::ptrdiff_t lvl) {
+	assert(lvl >= 1 && lvl < Levels);
+	
+	all_points_[lvl].clear();
 }
 
 
@@ -92,7 +126,7 @@ void tree_structure<Splitter, Levels, PointsContainer>::load_model_(model& mod, 
 	super::load_model_(mod);
 	
 	unload_model_();
-	root_cuboid_ = cub;
+	root_cuboid_ = Splitter::adjust_root_cuboid(cub);
 	
 	PointsContainer all_points_unordered;
 	
@@ -107,22 +141,6 @@ void tree_structure<Splitter, Levels, PointsContainer>::load_model_(model& mod, 
 
 	root_.move_out_points(all_points_[0]);
 	root_.finalize_move_out(all_points_[0]);
-	
-
-
-	uniform_downsampling_previous_results_t previous_results;
-	for(int lvl = 1; lvl < Levels; ++lvl) {
-		PointsContainer downsampled;
-		super::template downsample_points_<typename PointsContainer::const_iterator, PointsContainer>(all_points_unordered.begin(), all_points_unordered.end(), lvl, mod.bounding_cuboid(), downsampled, previous_results);
-		
-		auto& level_points = all_points_[lvl];
-		std::size_t c = 0;
-		progress_foreach(downsampled, "Adding downsampled points, level " + std::to_string(lvl) + "...", [&](const point& pt) {
-			root_.add_higher_level_point(lvl, pt, root_cuboid_, depth, leaf_capacity_);
-		});
-		root_.move_out_points(level_points, lvl);
-		root_.finalize_move_out(level_points, lvl);
-	}
 }
 
 

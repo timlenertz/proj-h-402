@@ -4,6 +4,7 @@
 #include <string>
 #include <chrono>
 #include <map>
+#include <ostream>
 
 namespace dypc {
 
