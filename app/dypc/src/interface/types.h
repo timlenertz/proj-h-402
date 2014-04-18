@@ -13,6 +13,7 @@ typedef enum {
 
 
 typedef enum {
+	dypc_unknown_loader_type = -1,
 	dypc_direct_loader_type = 0,
 	dypc_cubes_loader_type,
 	dypc_cubes_mipmap_loader_type,

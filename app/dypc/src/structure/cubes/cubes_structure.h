@@ -6,7 +6,7 @@
 #include <vector>
 #include "../../point.h"
 #include "../../weighted_point.h"
-#include "../../cuboid.h"
+#include "../../geometry/cuboid.h"
 #include "../../loader/loader.h"
 #include "../structure.h"
 

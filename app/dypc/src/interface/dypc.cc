@@ -4,6 +4,7 @@
 #include <stack>
 #include <string>
 
+static std::string error_message_ = std::string("");
 
 class progress_view {
 private:
@@ -72,11 +73,6 @@ static void close_progress_(dypc_progress pr) {
 }
 
 
-
-static void error_message_(const char* title, const char* msg) {
-	std::cerr << title << ": \n" << msg << std::endl;
-}
-
 static int user_choice_(const char* title, const char** choices) {
 	unsigned n = 0;
 	while(choices++) {
@@ -98,10 +94,25 @@ static dypc_callbacks callbacks_ = {
 	&open_progress_,
 	&set_progress_,
 	&close_progress_,
-	&error_message_
 };
 
 
 dypc_callbacks* dypc_get_callbacks() {
 	return &callbacks_;
+}
+
+int dypc_error() {
+	return ! error_message_.empty();
+}
+
+const char* dypc_error_message() {
+	return error_message_.c_str();
+}
+
+void dypc_clear_error() {
+	error_message_.clear();
+}
+
+void dypc_set_error_message(const char* msg) {
+	error_message_ = msg;
 }

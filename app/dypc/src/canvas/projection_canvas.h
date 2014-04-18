@@ -2,7 +2,7 @@
 #define DYPC_PROJECTION_CANVAS_H_
 
 #include "canvas.h"
-#include "../triangle.h"
+#include "../geometry/triangle.h"
 #include <cmath>
 
 #include <glm/glm.hpp>

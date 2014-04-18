@@ -2,8 +2,6 @@
 #include <algorithm>
 #include <cassert>
 
-#include <iostream>
-
 namespace dypc {
 
 cuboid octree_structure_splitter::adjust_root_cuboid(const cuboid& cub) {

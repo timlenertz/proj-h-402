@@ -2,7 +2,7 @@
 #define DYPC_LOADER_H_
 
 #include "../point.h"
-#include "../frustum.h"
+#include "../geometry/frustum.h"
 #include "../enums.h"
 
 #include <glm/glm.hpp>

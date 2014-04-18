@@ -1,7 +1,7 @@
 #ifndef DYPC_TREE_STRUCTURE_SOURCE_H_
 #define DYPC_TREE_STRUCTURE_SOURCE_H_
 
-#include "../../cuboid.h"
+#include "../../geometry/cuboid.h"
 #include "../../point.h"
 
 namespace dypc {

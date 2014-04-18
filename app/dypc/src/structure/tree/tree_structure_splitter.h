@@ -2,7 +2,7 @@
 #define DYPC_TREE_STRUCTURE_SPLITTER_H_
 
 #include "../../model/model.h"
-#include "../../cuboid.h"
+#include "../../geometry/cuboid.h"
 #include "../../point.h"
 #include <vector>
 #include <stdexcept>

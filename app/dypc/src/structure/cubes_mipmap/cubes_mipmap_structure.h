@@ -7,7 +7,7 @@
 #include <cassert>
 #include "../../enums.h"
 #include "../../point.h"
-#include "../../cuboid.h"
+#include "../../geometry/cuboid.h"
 #include "../../loader/loader.h"
 #include "../structure.h"
 #include "../../downsampling.h"

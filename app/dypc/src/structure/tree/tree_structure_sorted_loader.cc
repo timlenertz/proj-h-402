@@ -1,6 +1,5 @@
 #include "tree_structure_sorted_loader.h"
 #include <algorithm>
-#include <fstream>
 
 namespace dypc {
 

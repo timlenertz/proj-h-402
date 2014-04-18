@@ -5,7 +5,7 @@
 #include <iterator>
 #include <glm/glm.hpp>
 #include "../point.h"
-#include "../cuboid.h"
+#include "../geometry/cuboid.h"
 
 namespace dypc {
 

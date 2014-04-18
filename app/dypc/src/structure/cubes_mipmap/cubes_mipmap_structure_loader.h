@@ -3,7 +3,7 @@
 
 #include "cubes_mipmap_structure.h"
 #include "../structure_loader.h"
-#include "../../cuboid.h"
+#include "../../geometry/cuboid.h"
 
 
 namespace dypc {

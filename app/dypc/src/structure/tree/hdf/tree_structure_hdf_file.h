@@ -2,7 +2,7 @@
 #define DYPC_TREE_STRUCTURE_HDF_FILE_H_
 
 #include <H5Cpp.h>
-#include "../../../cuboid.h"
+#include "../../../geometry/cuboid.h"
 #include <string>
 #include <cstring>
 #include <memory>

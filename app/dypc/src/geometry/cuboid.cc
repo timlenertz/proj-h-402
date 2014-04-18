@@ -1,6 +1,6 @@
 #include "cuboid.h"
 #include "frustum.h"
-#include "util.h"
+#include "../util.h"
 #include <cmath>
 
 namespace dypc {

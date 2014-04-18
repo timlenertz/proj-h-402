@@ -7,7 +7,7 @@
 #include "cubes_structure_loader.h"
 #include "../../sqlite/sqlite_database.h"
 #include "../../point.h"
-#include "../../cuboid.h"
+#include "../../geometry/cuboid.h"
 #include "../../loader/loader.h"
 
 namespace dypc {

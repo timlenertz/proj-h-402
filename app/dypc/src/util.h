@@ -6,6 +6,27 @@
 #include <map>
 #include <ostream>
 
+#define DYPC_INTERFACE_BEGIN try { (void)0
+
+#define DYPC_INTERFACE_END \
+	dypc_clear_error(); \
+	} catch(const std::exception& ex) { \
+	dypc_set_error_message(ex.what()); \
+	} catch(...) { \
+	dypc_set_error_message("Unknown error"); \
+	} (void)0
+
+#define DYPC_INTERFACE_END_RETURN(val, errreturn) \
+	dypc_clear_error(); \
+	return val; \
+	} catch(const std::exception& ex) { \
+	dypc_set_error_message(ex.what()); \
+	return errreturn; \
+	} catch(...) { \
+	dypc_set_error_message("Unknown error"); \
+	return errreturn; \
+	} (void)0
+
 namespace dypc {
 
 /**

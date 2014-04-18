@@ -3,7 +3,7 @@
 
 #include "../mipmap_structure.h"
 #include "../../enums.h"
-#include "../../cuboid.h"
+#include "../../geometry/cuboid.h"
 #include "../../point.h"
 #include "../../progress.h"
 #include "../../model/model.h"

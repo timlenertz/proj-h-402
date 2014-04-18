@@ -1,5 +1,4 @@
 #include "cubes_structure_loader.h"
-#include <iostream>
 
 namespace dypc {
 
@@ -22,9 +21,7 @@ cubes_structure_loader::adapt_result_t cubes_structure_loader::adapt_settings_(s
 		if(downsampling_distance_ < 1.0) downsampling_distance_ = 1.0;
 		result = adapt_continue_decreasing;
 	}
-	
-	std::cout << downsampling_distance_ << std::endl;
-	
+		
 	if(last_extracted >= capacity) return adapt_repeat;
 	else return result;
 }

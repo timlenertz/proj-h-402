@@ -8,7 +8,7 @@
 #include <H5Cpp.h>
 #include "cubes_mipmap_structure_loader.h"
 #include "../../point.h"
-#include "../../cuboid.h"
+#include "../../geometry/cuboid.h"
 
 #include <cstdint>
 

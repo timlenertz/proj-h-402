@@ -3,7 +3,6 @@
 
 #include "tree_structure.h"
 #include "kdtree_half/kdtree_half_structure_splitter.h"
-#include "../../debug.h"
 #include <vector>
 #include <cmath>
 
@@ -106,10 +105,6 @@ public:
 	}
 	
 	void count_point(glm::vec3 pt) {
-		if(! contains_point(pt)) {
-			std::cout << pt << std::endl;
-			std::cout << cuboid_.origin() << " --> " << cuboid_.extremity() << std::endl;
-		}
 		assert(contains_point(pt));
 		++number_of_points_;
 		for(auto child : children_) if(child) {

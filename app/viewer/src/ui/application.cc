@@ -16,7 +16,6 @@ void application::error_message_(const char* title, const char* msg) {
 
 bool application::OnInit() {
 	dypc_callbacks* callbacks = dypc_get_callbacks();
-	callbacks->error_message = &error_message_;
 	
 	main_frame* frame = new main_frame();
 	frame->Show();

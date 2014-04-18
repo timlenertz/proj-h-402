@@ -4,7 +4,7 @@
 #include "structure.h"
 #include "../model/model.h"
 #include "../downsampling.h"
-#include "../cuboid.h"
+#include "../geometry/cuboid.h"
 #include <stdexcept>
 
 
