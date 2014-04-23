@@ -31,7 +31,6 @@ public:
 		
 private:
 	const float side_length_;
-	
 	cubes_t cubes_;
 
 	void add_point_(const point& pt);

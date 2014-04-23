@@ -31,7 +31,7 @@ H5::CompType cubes_mipmap_structure_hdf_loader::initialize_cube_type_() {
 void cubes_mipmap_structure_hdf_loader::write(const std::string& filename, const cubes_mipmap_structure& s) {
 	H5::H5File file(filename, H5F_ACC_TRUNC);
 	
-	std::uint32_t mipmap_levels = s.get_mipmap_levels();
+	std::uint32_t mipmap_levels = s.get_downsampling_levels();
 	
 	std::vector<hdf_cube> cubes_data;
 	hsize_t cube_start = 0;
@@ -114,7 +114,6 @@ cubes_mipmap_structure_hdf_loader::cubes_mipmap_structure_hdf_loader(const std::
 
 
 std::size_t cubes_mipmap_structure_hdf_loader::extract_points_(point_buffer_t points, std::size_t capacity, const loader::request_t& req) {
-	std::size_t frustum_cubes = 0, downsampled_cubes = 0;	
 	std::size_t remaining = capacity;
 	std::size_t total = 0;
 	point_buffer_t buf = points;	
@@ -124,15 +123,9 @@ std::size_t cubes_mipmap_structure_hdf_loader::extract_points_(point_buffer_t po
 		if(entry.data_length > remaining) break;
 		
 		if(frustum_culling_ && !req.view_frustum.contains_cuboid(cube)) continue;
-		++frustum_cubes;
 		
 		float distance = std::abs(glm::distance(req.position, cube.center()));
-		std::size_t lvl = 0;
-		if(distance >= downsampling_start_distance_) {
-			lvl = 1 + (distance - downsampling_start_distance_) / downsampling_step_distance_;
-			++downsampled_cubes;
-		}
-		if(lvl >= mipmap_levels_) lvl = mipmap_levels_ - 1;
+		std::size_t lvl = choose_downsampling_level(mipmap_levels_, distance, downsampling_setting_);
 
 		hsize_t count[] = { entry.data_length, 1 };
 		hsize_t start[] = { entry.data_start, lvl };

@@ -11,6 +11,7 @@
 #include <algorithm>
 #include <cmath>
 #include <functional>
+#include <iostream>
 
 namespace dypc {
 
@@ -20,12 +21,12 @@ void cubes_structure::add_point_(const point& pt) {
 }
 
 
-cubes_structure::cubes_structure(float side, model& mod) : side_length_(side) {
+cubes_structure::cubes_structure(float side, model& mod) : structure(mod), side_length_(side) {
 	using namespace std::placeholders;
 	
 	progress_foreach(
 		mod.begin(), mod.end(), mod.number_of_points(), "Creating Cubes Structure...",
-		std::bind(&cubes_structure::add_point_, *this, _1)
+		std::bind(&cubes_structure::add_point_, this, _1)
 	);
 	
 	progress_foreach(

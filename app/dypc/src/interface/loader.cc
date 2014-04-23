@@ -56,10 +56,10 @@ dypc_loader dypc_create_cubes_structure_loader(dypc_model m, float side) {
 }
 
 
-dypc_loader dypc_create_mipmap_cubes_structure_loader(dypc_model m, float side, unsigned levels, float mmfac, dypc_downsampling_mode dmode) {
+dypc_loader dypc_create_mipmap_cubes_structure_loader(dypc_model m, float side, unsigned levels, dypc_size dmin, float damount, dypc_downsampling_mode dmode) {
 	DYPC_INTERFACE_BEGIN;
 	dypc::model* mod = (dypc::model*)m;
-	dypc::cubes_mipmap_structure_memory_loader* ld = new dypc::cubes_mipmap_structure_memory_loader(side, levels, mmfac, (dypc::downsampling_mode)(dmode), *mod);
+	dypc::cubes_mipmap_structure_memory_loader* ld = new dypc::cubes_mipmap_structure_memory_loader(side, levels, dmin, damount, (dypc::downsampling_mode)(dmode), *mod);
 	DYPC_INTERFACE_END_RETURN((dypc_loader)ld, nullptr);
 }
 
@@ -92,18 +92,25 @@ void dypc_write_cubes_structure_to_file(const char* filename, dypc_model m, floa
 	dypc::cubes_structure s(side, *mod);
 	auto ext = dypc::file_path_extension(filename);
 
-	if(ext == "hdf") dypc::cubes_structure_hdf_loader::write(filename, s);
-	else if(ext == "sqlite") dypc::cubes_structure_sqlite_loader::write(filename, s);
-	
+	if(ext == "hdf") {
+		dypc::cubes_structure_hdf_loader::write(filename, s);
+		dypc::write_hdf_structure_file_type(filename, dypc::structure_type::cubes, 0);
+	} else if(ext == "db") {
+		dypc::cubes_structure_sqlite_loader::write(filename, s);
+		dypc::write_sqlite_structure_file_type(filename, dypc::structure_type::cubes, 0);
+	}
 	DYPC_INTERFACE_END;
 }
 
-void dypc_write_mipmap_cubes_structure_to_file(const char* filename, dypc_model m, float side, unsigned levels, float mmfac, dypc_downsampling_mode dmode) {
+void dypc_write_mipmap_cubes_structure_to_file(const char* filename, dypc_model m, float side, unsigned levels, dypc_size dmin, float damount, dypc_downsampling_mode dmode) {
 	DYPC_INTERFACE_BEGIN;
 	dypc::model* mod = (dypc::model*)m;
-	dypc::cubes_mipmap_structure s(side, levels, mmfac, (dypc::downsampling_mode)(dmode), *mod);
+	dypc::cubes_mipmap_structure s(side, levels, dmin, damount, (dypc::downsampling_mode)(dmode), *mod);
 	auto ext = dypc::file_path_extension(filename);
-	if(ext == "hdf") dypc::cubes_mipmap_structure_hdf_loader::write(filename, s);
+	if(ext == "hdf") {
+		dypc::cubes_mipmap_structure_hdf_loader::write(filename, s);
+		dypc::write_hdf_structure_file_type(filename, dypc::structure_type::cubes_mipmap, levels);
+	}
 	DYPC_INTERFACE_END;
 }
 

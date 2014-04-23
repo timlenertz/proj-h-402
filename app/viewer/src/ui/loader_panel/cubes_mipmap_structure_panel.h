@@ -12,8 +12,6 @@ private:
 
 	void update_() {
 		updater_.set_loader_settings({
-			{ "downsampling_start_distance", (double)start_spin->GetValue() },
-			{ "downsampling_step_distance", (double)step_spin->GetValue() },
 			{ "frustum_culling", (frustum_check->GetValue() ? 1.0 : 0.0) }
 		});
 	}

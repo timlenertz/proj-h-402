@@ -24,9 +24,9 @@ namespace dypc {
  * @tparam PointsContainer Container used to store arrays of points.
  */
 template<class Splitter, std::size_t Levels, class PointsContainer = std::deque<point>>
-class tree_structure : public mipmap_structure<Levels> {
+class tree_structure : public mipmap_structure {
 private:
-	using super = mipmap_structure<Levels>;
+	using super = mipmap_structure;
 
 public:
 	using splitter = Splitter;
@@ -35,16 +35,19 @@ public:
 	static constexpr std::size_t number_of_node_children = Splitter::number_of_node_children;
 	
 protected:
+	struct no_load_t {};
+	static constexpr no_load_t no_load = no_load_t();
+
 	const std::size_t leaf_capacity_;
 
 	node root_;
 	cuboid root_cuboid_;
 	PointsContainer all_points_[Levels];
 	
-	tree_structure(std::size_t leaf_cap, std::size_t dmin, float damount, downsampling_mode dmode);
+	tree_structure(std::size_t leaf_cap, std::size_t dmin, float damount, downsampling_mode dmode, model& mod, no_load_t) : mipmap_structure(Levels, dmin, damount, dmode, mod), leaf_capacity_(leaf_cap) { }
 	
-	void unload_model_();
-	void load_model_(model& mod, const cuboid& cub, unsigned depth = 0);
+	void unload_();
+	void load_(const cuboid& cub, unsigned depth = 0);
 
 public:
 	tree_structure(std::size_t leaf_cap, std::size_t dmin, float damount, downsampling_mode dmode, model& mod, bool load_all_downsampled = true);
@@ -75,23 +78,17 @@ public:
 
 
 template<class Splitter, std::size_t Levels, class PointsContainer>
-void tree_structure<Splitter, Levels, PointsContainer>::unload_model_() {
+void tree_structure<Splitter, Levels, PointsContainer>::unload_() {
 	root_ = node();
 	for(auto& pts : all_points_) pts.clear();
 }
 
 
 template<class Splitter, std::size_t Levels, class PointsContainer>
-tree_structure<Splitter, Levels, PointsContainer>::tree_structure(std::size_t leaf_cap, std::size_t dmin, float damount, downsampling_mode dmode) :
-super(dmin, damount, dmode), leaf_capacity_(leaf_cap) { }
-
-
-
-template<class Splitter, std::size_t Levels, class PointsContainer>
 tree_structure<Splitter, Levels, PointsContainer>::tree_structure(std::size_t leaf_cap, std::size_t dmin, float damount, downsampling_mode dmode, model& mod, bool load_all_downsampled) :
-super(dmin, damount, dmode), leaf_capacity_(leaf_cap) {
+mipmap_structure(Levels, dmin, damount, dmode, mod), leaf_capacity_(leaf_cap) {
 	root_cuboid_ = Splitter::adjust_root_cuboid(mod.enclosing_cuboid());
-	load_model_(mod, root_cuboid_);
+	load_(root_cuboid_);
 	if(load_all_downsampled) for(std::ptrdiff_t lvl = 1; lvl < Levels; ++lvl) load_downsampled_points(lvl);
 }
 
@@ -102,7 +99,7 @@ void tree_structure<Splitter, Levels, PointsContainer>::load_downsampled_points(
 
 	PointsContainer downsampled;
 	const auto& original_points = all_points_[0];
-	super::template downsample_points_<typename PointsContainer::const_iterator, PointsContainer>(original_points.begin(), original_points.end(), lvl, root_cuboid_, downsampled, previous_results);
+	super::template downsample_points_<typename PointsContainer::const_iterator, PointsContainer>(original_points.begin(), original_points.end(), lvl, root_cuboid_.area(), downsampled, previous_results);
 	
 	auto& level_points = all_points_[lvl];
 	std::size_t c = 0;
@@ -116,22 +113,19 @@ void tree_structure<Splitter, Levels, PointsContainer>::load_downsampled_points(
 template<class Splitter, std::size_t Levels, class PointsContainer>
 void tree_structure<Splitter, Levels, PointsContainer>::unload_downsampled_points(std::ptrdiff_t lvl) {
 	assert(lvl >= 1 && lvl < Levels);
-	
 	all_points_[lvl].clear();
 }
 
 
 template<class Splitter, std::size_t Levels, class PointsContainer>
-void tree_structure<Splitter, Levels, PointsContainer>::load_model_(model& mod, const cuboid& cub, unsigned depth) {
-	super::load_model_(mod);
-	
-	unload_model_();
+void tree_structure<Splitter, Levels, PointsContainer>::load_(const cuboid& cub, unsigned depth) {	
+	unload_();
 	root_cuboid_ = Splitter::adjust_root_cuboid(cub);
 	
 	PointsContainer all_points_unordered;
 	
-	progress_foreach(mod.begin(), mod.end(), mod.number_of_points(), "Collecting points from model...", [&](const point& pt) {
-		if(root_cuboid_.in_range(pt)) all_points_unordered.push_back(pt);
+	progress_foreach(super::model_, "Collecting points from model...", [&](const point& pt) {
+		if(cub.in_range(pt)) all_points_unordered.push_back(pt);
 	});
 	std::cout << all_points_unordered.size() << std::endl;
 

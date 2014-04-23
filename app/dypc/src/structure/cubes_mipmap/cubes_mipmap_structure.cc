@@ -24,13 +24,13 @@ void cubes_mipmap_structure::add_point_(const point& pt) {
 }
 
 
-cubes_mipmap_structure::cubes_mipmap_structure(float side, std::size_t mmlvl, float mmfac, downsampling_mode dmode, model& mod) :
-side_length_(side), mipmap_levels_(mmlvl), mipmap_factor_(mmfac), downsampling_mode_(dmode) {
+cubes_mipmap_structure::cubes_mipmap_structure(float side, std::size_t dlevels, std::size_t dmin, float damount, downsampling_mode dmode, model& mod) :
+mipmap_structure(dlevels, dmin, damount, dmode, mod), side_length_(side) {
 	using namespace std::placeholders;
 	
 	progress_foreach(
 		mod.begin(), mod.end(), mod.number_of_points(), "Creating Cubes Structure...",
-		std::bind(&cubes_mipmap_structure::add_point_, *this, _1)
+		std::bind(&cubes_mipmap_structure::add_point_, this, _1)
 	);
 	
 	progress_foreach(
@@ -54,7 +54,7 @@ std::size_t cubes_mipmap_structure::total_number_of_points() const {
 }
 
 cubes_mipmap_structure::cube::cube(const cubes_mipmap_structure& s) : structure_(s) {
-	point_sets_ = new point_set_t [s.mipmap_levels_];
+	point_sets_ = new point_set_t [s.get_downsampling_levels()];
 }
 
 
@@ -64,7 +64,7 @@ cubes_mipmap_structure::cube::~cube() {
 
 std::size_t cubes_mipmap_structure::cube::extract_points_at_level(point_buffer_t output, std::size_t capacity, std::ptrdiff_t lvl) const {
 	if(lvl < 0) lvl = 0;
-	else if(lvl >= structure_.mipmap_levels_) lvl = structure_.mipmap_levels_ - 1;
+	else if(lvl >= structure_.get_downsampling_levels()) lvl = structure_.get_downsampling_levels() - 1;
 	const point_set_t& points = point_sets_[lvl]; 
 	
 	std::size_t count = (points.size() > capacity ? capacity : points.size());
@@ -83,30 +83,15 @@ void cubes_mipmap_structure::cube::add_point(const point& pt) {
 }
 
 void cubes_mipmap_structure::cube::generate_downsampling() {
-	const point_set_t& all_points = point_sets_[0]; 
-	float factor = structure_.mipmap_factor_;
-	float ratio = 1.0 / factor;
 	float area = std::pow(structure_.get_side_length(), 3.0);
-	
-	if(structure_.downsampling_mode_ == downsampling_mode::random) {
-		for(std::ptrdiff_t lvl = 1; lvl < structure_.mipmap_levels_; ++lvl) {
-			random_downsampling(all_points.data(), all_points.data() + all_points.size(), ratio, point_sets_[lvl]);
-			ratio /= factor;
-		}
-		
-	} else if(structure_.downsampling_mode_ == downsampling_mode::uniform) {
-		for(std::ptrdiff_t lvl = 1; lvl < structure_.mipmap_levels_; ++lvl) {
-			uniform_downsampling(all_points.data(), all_points.data() + all_points.size(), ratio, area, point_sets_[lvl]);
-			ratio /= factor;
-		}
-		
-	}
+	uniform_downsampling_previous_results_t previous_results;
+	for(std::ptrdiff_t lvl = 1; lvl < structure_.get_downsampling_levels(); ++lvl)
+		structure_.downsample_points_(point_sets_[0].begin(), point_sets_[0].end(), lvl, area, point_sets_[lvl], previous_results);
 }
-
 
 std::size_t cubes_mipmap_structure::cube::size() const {
 	std::size_t sz = sizeof(cube);
-	for(std::ptrdiff_t lvl = 0; lvl < structure_.mipmap_levels_; ++lvl) {
+	for(std::ptrdiff_t lvl = 0; lvl < structure_.get_downsampling_levels(); ++lvl) {
 		sz += point_sets_[lvl].size() * sizeof(point);
 	}
 	return sz;

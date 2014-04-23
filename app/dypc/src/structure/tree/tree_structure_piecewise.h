@@ -19,7 +19,6 @@ public:
 	class piece_node;
 
 private:
-	model& model_;
 	piece_node root_piece_node_;
 	
 public:
@@ -30,7 +29,7 @@ public:
 	 * Loads all downsampled point sets.
 	 */
 	tree_structure_piecewise(std::size_t leaf_cap, std::size_t dmin, float damount, downsampling_mode dmode, model& mod) : 
-	super(leaf_cap, dmin, damount, dmode, mod, true), model_(mod) { }
+	super(leaf_cap, dmin, damount, dmode, mod, true) { }
 	
 	/**
 	 * Create tree structure, split into pieces of at most \a maxnum points.
@@ -50,7 +49,6 @@ public:
 	
 	void load_piece(const piece_node&);
 	
-	std::size_t total_number_of_points() const { return model_.number_of_points(); }
 	std::size_t total_number_of_points_upper_bound(std::ptrdiff_t lvl) const;
 };
 
@@ -132,7 +130,7 @@ public:
 
 template<class Splitter, std::size_t Levels, class PointsContainer, class PiecesSplitter>
 tree_structure_piecewise<Splitter, Levels, PointsContainer, PiecesSplitter>::tree_structure_piecewise(std::size_t leaf_cap, std::size_t dmin, float damount, downsampling_mode dmode, model& mod, std::ptrdiff_t maxnum) :
-super(leaf_cap, dmin, damount, dmode), model_(mod),
+super(leaf_cap, dmin, damount, dmode, mod, super::no_load),
 root_piece_node_(mod.enclosing_cuboid(), 0, maximal_pieces_depth) {		
 	progress_foreach(mod, "Counting points in child pieces", [&](const point& pt) {
 		root_piece_node_.count_point(pt);
@@ -143,14 +141,14 @@ root_piece_node_(mod.enclosing_cuboid(), 0, maximal_pieces_depth) {
 
 template<class Splitter, std::size_t Levels, class PointsContainer, class PiecesSplitter>
 void tree_structure_piecewise<Splitter, Levels, PointsContainer, PiecesSplitter>::load_piece(const piece_node& p) {
-	super::load_model_(model_, p.get_cuboid(), p.get_depth());
+	super::load_(p.get_cuboid(), p.get_depth());
 	assert(super::number_of_points() == p.get_number_of_points());
 }
 
 
 template<class Splitter, std::size_t Levels, class PointsContainer, class PiecesSplitter>
 std::size_t tree_structure_piecewise<Splitter, Levels, PointsContainer, PiecesSplitter>::total_number_of_points_upper_bound(std::ptrdiff_t lvl) const {
-	std::size_t n = total_number_of_points();
+	std::size_t n = super::total_number_of_points();
 	float ratio = std::pow(super::mipmap_factor_, lvl);
 	return ratio * n;
 }

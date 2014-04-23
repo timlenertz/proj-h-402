@@ -12,7 +12,6 @@ namespace dypc {
 	
 class tree_structure_loader : public structure_loader {	
 private:
-	float downsampling_setting_ = 20;
 	std::size_t minimal_number_of_points_for_split_ = 1000;
 	cuboid_distance_mode downsampling_node_distance_ = cuboid_distance_mode::center;
 	float additional_split_distance_difference_ = 25;
@@ -32,7 +31,6 @@ protected:
 	virtual void updated_source_() { }
 		
 public:
-	void set_downsampling_setting(float d) { downsampling_setting_ = d; }
 	void set_minimal_number_of_points_for_split(std::size_t n) { minimal_number_of_points_for_split_ = n; }
 	void set_downsampling_node_distance(cuboid_distance_mode d) { downsampling_node_distance_ = d; }
 	void set_additional_split_distance_difference(float d) { additional_split_distance_difference_ = d; }

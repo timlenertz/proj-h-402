@@ -4,7 +4,6 @@
 namespace dypc {
 
 std::size_t cubes_mipmap_structure_memory_loader::extract_points_(point_buffer_t points, std::size_t capacity, const loader::request_t& req) {
-	std::size_t frustum_cubes = 0, downsampled_cubes = 0;
 	std::size_t remaining = capacity;
 	std::size_t total = 0;
 
@@ -14,15 +13,10 @@ std::size_t cubes_mipmap_structure_memory_loader::extract_points_(point_buffer_t
 		cuboid cube = cube_from_index_(p.first, structure_.get_side_length());
 		
 		if(frustum_culling_ && !req.view_frustum.contains_cuboid(cube)) continue;
-		++frustum_cubes;
 
 		float distance = std::abs(glm::distance(req.position, cube.center()));
-		std::size_t lvl = 0;
-		if(distance >= downsampling_start_distance_) {
-			lvl = 1 + (distance - downsampling_start_distance_) / downsampling_step_distance_;
-			++downsampled_cubes;
-		}
-		
+		std::size_t lvl = choose_downsampling_level(structure_.get_downsampling_levels(), distance, downsampling_setting_);
+
 		std::size_t extracted = c.extract_points_at_level(buf, remaining, lvl);
 		buf += extracted;
 		remaining -= extracted;

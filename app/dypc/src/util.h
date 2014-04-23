@@ -6,7 +6,8 @@
 #include <map>
 #include <ostream>
 
-#define DYPC_INTERFACE_BEGIN try { (void)0
+#define DYPC_INTERFACE_BEGIN \
+	try { (void)0
 
 #define DYPC_INTERFACE_END \
 	dypc_clear_error(); \

@@ -51,19 +51,17 @@ float tree_structure_loader::cuboid_distance_(glm::vec3 position, const cuboid& 
 
 
 double tree_structure_loader::get_setting(const std::string& setting) const {
-	if(setting == "downsampling_setting") return downsampling_setting_;
-	else if(setting == "minimal_number_of_points_for_split") return minimal_number_of_points_for_split_;
+	if(setting == "minimal_number_of_points_for_split") return minimal_number_of_points_for_split_;
 	else if(setting == "downsampling_node_distance") return (double)downsampling_node_distance_;
 	else if(setting == "additional_split_distance_difference") return additional_split_distance_difference_;
-	else throw std::invalid_argument("Invalid loader setting");
+	else return structure_loader::get_setting(setting);
 }
 
 void tree_structure_loader::set_setting(const std::string& setting, double value) {
-	if(setting == "downsampling_setting") downsampling_setting_ = value;
-	else if(setting == "minimal_number_of_points_for_split") minimal_number_of_points_for_split_ = value;
+	if(setting == "minimal_number_of_points_for_split") minimal_number_of_points_for_split_ = value;
 	else if(setting == "downsampling_node_distance") downsampling_node_distance_ = (cuboid_distance_mode)value;
 	else if(setting == "additional_split_distance_difference") additional_split_distance_difference_ = value;
-	else throw std::invalid_argument("Invalid loader setting");
+	else structure_loader::set_setting(setting, value);
 }
 
 }

@@ -1,11 +1,15 @@
 #include "cubes_structure_sqlite_loader.h"
 #include "cubes_structure.h"
 #include "../../progress.h"
+#include "../../downsampling.h"
 #include <utility>
+#include <iostream>
 
 namespace dypc {
 	
 void cubes_structure_sqlite_loader::write(const std::string& filename, const cubes_structure& s) {
+	std::cout << filename << std::endl;
+	
 	sqlite_database database(filename);
 	create_tables_(database);
 		
@@ -34,6 +38,10 @@ cubes_structure_sqlite_loader::cubes_structure_sqlite_loader(const std::string& 
 	auto select_config = database_.select("SELECT side_length FROM config LIMIT 1");
 	select_config.next();
 	float side_length = select_config.current_row()[0].float_value();
+	
+	auto select_number = const_cast<sqlite_database&>(database_).select("SELECT COUNT(*) FROM points");
+	select_number.next();
+	number_of_points_ = select_number.current_row()[0].int_value();
 	
 	auto select_cubes = database_.select("SELECT id, index_x, index_y, index_z, number_of_points FROM cubes");
 	for(auto r : select_cubes) {
@@ -91,7 +99,6 @@ void cubes_structure_sqlite_loader::create_tables_(sqlite_database& database) {
 }
 
 std::size_t cubes_structure_sqlite_loader::extract_points_(point_buffer_t points, std::size_t capacity, const loader::request_t& req) {
-	std::size_t frustum_cubes = 0, downsampled_cubes = 0;	
 	std::size_t remaining = capacity;
 	std::size_t total = 0;
 	point_buffer_t buf = points;
@@ -103,14 +110,10 @@ std::size_t cubes_structure_sqlite_loader::extract_points_(point_buffer_t points
 		if(entry.number_of_points > remaining) break;
 		
 		if(frustum_culling_ && !req.view_frustum.contains_cuboid(cube)) continue;
-		++frustum_cubes;
-		
-		float min_weight = 0;
-		float distance = glm::distance(req.position, cube.center());
-		if(distance >= downsampling_distance_) {
-			min_weight = 1.0 - downsampling_distance_/(distance*2);
-			++downsampled_cubes;
-		}
+
+		float distance = std::abs(glm::distance(req.position, cube.center()));
+		float min_weight = 1.0 - downsampling_ratio_(distance, capacity, number_of_points_);
+
 
 		select_cube_points.reset();
 		select_cube_points[0] = entry.id;
@@ -142,9 +145,7 @@ std::size_t cubes_structure_sqlite_loader::rom_size() const {
 }
 
 std::size_t cubes_structure_sqlite_loader::number_of_points() const {
-	auto select_number = const_cast<sqlite_database&>(database_).select("SELECT COUNT(*) FROM points");
-	select_number.next();
-	return select_number.current_row()[0].int_value();
+	return number_of_points_;
 }
 
 }

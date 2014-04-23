@@ -5,7 +5,7 @@
 #include "point.h"
 #include "progress.h"
 #include <vector>
-#include <array>
+#include <vector>
 #include <map>
 #include <tuple>
 #include <glm/glm.hpp>
@@ -20,7 +20,7 @@ namespace dypc {
  */
 using uniform_downsampling_previous_results_t = std::map<std::size_t, float>;
 
-template<std::size_t Levels> using downsampling_levels_t = std::array<float, Levels>;
+using downsampling_ratios_t = std::vector<float>;
 
 
 float choose_downsampling_level_continuous(std::size_t levels, float distance, float setting);
@@ -29,31 +29,16 @@ inline std::ptrdiff_t choose_downsampling_level(std::size_t levels, float distan
 	return std::ceil(choose_downsampling_level_continuous(levels, distance, setting));
 }
 
+float downsampling_ratio_for_level(float i, std::size_t levels, std::size_t total_points, std::size_t minimum, float amount);
 
-inline float downsampling_level(float i, std::size_t levels, std::size_t total_points, std::size_t minimum, float amount) {
-	assert(i >= 0.0 && i <= levels - 1);
-	if(total_points == 0) return 1.0;
-	float minimum_ratio = (float)minimum / total_points;
-	if(minimum_ratio > 1.0) minimum_ratio = 1.0;
-	float x = i / (levels - 1);
-	return 1.0 - (1.0 - minimum_ratio)*std::pow(x, amount);
+
+inline float choose_downsampling_level_ratio_continuous(std::size_t levels, float distance, float setting, std::size_t total_points, std::size_t minimum, float amount) {
+	float level = choose_downsampling_level_continuous(levels, distance, setting);
+	return downsampling_ratio_for_level(level, levels, total_points, minimum, amount);
 }
 
 
-template<std::size_t Levels>
-downsampling_levels_t<Levels> determine_downsampling_levels(std::size_t total_points, std::size_t minimum, float amount) {
-	downsampling_levels_t<Levels> result;
-	if(total_points == 0) { result.fill(1.0); return result; }
-	
-	result[Levels - 1] = (float)minimum / total_points;;
-	for(std::ptrdiff_t i = 1; i < Levels - 1; ++i) result[i] = downsampling_level(i, Levels, total_points, minimum, amount);
-	result[0] = 1.0;
-	
-	for(auto r : result) std::cout << r << ", ";
-	std::cout << std::endl;
-	
-	return result;
-}
+downsampling_ratios_t determine_downsampling_ratios(std::size_t levels, std::size_t total_points, std::size_t minimum, float amount);
 
 
 /**

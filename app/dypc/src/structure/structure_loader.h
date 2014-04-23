@@ -13,27 +13,30 @@
 namespace dypc {
 
 class structure_loader : public loader {
-protected:
-	enum adapt_result_t { adapt_stabilize = 0, adapt_continue_decreasing, adapt_continue_increasing, adapt_repeat };
-
-private:
-	std::size_t old_count_ = 0;
-	adapt_result_t adapt_result_ = adapt_stabilize;	
+public:
+	static constexpr float initial_downsampling_setting = 20.0;
 	
 protected:
+	float downsampling_setting_ = initial_downsampling_setting;
 	static constexpr float minimal_update_distance_ = 1;
 
 	void compute_points(const request_t& req, point_buffer_t points, std::size_t& count, std::size_t capacity) override;
 	
 	bool should_compute_points(const request_t& request, const request_t& previous, std::chrono::milliseconds dtime) override {
 		return
-			(adapt_result_ != adapt_stabilize) ||
 			glm::distance(request.position, previous.position) > minimal_update_distance_ ||
 			request.orientation != previous.orientation;
 	}
-	
+		
 	virtual std::size_t extract_points_(point_buffer_t points, std::size_t capacity, const loader::request_t&) = 0;
-	virtual adapt_result_t adapt_settings_(std::size_t last_extracted, std::size_t capacity) { return adapt_stabilize; }
+	void adapt_setting_(std::size_t last_extracted, std::size_t capacity);
+
+public:
+	float get_downsampling_setting() const { return downsampling_setting_; }
+	void set_downsampling_setting(float d) { downsampling_setting_ = d; }
+	
+	double get_setting(const std::string&) const override;
+	void set_setting(const std::string&, double) override;
 };
 
 }

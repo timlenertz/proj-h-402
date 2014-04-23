@@ -167,16 +167,149 @@ Because the points are not distributed evenly in space but rather on the object'
 \end{figure}
 
 
-\subsection{Choosing the function $r(d)$}
-The function $r(d)$ determines that ratio of downsampling that should be applied depending on the distance $d$ to the camera. If \emph{LOD regions} are used, it gets turned into a staircase function with a finite number of steps (the number of LOD regions), and after that it stays constant. The function $r(d)$, the number $l$ of LOD regions, and their respective constant values $r_{i}$ should fulfill the following constraints:
-\begin{itemize}
-\item In general, downsampling should minimized, such that $n = |P'|$ gets close to, but does not exceed the renderer capacity $C$.
-\item Regions close to the camera should not be downsampled, so that it is still possible to view all details.
-\item The regions farther away should still be recognizable. The distances can be very large, in some point clouds regions farther away may have a different point density $\rho$. (see beginning of section)
-\item Visual discontinuities should be kept as low as possible.
-\end{itemize}
-In perspective projection, the density of point surfaces projected to the two-dimensional screen raises proportionally with their distance to the camera. 
+\subsection{Choosing the downsampling ratio}
+The function $r(d)$ determines that ratio of downsampling that should be applied depending on the distance $d$ to the camera. If \emph{LOD regions} are used, it is a staircase function and can only take a small number of different values, otherwise (\emph{weighted points}) it is continuous.
 
+Let $L$ be the number of \emph{LOD regions} (``levels''). In the program, it is usually 1, 4, 8 or 16. For \emph{weighted points} downsampling, $L$ can take any value and can be changed at runtime. In both cases, $r(d)$ is defined the same way:
+
+$r_{\ell}(\ell, a, L, n, n_{\min})$ gives the downsampling ratio for level $\ell \in [0, L-1]$. $n$ is the total number of points used as input to the downsampling algorithm, $n_{\min}$ the minimal number of points the should be outputted. If the algorithm is applied to the full model $n = |P|$ (number of points in model), and $n_{\min} = C$ (capacity of renderer) is used, since the goal is to stay as close as possible but inferior to $C$, so as to not lose more points than necessary. The function is defined such that $r_{\ell}(\ell = 0) = n$ (level 0 means no downsampling), $r_{\ell}(\ell = L-1) = n_{min}$ (maximal possible downsampling must be reached on last level), and it is stictly decreasing. The \emph{amount} parameter $a$ sets how strongly the function should be decreasing, and must be adjusted to fit the input model.
+
+If \emph{LOD regions} are used, this function is evaluated in the preprocessing stage, when the $L-1$ downsampled point sets are created. For \emph{weighted points}, it is evaluated at runtime. Then, $a$ and $L$ also can be changed at runtime, and $\ell$ can take real values (as opposed to integers only). This allows for continuous downsampling.
+
+The level to use at a given location is chosen by the function $\ell(d, s)$, where $d$ is the distance to the cemera, and the \emph{setting} $s$ a parameter that can always be adjusted at runtime (unlike $a$). The function is defined such that $\ell(d = 0) = 1$ (no downsampling when very close to camera), and $\lim_{d \rightarrow \infty} = L$ (eventually reach maximal level). Also, it increases with $d$, where $s$ determines how quickly. $\ell(d, s)$ is defined as a real function, but when \emph{LOD regions} are used, the floor value $\lfloor \ell(d, s) \rfloor$ is always taken.
+
+In short, the process of choosing the downsampling ratio $r(d)$ in function of distance $d$ works as follows: For \emph{weighted points}, $r(d) = r_{\ell}(\ell(d, s), a, L, n, n_{min})$ is evaluated at runtime, and $s, a, L$ can all be adjusted at runtime. Thus $r(d)$ is continuous.
+
+For \emph{LOD regions}, $L$ point sets are created in the preprocessing stage which are downsampled with ratio $r_{ell}(i, a, L, n, n_{min})$. The integer $i \in 0 \hdots L-1$ is the level of the point set, and $a, L, n, n_{min}$ all need to be known in this stage. The program stores the downsampling ratios associated with the $L$ levels with the generated data structure. At runtime, the downsampled point set for level $i = \lfloor \ell(d, s) \rfloor$ is chosen depending on $d$. Only $s$ can be adjusted at runtime.
+
+\subsection{Definition of the downsampling functions}
+The functions $\ell$ and $r_{\ell}$ are defined as follows:
+\begin{displaymath}
+	\ell(d, s) = \begin{cases}
+		\min \{ \frac{d - d_{0}}{\Delta d}, L-1 \} & d > d_{0} \\
+		0 & d \leq d_{0}
+	\end{cases}
+\end{displaymath}
+
+with $d_{0} = s^{e}$ the \emph{start distance}, i.e. the distance from the camera where downsampling should start, and $\Delta d = s$ the \emph{step distance} after which the next level is chosen.
+
+So the level is chosen linearily with the distance, with an offset $d_{0}$. The \emph{setting} $s$ controls the intervals between levels and the start distance. In the program, the $e$ is fixed to the value $e = 1.3$. It makes sure that $d_{0}$ scales faster than linearily with $s$, because the jump from no downsampling to the first level of downsampling represents a greater loss in output quality than the jump between downsampling levels.
+
+The following graph shows the function in its staircase form, with different values for $s$.
+
+\begin{figure}[H]
+\centering
+\begin{gnuplot}
+	set terminal epslatex color
+	set ylabel "level"
+	set xlabel "$d$"
+	set ytics (0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15)
+
+	levels = 16
+	xp = 1.3
+	maxd = 700
+
+	set xrange [0:maxd]
+	set yrange [0:levels + 3]
+	unset autoscale
+
+	start_distance(s) = s**xp
+	step_distance(s) = s
+	constrain_lvl(l) = (l > levels - 1) ? (levels - 1) : l
+
+	l(d, s) = constrain_lvl( \
+		(d > start_distance(s)) ? ((d - start_distance(s)) / step_distance(s)) : 0 \
+	)
+	
+	plot [d=0:maxd] \
+		floor(l(d, 20)) with steps lt rgb "black" title "$s = 20$", \
+		floor(l(d, 10)) with steps lt rgb "blue" title "$s = 10$", \
+		floor(l(d, 50)) with steps lt rgb "red" title "$s = 50$"
+\end{gnuplot}
+\caption{Downsampling level for distance function $\ell(d, s)$}
+\label{fig:downsampling_ell_d}
+\end{figure}
+
+
+The downsampling ratio function is defined as follows:
+\begin{displaymath}
+	r_{\ell}(\ell, a, L, n, n_{\min}) = 1 - (1 - r_{\min}) \left( \frac{\ell}{L-1} \right)^{a}
+\end{displaymath}
+where $r_{min} = \max \{ \frac{n_{\min}}{n}, 1 \}$ is the minimal downsampling ratio. Note that when $n \leq n_{min}$, the function always yields $1$ and no downsampling will be applied. 
+
+The following graph shows the function with different values for the downsampling amount $a$:
+
+\begin{figure}[H]
+\centering
+\begin{gnuplot}
+	set terminal epslatex color
+	set ylabel "$r_{\text{level}}$"
+	set xlabel "$level$"
+	set xtics (0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15)
+
+	n = 5000000
+	nmin = 1000000
+	rmin = nmin / n
+	levels = 16
+
+	set xrange [0:(levels - 1)]
+	set yrange [0:1]
+	unset autoscale
+	
+	r(l, a) = 1 - (1 - rmin) * (l/(levels - 1))**a
+	plot [l=0:(levels - 1)] \
+		r(l, 2) lt rgb "black" title "$a = 2.0$", \
+		r(l, 1.2) lt rgb "blue" title "$a = 1.2$", \
+		r(l, 0.4) lt rgb "green" title "$a = 0.4$", \
+		r(l, 3.8) lt rgb "red" title "$a = 3.8$"
+\end{gnuplot}
+\caption{Downsampling ratio for level function $r_{\ell}(d, a)$}
+\label{fig:downsampling_r_ell}
+\end{figure}
+
+By default the amount $a = 2$ is used in the program, because 
+
+
+
+\begin{figure}[p]
+\centering
+\begin{gnuplot}
+	set terminal epslatex color
+	set ylabel "$\ell$"
+	set xlabel "$d$"
+
+	levels = 16
+	xp = 1.3
+	maxd = 800
+	n = 5000000
+	nmin = 1000000
+	rmin = nmin / n
+	a = 2
+
+
+	start_distance(s) = s**xp
+	step_distance(s) = s
+	constrain_lvl(l) = (l > levels - 1) ? (levels - 1) : l
+
+	r(l) = 1 - (1 - rmin) * (l/(levels - 1))**a
+
+	l(d, s) = constrain_lvl( \
+		(d > start_distance(s)) ? ((d - start_distance(s)) / step_distance(s)) : 0 \
+	)
+	
+	rd(d, s) = r( 0.0 + floor( l(d, s) ) )
+	rdc(d, s) = r( 0.0 + l(d, s) )
+	
+	plot [d=0:maxd] \
+		rd(d, 20) with steps lt rgb "black" title "$s = 20$", \
+		rd(d, 10) with steps lt rgb "blue" title "$s = 10$", \
+		rd(d, 50) with steps lt rgb "red" title "$s = 50$"
+\end{gnuplot}
+\caption{Downsampling ratio for level function $r_{\ell}(d, a)$}
+\label{fig:downsampling_r_ell}
+\end{figure}
+
+\subsection{Adaptive downsampling}
 
 \section{Occlusion culling}
 

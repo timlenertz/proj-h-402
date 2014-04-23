@@ -94,8 +94,8 @@ public:
 	virtual std::string loader_name() const;
 	virtual loader_type get_loader_type() const = 0;
 	
-	virtual double get_setting(const std::string&) const { throw std::logic_error("No configuration for loader"); }
-	virtual void set_setting(const std::string&, double) { throw std::logic_error("No configuration for loader"); }
+	virtual double get_setting(const std::string&) const;
+	virtual void set_setting(const std::string&, double);
 	
 	virtual std::size_t memory_size() const { return 0; }
 	virtual std::size_t rom_size() const { return 0; }

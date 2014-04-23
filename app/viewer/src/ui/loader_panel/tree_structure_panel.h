@@ -23,7 +23,6 @@ private:
 
 	void update_() {
 		updater_.set_loader_settings({
-			{ "downsampling_setting", (double)setting_spin->GetValue() },
 			{ "minimal_number_of_points_for_split", (double)min_split_spin->GetValue() },
 			{ "downsampling_node_distance", (double)get_selected_distance_() },
 			{ "additional_split_distance_difference", (double)add_split_diff_spin->GetValue() },

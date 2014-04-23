@@ -1,6 +1,8 @@
 #include "octree_structure_splitter.h"
 #include <algorithm>
 #include <cassert>
+#include <iostream>
+#include "../../../debug.h"
 
 namespace dypc {
 
@@ -20,7 +22,9 @@ std::ptrdiff_t octree_structure_splitter::node_child_for_point(const point& pt, 
 	if(pt.x >= c[0]) idx += 1;
 	if(pt.y >= c[1]) idx += 2;
 	if(pt.z >= c[2]) idx += 4;
-	assert(node_child_cuboid(idx, cub, info, depth).in_range(pt));	
+	if(! node_child_cuboid(idx, cub, info, depth).in_range(pt)) {
+		std::cout << pt.x << ", " << pt.y << ", " << pt.z << "\ncube: " << cub.origin() << " -> " << cub.extremity() << std::endl;
+	}
 	return idx;
 }
 

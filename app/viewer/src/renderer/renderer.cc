@@ -181,6 +181,22 @@ void renderer::set_updater_paused(bool paused) {
 	else updater_.start();
 }
 
+void renderer::set_loader_downsampling_setting(float setting) {
+	updater_.set_loader_setting("downsampling_setting", setting);
+}
+
+void renderer::set_loader_adaptive(bool adaptive) {
+	updater_.set_loader_setting("adaptive", adaptive ? 1.0 : 0.0);
+}
+
+float renderer::get_loader_downsampling_setting() {
+	return updater_.get_loader_setting("downsampling_setting");
+}
+
+bool renderer::get_loader_adaptive() {
+	return (updater_.get_loader_setting("adaptive") != 0.0);
+}
+
 
 void renderer::set_configuration(float fov, float scale, unsigned char bg_r, unsigned char bg_g, unsigned char bg_b, bool fog, float fog_distance, bool depth_test, bool shadow, unsigned shadow_size, float shadow_max_distance) {
 	fov_ = fov;

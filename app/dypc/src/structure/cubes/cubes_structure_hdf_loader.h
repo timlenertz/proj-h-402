@@ -45,6 +45,7 @@ private:
 	H5::H5File file_;
 	H5::DataSpace points_data_space_;
 	H5::DataSet points_data_set_;
+	std::size_t number_of_points_;
 		
 protected:
 	std::size_t extract_points_(point_buffer_t points, std::size_t capacity, const loader::request_t&);

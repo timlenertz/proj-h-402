@@ -164,12 +164,15 @@ std::pair<structure_type, std::size_t> read_sqlite_structure_file_type(const std
 
 
 void write_sqlite_structure_file_type(const std::string& filename, structure_type type, std::size_t levels) {
+	try {
+			int type_int = (int)type;
+
 	sqlite_database database(filename);
 	database.execute("CREATE TABLE structure_type ( type INTEGER NOT NULL, levels INTEGER )");
-	int type_int = (int)type;
-	auto ins = database.prepare("INSERT INTO structure_type (type, levels) VALUES (?, ?)");
-	if(levels) ins(type_int, levels);
-	else ins(type_int, nullptr);
+	database.execute(std::string("INSERT INTO structure_type (type, levels) VALUES (") + std::to_string(type_int) + ", " + std::to_string(levels) + ")");
+	} catch(const std::exception& ex) {
+		std::cout << ex.what() << std::endl;
+	}
 }
 
 

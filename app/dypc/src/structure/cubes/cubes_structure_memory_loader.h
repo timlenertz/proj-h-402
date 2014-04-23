@@ -4,6 +4,7 @@
 #include "cubes_structure_loader.h"
 #include "cubes_structure.h"
 
+
 namespace dypc {
 	
 class model;

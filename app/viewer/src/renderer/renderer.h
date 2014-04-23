@@ -100,6 +100,11 @@ public:
 	bool get_updater_check_condition() const { return updater_.get_check_condition(); }
 	void set_updater_check_condition(bool c) { updater_.set_check_condition(c); }
 	
+	void set_loader_downsampling_setting(float setting);
+	float get_loader_downsampling_setting();
+	void set_loader_adaptive(bool adaptive);
+	bool get_loader_adaptive();
+	
 	void update_now();
 	void switch_loader(dypc_loader);
 	void delete_loader() { switch_loader(nullptr); }

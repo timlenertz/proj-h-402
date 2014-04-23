@@ -11,10 +11,11 @@ private:
 	updater& updater_;
 
 	void update_() {
+		double amount; amount_text->GetLineText(0).ToDouble(&amount);
 		updater_.set_loader_settings({
-			{ "downsampling_distance", (double)downsampling_spin->GetValue() },
 			{ "frustum_culling", (frustum_check->GetValue() ? 1.0 : 0.0) },
-			{ "downsampling_level", (double)level_spin->GetValue() },
+			{ "downsampling_levels", (double)level_spin->GetValue() },
+			{ "downsampling_amount", amount },
 			{ "secondary_pass_distance", (double)secondary_spin->GetValue() }
 		});
 	}

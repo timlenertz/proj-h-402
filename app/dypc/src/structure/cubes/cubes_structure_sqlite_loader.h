@@ -28,6 +28,7 @@ private:
 
 	sqlite_database database_;
 	std::vector<cube_entry> cube_entries_;
+	std::size_t number_of_points_;
 
 	static void create_tables_(sqlite_database&);
 	

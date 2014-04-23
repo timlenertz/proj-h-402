@@ -1,6 +1,7 @@
 #include "cubes_structure_hdf_loader.h"
 #include "cubes_structure.h"
 #include "../../progress.h"
+#include "../../downsampling.h"
 #include <utility>
 #include <memory>
 
@@ -97,11 +98,11 @@ cubes_structure_hdf_loader::cubes_structure_hdf_loader(const std::string& filena
 		
 	points_data_set_ = file_.openDataSet("points");
 	points_data_space_ = points_data_set_.getSpace();
+	number_of_points_ = points_data_space_.getSimpleExtentNpoints();
 }
 
 
 std::size_t cubes_structure_hdf_loader::extract_points_(point_buffer_t points, std::size_t capacity, const loader::request_t& req) {
-	std::size_t frustum_cubes = 0, downsampled_cubes = 0;	
 	std::size_t remaining = capacity;
 	std::size_t total = 0;
 	point_buffer_t buf = points;	
@@ -111,14 +112,9 @@ std::size_t cubes_structure_hdf_loader::extract_points_(point_buffer_t points, s
 		if(entry.data_length > remaining) break;
 		
 		if(frustum_culling_ && !req.view_frustum.contains_cuboid(cube)) continue;
-		++frustum_cubes;
 		
-		float min_weight = 0;
-		float distance = glm::distance(req.position, cube.center());
-		if(distance >= downsampling_distance_) {
-			min_weight = 1.0 - downsampling_distance_/(distance*2);
-			++downsampled_cubes;
-		}
+		float distance = std::abs(glm::distance(req.position, cube.center()));
+		float min_weight = 1.0 - downsampling_ratio_(distance, capacity, number_of_points_);
 
 		points_data_space_.selectHyperslab(H5S_SELECT_SET, &entry.data_length, &entry.data_start);
 		
@@ -153,7 +149,7 @@ std::size_t cubes_structure_hdf_loader::rom_size() const {
 }
 
 std::size_t cubes_structure_hdf_loader::number_of_points() const {
-	return points_data_space_.getSimpleExtentNpoints();
+	return number_of_points_;;
 }
 
 

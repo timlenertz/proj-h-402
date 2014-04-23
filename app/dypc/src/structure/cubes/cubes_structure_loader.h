@@ -4,15 +4,16 @@
 #include "cubes_structure.h"
 #include "../structure_loader.h"
 #include "../../geometry/cuboid.h"
+#include "../../downsampling.h"
 
 
 namespace dypc {
 
 class cubes_structure_loader : public structure_loader {
 protected:
-	float downsampling_distance_ = 20;
 	bool frustum_culling_ = true;
-	unsigned downsampling_level_ = 3;
+	std::size_t downsampling_levels_ = 16;
+	float downsampling_amount_ = 2.0;
 	float secondary_pass_distance_ = 100;
 		
 	static cuboid cube_from_index_(cubes_structure::cube_index_t idx, float side_length) {
@@ -26,12 +27,14 @@ protected:
 		);
 	}
 	
-	adapt_result_t adapt_settings_(std::size_t last_extracted, std::size_t capacity) override;
-
+	float downsampling_ratio_(float distance, std::size_t capacity, std::size_t total_points) {
+		return choose_downsampling_level_ratio_continuous(downsampling_levels_, distance, downsampling_setting_, total_points, capacity, downsampling_amount_);
+	}
+	
 public:
-	void set_downsampling_minimal_distance(float d) { downsampling_distance_ = d; }
 	void set_frustum_culling(bool f) { frustum_culling_ = f; }
-	void set_downsampling_level(unsigned l) { downsampling_level_ = l; }
+	void set_downsampling_levels(unsigned l) { downsampling_levels_ = l; }
+	void set_downsampling_amount(float d) { downsampling_amount_ = d; }
 	void set_secondary_pass_minimal_distance(float d) { secondary_pass_distance_ = d; }
 	
 	double get_setting(const std::string&) const override;

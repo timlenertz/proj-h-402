@@ -9,7 +9,7 @@
 #include "../../point.h"
 #include "../../geometry/cuboid.h"
 #include "../../loader/loader.h"
-#include "../structure.h"
+#include "../mipmap_structure.h"
 #include "../../downsampling.h"
 
 
@@ -17,7 +17,7 @@ namespace dypc {
 
 class model;
 
-class cubes_mipmap_structure : public structure {	
+class cubes_mipmap_structure : public mipmap_structure {	
 public:
 	using cube_index_t = std::tuple<std::ptrdiff_t, std::ptrdiff_t, std::ptrdiff_t>;
 	class cube;
@@ -31,22 +31,16 @@ public:
 	}
 		
 private:
-	const float side_length_;
-	const std::size_t mipmap_levels_;
-	const float mipmap_factor_;
-	const downsampling_mode downsampling_mode_;
-	
 	using cubes_t = std::map<cube_index_t, cube>;
+
+	const float side_length_;
 	cubes_t cubes_;
 
 	void add_point_(const point& pt);
 
 public:
-	cubes_mipmap_structure(float side, std::size_t mmlvl, float mmfac, downsampling_mode mod, model&);	
+	cubes_mipmap_structure(float side, std::size_t dlevels, std::size_t dmin, float damount, downsampling_mode dmode, model& mod);	
 	float get_side_length() const { return side_length_; }
-	std::size_t get_mipmap_levels() const { return mipmap_levels_; }
-	float get_mipmap_factor() const { return mipmap_factor_; }
-	downsampling_mode get_downsampling_mode() const { return downsampling_mode_; }
 	
 	std::size_t total_number_of_points() const;
 	const std::map<cube_index_t, cube>& cubes() const { return cubes_; }
@@ -65,8 +59,10 @@ public:
 	explicit cube(const cubes_mipmap_structure&);
 	~cube();
 
-	const point_set_t& points_at_level(std::ptrdiff_t lvl) const
-		{ assert(lvl >= 0 && lvl < structure_.mipmap_levels_); return point_sets_[lvl]; }
+	const point_set_t& points_at_level(std::ptrdiff_t lvl) const {
+		assert(lvl >= 0 && lvl < structure_.get_downsampling_levels());
+		return point_sets_[lvl];
+	}
 
 	std::size_t size() const;
 	std::size_t number_of_points() const { return point_sets_[0].size(); }

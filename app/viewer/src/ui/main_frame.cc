@@ -261,6 +261,12 @@ void main_frame::on_loader_config_() {
 	rd.set_updater_paused(paused);
 	rd.set_updater_check_condition(check_condition);
 	rd.set_updater_check_interval(interval);
+	
+	float setting = (float)downsampling_setting->GetValue() / 10.0;
+	bool adap = adaptive_loader->IsChecked();
+	
+	rd.set_loader_downsampling_setting(setting);
+	rd.set_loader_adaptive(adap);
 }
 
 void main_frame::on_loader_update_now_(wxCommandEvent& event) {

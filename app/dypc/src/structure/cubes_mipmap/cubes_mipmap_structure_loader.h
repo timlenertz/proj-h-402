@@ -10,8 +10,6 @@ namespace dypc {
 
 class cubes_mipmap_structure_loader : public structure_loader {
 protected:
-	float downsampling_start_distance_ = 70;
-	float downsampling_step_distance_ = 30;
 	bool frustum_culling_ = true;
 		
 	static cuboid cube_from_index_(cubes_mipmap_structure::cube_index_t idx, float side_length) {
@@ -26,8 +24,7 @@ protected:
 	}
 
 public:
-	void set_downsampling_start_distance(float d) { downsampling_start_distance_ = d; }
-	void set_downsampling_step_distance(float d) { downsampling_step_distance_ = d; }
+	bool get_frustum_culling() const { return frustum_culling_; }
 	void set_frustum_culling(bool f) { frustum_culling_ = f; }
 	
 	double get_setting(const std::string&) const override;
