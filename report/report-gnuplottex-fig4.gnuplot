@@ -1,8 +1,8 @@
 set terminal latex
 set output 'report-gnuplottex-fig4.tex'
 set terminal epslatex color
-set ylabel "$r_{\text{level}}$"
-set xlabel "$level$"
+set ylabel "$r$"
+set xlabel "level"
 set xtics (0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15)
 
 n = 5000000

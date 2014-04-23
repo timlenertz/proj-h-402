@@ -1,7 +1,7 @@
 set terminal latex
 set output 'report-gnuplottex-fig5.tex'
 set terminal epslatex color
-set ylabel "$\ell$"
+set ylabel "$r$"
 set xlabel "$d$"
 
 levels = 16

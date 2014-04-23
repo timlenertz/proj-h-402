@@ -243,8 +243,8 @@ The following graph shows the function with different values for the downsamplin
 \centering
 \begin{gnuplot}
 	set terminal epslatex color
-	set ylabel "$r_{\text{level}}$"
-	set xlabel "$level$"
+	set ylabel "$r$"
+	set xlabel "level"
 	set xtics (0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15)
 
 	n = 5000000
@@ -267,15 +267,22 @@ The following graph shows the function with different values for the downsamplin
 \label{fig:downsampling_r_ell}
 \end{figure}
 
-By default the amount $a = 2$ is used in the program, because 
+\begin{wrapfigure}{r}{7cm}
+\includegraphics[width=7cm]{distanceDensity.png}
+\caption{Perspective projection and area}
+\label{fig:distance_density}
+\end{wrapfigure}
+Figure \ref{fig:distance_density} shows visible areas\footnote{In reality, the areas would be curved (intersection of view frustum and sphere of radius $d$), but the simplification holds because the field of view is small} with distances $d$, $2d$ and $3d$ to the camera in a perspective projection. Their area is proportional to $d^{2}$. Supposing that surfaces of the point cloud is located exactly on these areas, the point density of the projection $\rho'$ would also be proportional to $d^{2}$.
 
+Since $\rho'$ should be more or less constant, setting $a = 2$ makes sense as it cancels out the effect. In practice, it needs to be adjusted to fit the particular point cloud.
 
+Finally, this graph shows $r_{d, s}$ ($r_{\ell} \circ \ell$) in piecewise form, with $a = 2$, $L = 16$ and $r_{\min} = 0.2$:
 
-\begin{figure}[p]
+\begin{figure}[H]
 \centering
 \begin{gnuplot}
 	set terminal epslatex color
-	set ylabel "$\ell$"
+	set ylabel "$r$"
 	set xlabel "$d$"
 
 	levels = 16
@@ -305,8 +312,8 @@ By default the amount $a = 2$ is used in the program, because
 		rd(d, 10) with steps lt rgb "blue" title "$s = 10$", \
 		rd(d, 50) with steps lt rgb "red" title "$s = 50$"
 \end{gnuplot}
-\caption{Downsampling ratio for level function $r_{\ell}(d, a)$}
-\label{fig:downsampling_r_ell}
+\caption{Downsampling ratio for distance $r(d, s)$}
+\label{fig:downsampling_r}
 \end{figure}
 
 \subsection{Adaptive downsampling}
