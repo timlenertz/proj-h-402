@@ -12,8 +12,7 @@ CXXFLAGS += -I../dypc/include
 LDLIBS += -L../dypc/lib -ldypc -Wl,-rpath=.
 
 PACKAGES := gl glew
-LDFLAGS += $(shell pkg-config --libs-only-l --libs-only-L $(PACKAGES))
-LDLIBS += $(shell pkg-config --libs-only-other $(PACKAGES))
+LDLIBS += $(shell pkg-config --libs $(PACKAGES))
 CXXFLAGS += $(shell pkg-config --cflags $(PACKAGES))
 
 CXXFLAGS += $(shell wx-config --cxxflags)
@@ -53,6 +52,7 @@ clean :
 	
 mrproper : clean
 	$(RM) -f $(TARGET)
+
 
 
 -include $(DEP)

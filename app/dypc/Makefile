@@ -1,7 +1,7 @@
 TARGET := lib/libdypc.so
 
-CXXFLAGS := -std=c++11 -fpic 
-LDFLAGS := -shared -fvisibility=hidden
+CXXFLAGS := -std=c++11 -fpic -fvisibility=hidden 
+LDFLAGS := -shared
 ifeq ($(DEPLOY), 1)
 	CXXFLAGS += -O3 -DNDEBUG
 else
@@ -13,8 +13,7 @@ PACKAGES := sqlite3
 CXXFLAGS += -I"$(realpath ./external)"
 LDFLAGS += -L"$(realpath ./external)"
 
-LDFLAGS += $(shell pkg-config --libs-only-l --libs-only-L $(PACKAGES))
-LDLIBS += $(shell pkg-config --libs-only-other $(PACKAGES))
+LDLIBS += $(shell pkg-config --libs $(PACKAGES))
 CXXFLAGS += $(shell pkg-config --cflags $(PACKAGES))
 
 LDLIBS += -lm -lz -lhdf5 -lhdf5_cpp

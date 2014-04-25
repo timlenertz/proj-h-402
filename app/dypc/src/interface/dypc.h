@@ -2,8 +2,9 @@
 #define DYPC_INTERFACE_DYPC_H_
 
 #include "types.h"
-#include "loader.h"
-#include "model.h"
+
+#define DYPC_INTERFACE_DEC \
+	__attribute__(( visibility("default") ))
 
 #ifdef __cplusplus
 extern "C" {
@@ -18,13 +19,13 @@ typedef struct {
 } dypc_callbacks;
 
 
-dypc_callbacks* dypc_get_callbacks();
+dypc_callbacks* dypc_get_callbacks() DYPC_INTERFACE_DEC;
 
-int dypc_error();
-const char* dypc_error_message();
+int dypc_error() DYPC_INTERFACE_DEC;
+const char* dypc_error_message() DYPC_INTERFACE_DEC;
 
-void dypc_clear_error();
-void dypc_set_error_message(const char*);
+void dypc_clear_error() DYPC_INTERFACE_DEC;
+void dypc_set_error_message(const char*) DYPC_INTERFACE_DEC;
 
 #ifdef __cplusplus
 }
