@@ -6,6 +6,8 @@
 #include "ply_model.h"
 #include "../progress.h"
 
+#include <iostream>
+
 namespace dypc {
 
 static bool check_host_little_endian_() {
@@ -124,31 +126,42 @@ void ply_model::read_header_() {
 }
 
 
-bool ply_model::read_point_(std::ifstream& file, point& pt) {
-	if(file.tellg() >= vertices_end_) return false;
+std::size_t ply_model::read_points_(std::ifstream& file, point* pts, std::size_t n) {
+	auto filepos = file.tellg();
 	
-	unsigned char buffer[vertex_buffer_length_];
-	file.read((char*)buffer, vertex_length_);
+	if(filepos >= vertices_end_) return 0;
 	
-	if(host_is_little_endian_ == little_endian_) {
-		pt.x = *reinterpret_cast<float*>(buffer + x_) * scale_;
-		pt.y = *reinterpret_cast<float*>(buffer + y_) * scale_;
-		pt.z = *reinterpret_cast<float*>(buffer + z_) * scale_;
-	} else {
-		pt.x = extract_flipped_endianness_float_(buffer + x_) * scale_;
-		pt.y = extract_flipped_endianness_float_(buffer + y_) * scale_;
-		pt.z = extract_flipped_endianness_float_(buffer + z_) * scale_;
-	}
+	auto remaining = (vertices_end_ - filepos) / vertex_length_;
+	if(n > remaining) n = remaining;
 	
-	if(has_colors_) {
-		pt.r = *reinterpret_cast<unsigned char*>(buffer + r_);
-		pt.g = *reinterpret_cast<unsigned char*>(buffer + g_);
-		pt.b = *reinterpret_cast<unsigned char*>(buffer + b_);
-	} else {
-		pt.r = pt.g = pt.b = 255;
-	}
+	auto len = vertex_length_ * n;
+	std::uint8_t buffer[len];
+	file.read((char*)buffer, len);
+	
+	const std::uint8_t* input = buffer;
+	for(std::size_t i = 0; i < n; ++i, input += vertex_length_) {
+		point& pt = *(pts++);
+
+		if(host_is_little_endian_ == little_endian_) {
+			pt.x = *reinterpret_cast<const float*>(input + x_) * scale_;
+			pt.y = *reinterpret_cast<const float*>(input + y_) * scale_;
+			pt.z = *reinterpret_cast<const float*>(input + z_) * scale_;
+		} else {
+			pt.x = extract_flipped_endianness_float_(input + x_) * scale_;
+			pt.y = extract_flipped_endianness_float_(input + y_) * scale_;
+			pt.z = extract_flipped_endianness_float_(input + z_) * scale_;
+		}
 		
-	return true;
+		if(has_colors_) {
+			pt.r = *reinterpret_cast<const std::uint8_t*>(input + r_);
+			pt.g = *reinterpret_cast<const std::uint8_t*>(input + g_);
+			pt.b = *reinterpret_cast<const std::uint8_t*>(input + b_);
+		} else {
+			pt.r = pt.g = pt.b = 255;
+		}
+	}
+	std::cout << "read "<< n << std::endl;
+	return n;
 }
 
 
@@ -157,12 +170,18 @@ ply_model::handle::handle(ply_model& mod) : model_(mod) {
 	file_.seekg(model_.vertices_offset_);
 }
 
-bool ply_model::handle::read(point& pt) {
-	return model_.read_point_(file_, pt);
+std::size_t ply_model::handle::read(point* buffer, std::size_t n) {
+	return model_.read_points_(file_, buffer, n);
+}
+
+bool ply_model::handle::eof() {
+	return (file_.tellg() >= model_.vertices_end_);
 }
 
 std::unique_ptr<model::handle> ply_model::handle::clone() {
-	return model_.make_handle_();
+	handle* h = new handle(model_);
+	h->file_.seekg(file_.tellg());
+	return std::unique_ptr<model::handle>(h);
 }
 
 

@@ -22,13 +22,14 @@ private:
 	
 		~handle() override { }
 		
-		bool read(point& pt) override {
-			if(remaining_) {
-				pt = model_.compute_point_(random_generator_, remaining_--);
-				return true;
-			} else {
-				return false;
-			}
+		std::size_t read(point* buffer, std::size_t n) override {
+			if(n > remaining_) n = remaining_;
+			for(std::size_t i = 0; i < n; ++i) *(buffer++) = model_.compute_point_(random_generator_, remaining_--);
+			return n;
+		}
+		
+		bool eof() override {
+			return (remaining_ == 0);
 		}
 		
 		std::unique_ptr<model::handle> clone() override {

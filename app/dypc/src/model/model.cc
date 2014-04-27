@@ -1,5 +1,8 @@
 #include "model.h"
 #include "../progress.h"
+#include <cstring>
+
+#include <iostream>
 
 namespace dypc {
 
@@ -28,5 +31,86 @@ void model::find_bounds_() {
 		else if(pt.z > maximum_[2]) maximum_[2] = pt.z;
 	});
 }
+
+
+model::iterator::iterator(std::unique_ptr<handle>&& hd) :
+handle_(std::move(hd)), buffer_(new point[maximal_chunk_size_]), point_(0) {
+	read_next_chunk_();
+}
+
+
+model::iterator::~iterator() {
+	if(buffer_) delete[] buffer_;
+}
+
+
+model::iterator::iterator(const iterator& it) {
+	operator=(it);
+}
+
+
+model::iterator::iterator(iterator&& it) :
+handle_(it.handle_.release()), buffer_(it.buffer_), chunk_size_(it.chunk_size_), point_(it.point_) {
+	it.buffer_ = nullptr;
+}
+
+
+model::iterator& model::iterator::operator=(const iterator& it) {
+	if(it.handle_) handle_ = std::move(it.handle_->clone());
+	else handle_.release();
+
+	if(it.buffer_) {
+		if(! buffer_) buffer_ = new point[maximal_chunk_size_];
+		std::memcpy(buffer_, it.buffer_, it.chunk_size_ * sizeof(point));
+		chunk_size_ = it.chunk_size_;
+	} else {
+		if(buffer_) delete[] buffer_;
+		buffer_ = nullptr;
+	}
+
+	return *this;
+}
+
+
+model::iterator& model::iterator::operator=(iterator&& it) {
+	handle_ = std::move(it.handle_);
+	point_ = it.point_;
+	chunk_size_ = it.chunk_size_;
+	buffer_ = it.buffer_;
+	it.buffer_ = nullptr;
+	return *this;
+}
+
+
+void model::iterator::read_next_chunk_() {
+	assert(handle_); assert(buffer_);
+	chunk_size_ = handle_->read(buffer_, maximal_chunk_size_);
+	point_ = 0;
+}
+
+
+model::iterator& model::iterator::operator++() {
+	assert(handle_);
+	++point_;
+	if(point_ >= chunk_size_) {		
+		// reached end of current chunk
+		if(! handle_->eof()) read_next_chunk_(); // handle not yet at eof, read next chunk
+		else handle_.release(); // handle at eof (+ enf of chunk) --> close handle, iterator will be == to end iterator
+	}
+	return *this;
+}
+
+
+bool model::iterator::operator==(const iterator& it) const {
+	// handle_ is unique_ptr --> two iterators never have same handle_
+	// handle_ = nullptr only for end iterator
+	return handle_ == it.handle_;
+}
+
+
+bool model::iterator::operator!=(const iterator& it) const {
+	return handle_ != it.handle_;
+}
+
 	
 }

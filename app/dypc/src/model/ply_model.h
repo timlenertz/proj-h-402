@@ -18,7 +18,8 @@ private:
 		explicit handle(ply_model&);
 	
 		~handle() override { }
-		bool read(point&) override;
+		std::size_t read(point* buffer, std::size_t n) override;
+		bool eof() override;
 		std::unique_ptr<model::handle> clone() override;
 	};
 	
@@ -43,9 +44,9 @@ private:
 
 	void open_file_(std::ifstream&);
 	void read_header_();
-	bool read_point_(std::ifstream&, point&);
+	std::size_t read_points_(std::ifstream& file, point* pts, std::size_t n);
 
-	static float extract_flipped_endianness_float_(const unsigned char* buf) {
+	static float extract_flipped_endianness_float_(const std::uint8_t* buf) {
 		unsigned char out[4];
 		out[0] = buf[3];
 		out[1] = buf[2];
