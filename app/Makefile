@@ -1,7 +1,7 @@
 DEPLOY := 0
 
-CXX := g++
-CC := gcc
+CXX := clang++
+CC := clang
 MKDIR := mkdir
 RM := rm
 CP := cp

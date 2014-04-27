@@ -1,4 +1,5 @@
 #include "loader.h"
+#include "dypc.h"
 #include "../enums.h"
 #include "../point.h"
 #include "../util.h"
@@ -31,7 +32,7 @@ static dypc::loader::request_t convert_loader_request_(const dypc_loader_request
 dypc_loader dypc_create_direct_model_loader(dypc_model m) {
 	DYPC_INTERFACE_BEGIN;
 	dypc::model* mod = (dypc::model*)m;
-	dypc::direct_model_loader* ld = new dypc::direct_model_loader(mod);
+	dypc::direct_model_loader* ld = new dypc::direct_model_loader(std::unique_ptr<dypc::model>(mod));
 	DYPC_INTERFACE_END_RETURN((dypc_loader)ld, nullptr);
 }
 

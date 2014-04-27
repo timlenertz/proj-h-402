@@ -1,9 +1,9 @@
 #include "model.h"
+#include "dypc.h"
 #include "../model/model.h"
 #include "../model/ply_model.h"
 #include "../model/concentric_spheres_model.h"
 #include "../model/torus_model.h"
-#include "../model/random_model.h"
 #include "../downsampling.h"
 #include "../util.h"
 #include <iostream>
@@ -26,12 +26,6 @@ dypc_model dypc_create_torus_model(dypc_size count, float r0, float r1) {
 	DYPC_INTERFACE_BEGIN;
 	dypc::torus_model* mod = new dypc::torus_model(count, r0, r1);
 	std::cout << mod->number_of_points() << std::endl;
-	DYPC_INTERFACE_END_RETURN((dypc_model)mod, nullptr);
-}
-
-dypc_model dypc_create_random_model(dypc_size count, float side) {
-	DYPC_INTERFACE_BEGIN;
-	dypc::random_model* mod = new dypc::random_model(count, side);
 	DYPC_INTERFACE_END_RETURN((dypc_model)mod, nullptr);
 }
 

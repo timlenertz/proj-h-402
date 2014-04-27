@@ -3,19 +3,49 @@
 #include "../renderer/renderer.h"
 #include "../util.h"
 #include <stdexcept>
-
-#include <dypc/dypc.h>
+#include <wx/progdlg.h>
+#include <dypc/progress.h>
 
 namespace dypc {
 	
 	
-void application::error_message_(const char* title, const char* msg) {
-	error_message(title, msg);
+static dypc_progress progress_open_(const char* label, unsigned maximum, dypc_progress par) {
+	wxProgressDialog* dialog = new wxProgressDialog(
+		wxT("Progress"),
+		wxString(label, wxConvUTF8),
+		maximum,
+		nullptr,
+		wxPD_APP_MODAL | wxPD_AUTO_HIDE
+	);
+	return (dypc_progress)dialog;
+}
+
+static void progress_set_(dypc_progress pr, unsigned value) {
+	wxProgressDialog* dialog = (wxProgressDialog*)pr;
+	/*int maximum = dialog->GetRange();
+	if(maximum == wxNOT_FOUND || maximum == 0) dialog->Pulse();
+	else*/ dialog->Update(value);
+}
+
+static void progress_message_(dypc_progress pr, const char* msg) {
+	wxProgressDialog* dialog = (wxProgressDialog*)pr;
+}
+
+static void progress_close_(dypc_progress pr) {
+	wxProgressDialog* dialog = (wxProgressDialog*)pr;
+	delete dialog;
 }
 
 
+
 bool application::OnInit() {
-	dypc_callbacks* callbacks = dypc_get_callbacks();
+	dypc_progress_callbacks progress_callbacks = {
+		&progress_open_,
+		&progress_close_,
+		&progress_set_,
+		&progress_message_
+	};
+	dypc_set_progress_callbacks(&progress_callbacks);
 	
 	main_frame* frame = new main_frame();
 	frame->Show();
@@ -28,7 +58,7 @@ int application::OnRun() {
 	try {
 		return wxApp::OnRun();
 	} catch(const std::exception& ex) {
-		error_message_(ex.what(), "An unhandled exception occured");
+		error_message(ex.what(), "An unhandled exception occured");
 		return 0;
 	}
 }

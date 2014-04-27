@@ -1,17 +1,11 @@
 #ifndef DYPC_INTERFACE_LOADER_H_
 #define DYPC_INTERFACE_LOADER_H_
 
-#include "dypc.h"
-#include "model.h"
-#include "types.h"
+#include "common.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
-
-struct dypc_loader_opaque;
-typedef struct dypc_loader_opaque* dypc_loader;
-
 
 dypc_loader dypc_create_direct_model_loader(dypc_model) DYPC_INTERFACE_DEC;
 dypc_loader dypc_create_file_structure_loader(const char* filename, dypc_tree_structure_loader_type ltype) DYPC_INTERFACE_DEC;

@@ -1,27 +1,17 @@
 #ifndef DYPC_INTERFACE_DYPC_H_
 #define DYPC_INTERFACE_DYPC_H_
 
-#include "types.h"
-
-#define DYPC_INTERFACE_DEC \
-	__attribute__(( visibility("default") ))
+#include "common.h"
+#include "loader.h"
+#include "model.h"
+#include "progress.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-typedef void* dypc_progress;
+extern int dypc_error DYPC_INTERFACE_DEC;
 
-typedef struct {
-	dypc_progress (*open_progress)(const char* label, unsigned maximum, dypc_progress parent);
-	void (*set_progress)(dypc_progress id, unsigned value);
-	void (*close_progress)(dypc_progress id);
-} dypc_callbacks;
-
-
-dypc_callbacks* dypc_get_callbacks() DYPC_INTERFACE_DEC;
-
-int dypc_error() DYPC_INTERFACE_DEC;
 const char* dypc_error_message() DYPC_INTERFACE_DEC;
 
 void dypc_clear_error() DYPC_INTERFACE_DEC;

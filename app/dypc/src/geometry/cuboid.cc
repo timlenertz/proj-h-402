@@ -51,7 +51,7 @@ float cuboid::maximal_distance(glm::vec3 pt) const {
 		float d = std::abs(glm::distance(corner, pt));
 		if(d > max_d) max_d = d;
 	}
-	return max_d;	
+	return max_d;
 }
 
 

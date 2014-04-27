@@ -3,23 +3,20 @@
 
 #include <functional>
 #include <string>
-#include "interface/dypc.h"
+#include "interface/progress.h"
 
 namespace dypc {
 
 class progress_handle {
 private:
-	static dypc_callbacks* callbacks_;
 	dypc_progress progress_;
 	unsigned value_;
 public:
 	progress_handle() = default;
-	explicit progress_handle(dypc_progress p) : progress_(p), value_(0) {
-		if(! callbacks_) callbacks_ = dypc_get_callbacks();
-	}
+	explicit progress_handle(dypc_progress p) : progress_(p), value_(0) { }
 	void set(unsigned v) {
 		value_ = v;
-		callbacks_->set_progress(progress_, value_);
+		dypc_current_progress_callbacks.set(progress_, value_);
 	}
 	void increment(unsigned i = 1) {
 		set(value_ + i);
@@ -27,28 +24,30 @@ public:
 	void pulse() {
 		set(0);
 	}
+	void message(const std::string& msg) {
+		dypc_current_progress_callbacks.message(progress_, msg.c_str());
+	}
 };
 
 
 template<class Function>
 void progress(std::size_t total, const std::string& label, Function func) {
 	static thread_local dypc_progress current = nullptr;
-	auto* callbacks = dypc_get_callbacks();
-	
+
 	dypc_progress previous = current;
-	dypc_progress progress = callbacks->open_progress(label.c_str(), total, current);
+	dypc_progress progress = dypc_current_progress_callbacks.open(label.c_str(), total, current);
 	current = progress;
 	
 	try {
 		progress_handle handle(progress);
 		func(handle);
 	} catch(...) {
-		callbacks->close_progress(progress);
+		dypc_current_progress_callbacks.close(progress);
 		current = previous;
 		throw;
 	}
 	
-	callbacks->close_progress(progress);
+	dypc_current_progress_callbacks.close(progress);
 	current = previous;
 }
 

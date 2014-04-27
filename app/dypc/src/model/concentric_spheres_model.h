@@ -1,29 +1,21 @@
 #ifndef DYPC_CONCENTRIC_SPHERES_MODEL_H_
 #define DYPC_CONCENTRIC_SPHERES_MODEL_H_
 
-#include "model.h"
+#include "random_model.h"
 
 namespace dypc {
 
-class concentric_spheres_model : public model {
+class concentric_spheres_model : public random_model {
 private:
 	const float inner_;
 	const float outer_;
 	const unsigned steps_;
-	
-	std::size_t remaining_;
+
+protected:
+	point compute_point_(random_generator_t&, std::size_t n) const override;
 	
 public:
-	concentric_spheres_model(std::size_t count, float inner, float outer, unsigned steps) : inner_(inner), outer_(outer), steps_(steps), remaining_(count) {
-		number_of_points_ = count;
-		minimum_ = glm::vec3(-outer, -outer, -outer);
-		maximum_ = glm::vec3(outer, outer, outer);
-	}
-	
-	concentric_spheres_model(const concentric_spheres_model&) = default;
-	
-	void rewind() override;
-	bool next_point(point&) override;
+	concentric_spheres_model(std::size_t count, float inner, float outer, unsigned steps);
 };
 
 }

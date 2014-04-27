@@ -8,68 +8,39 @@
 
 namespace dypc {
 
-static bool check_host_little_endian() {
+static bool check_host_little_endian_() {
 	unsigned int i = 1;
 	char* c = reinterpret_cast<char*>(&i);
 	return *c;
 }
 	
-const bool ply_model::host_is_little_endian_ = check_host_little_endian();
+const bool ply_model::host_is_little_endian_ = check_host_little_endian_();
 
 ply_model::ply_model(const std::string& filename, float scale) :
-filename_(filename), file_(filename, std::ios_base::in | std::ios_base::binary), scale_(scale) {
-	if(file_.fail()) throw std::runtime_error("Could not open PLY file");
-	file_.exceptions(std::ios_base::failbit);
+filename_(filename), scale_(scale) {
 	read_header_();
-	rewind();
 }
 
-ply_model::ply_model(const ply_model& mod) :
-filename_(mod.filename_),
-file_(mod.filename_, std::ios_base::in | std::ios_base::binary),
-scale_(mod.scale_),
-little_endian_(mod.little_endian_),
-vertices_offset_(mod.vertices_offset_),
-vertices_end_(mod.vertices_end_),
-vertex_length_(mod.vertex_length_),
-has_colors_(mod.has_colors_),
-x_(mod.x_), y_(mod.y_), z_(mod.z_),
-r_(mod.r_), g_(mod.g_), b_(mod.b_) {
-	auto pos = const_cast<std::ifstream&>(mod.file_).tellg();
-	file_.seekg(pos);
+void ply_model::open_file_(std::ifstream& file) {
+	file.open(filename_, std::ios_base::in | std::ios_base::binary);
+	file.exceptions(std::ios_base::failbit);
 }
 
-void ply_model::compute_bounds_() {
-	rewind();
-	point pt; next_point(pt);
-	minimum_ = maximum_ = pt;
-	
-	progress_foreach(*this, "Finding bounds of PLY model", [&](const point& pt) {
-		if(pt.x < minimum_[0]) minimum_[0] = pt.x;
-		else if(pt.x > maximum_[0]) maximum_[0] = pt.x;
-		
-		if(pt.y < minimum_[1]) minimum_[1] = pt.y;
-		else if(pt.y > maximum_[1]) maximum_[1] = pt.y;
-
-		if(pt.z < minimum_[2]) minimum_[2] = pt.z;
-		else if(pt.z > maximum_[2]) maximum_[2] = pt.z;
-	});
-}
 
 void ply_model::read_header_() {
+	std::ifstream file; open_file_(file);
 	std::string line;
-
+	
 	vertices_offset_ = 0;
 	vertices_end_ = 0;
 	number_of_points_ = 0;
 	has_colors_ = false;
 	vertex_length_ = 0;
 
-	file_.seekg(0);
-	std::getline(file_, line);
+	std::getline(file, line);
 	if(line != "ply") throw std::runtime_error("Not PLY file");
 	
-	std::getline(file_, line);
+	std::getline(file, line);
 	if(line == "format binary_little_endian 1.0") little_endian_ = true;
 	else if(line == "format binary_big_endian 1.0") little_endian_ = false;
 	else throw std::runtime_error("Unsupported format (ASCII not supported, or other)");
@@ -77,7 +48,7 @@ void ply_model::read_header_() {
 	enum { before_vertex = 0, in_vertex, after_vertex } state = before_vertex;
 	std::size_t number_of_elements = 0;
 	for(;;) {
-		std::getline(file_, line);
+		std::getline(file, line);
 		if(line.substr(0, 8) == "comment ") continue;
 				
 		if(line.substr(0, 8) == "element ") {
@@ -94,7 +65,7 @@ void ply_model::read_header_() {
 						
 		} else if(line.substr(0, 10) == "end_header") {
 			if(state != in_vertex && state != after_vertex) throw std::runtime_error("No vertex element in PLY header");
-			vertices_offset_ += file_.tellg();
+			vertices_offset_ += file.tellg();
 			break;
 		
 		} else if(line.substr(0, 9) == "property ") {
@@ -148,28 +119,16 @@ void ply_model::read_header_() {
 	}
 	
 	vertices_end_ = vertices_offset_ + number_of_points_ * vertex_length_;
-	
+		
 	if(vertex_length_ > vertex_buffer_length_) throw std::runtime_error("Vertex element too long");
 }
 
-void ply_model::rewind() {
-	file_.seekg(vertices_offset_);
-}
 
-float ply_model::extract_flipped_endianness_float_(const unsigned char* buf) const {
-	unsigned char out[4];
-	out[0] = buf[3];
-	out[1] = buf[2];
-	out[2] = buf[1];
-	out[3] = buf[0];
-	return *reinterpret_cast<float*>(out);
-}
-
-bool ply_model::next_point(point& pt) {
-	if(file_.tellg() >= vertices_end_) return false;
+bool ply_model::read_point_(std::ifstream& file, point& pt) {
+	if(file.tellg() >= vertices_end_) return false;
 	
 	unsigned char buffer[vertex_buffer_length_];
-	file_.read((char*)buffer, vertex_length_);
+	file.read((char*)buffer, vertex_length_);
 	
 	if(host_is_little_endian_ == little_endian_) {
 		pt.x = *reinterpret_cast<float*>(buffer + x_) * scale_;
@@ -188,8 +147,23 @@ bool ply_model::next_point(point& pt) {
 	} else {
 		pt.r = pt.g = pt.b = 255;
 	}
-	
+		
 	return true;
 }
+
+
+ply_model::handle::handle(ply_model& mod) : model_(mod) {
+	model_.open_file_(file_);
+	file_.seekg(model_.vertices_offset_);
+}
+
+bool ply_model::handle::read(point& pt) {
+	return model_.read_point_(file_, pt);
+}
+
+std::unique_ptr<model::handle> ply_model::handle::clone() {
+	return model_.make_handle_();
+}
+
 
 }

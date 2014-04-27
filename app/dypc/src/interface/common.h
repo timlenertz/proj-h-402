@@ -1,7 +1,19 @@
-#ifndef DYPC_INTERFACE_TYPES_H_
-#define DYPC_INTERFACE_TYPES_H_
+#ifndef DYPC_INTERFACE_COMMON_H_
+#define DYPC_INTERFACE_COMMON_H_
 
 #include <stddef.h>
+
+#define DYPC_INTERFACE_DEC \
+	__attribute__(( visibility("default") ))
+
+struct dypc_model_opaque;
+typedef struct dypc_model_opaque* dypc_model;
+
+struct dypc_loader_opaque;
+typedef struct dypc_loader_opaque* dypc_loader;
+
+typedef void* dypc_progress;
+
 
 typedef enum {
 	dypc_cubes_structure_type = 0,

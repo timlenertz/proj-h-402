@@ -5,9 +5,7 @@
 #include "structure_create_panel.h"
 #include <string>
 #include <utility>
-#include <dypc/loader.h>
-#include <dypc/model.h>
-#include <dypc/types.h>
+#include <dypc/dypc.h>
 
 namespace dypc {
 	

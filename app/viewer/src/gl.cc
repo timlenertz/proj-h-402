@@ -1,5 +1,5 @@
 #include "gl.h"
-#include <dypc/types.h>
+#include <dypc/dypc.h>
 
 namespace dypc {
 

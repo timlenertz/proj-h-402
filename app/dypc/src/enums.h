@@ -1,7 +1,7 @@
 #ifndef DYPC_ENUMS_H_
 #define DYPC_ENUMS_H_
 
-#include "interface/types.h"
+#include "interface/common.h"
 
 namespace dypc {
 
