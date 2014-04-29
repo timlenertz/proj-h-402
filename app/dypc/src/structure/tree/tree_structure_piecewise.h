@@ -141,7 +141,7 @@ root_piece_node_(mod.enclosing_cuboid(), 0, maximal_pieces_depth) {
 
 template<class Splitter, std::size_t Levels, class PointsContainer, class PiecesSplitter>
 void tree_structure_piecewise<Splitter, Levels, PointsContainer, PiecesSplitter>::load_piece(const piece_node& p) {
-	super::load_(p.get_cuboid(), p.get_depth());
+	super::load_(p.get_cuboid());
 	assert(super::number_of_points() == p.get_number_of_points());
 }
 

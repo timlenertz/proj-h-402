@@ -4,6 +4,9 @@
 #include "../../point.h"
 #include <cassert>
 
+#include "../../debug.h"
+#include <iostream>
+
 namespace dypc {
 
 
@@ -116,6 +119,11 @@ void tree_structure_node<Splitter, Levels, PointsContainer>::add_points_with_inf
 		PointsContainer child_point_sets[Splitter::number_of_node_children];
 		for(const point& pt : all_points) {
 			std::ptrdiff_t i = Splitter::node_child_for_point(pt, cub, points_information_, depth);
+			
+			cuboid child_cuboid = Splitter::node_child_cuboid(i, cub, points_information_, depth);
+						
+			if(! child_cuboid.in_range(pt)) std::cerr << "?!!!" << std::endl;
+			
 			child_point_sets[i].push_back(pt);
 		}
 		

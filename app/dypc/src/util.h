@@ -72,6 +72,14 @@ inline float max(float a, float b) { return (a < b ? b : a); }
 inline std::ptrdiff_t min(std::ptrdiff_t a, std::ptrdiff_t b) { return (a < b ? a : b); }
 inline std::ptrdiff_t max(std::ptrdiff_t a, std::ptrdiff_t b) { return (a < b ? b : a); }
 
+constexpr float float_comparison_epsilon = 0.001;
+
+inline bool approximately_equal(float a, float b, float ep = float_comparison_epsilon) {
+	if(a == b) return true;
+	else if(a > b) return (a - b) <= ep;
+	else return (b - a) <= ep;
+}
+
 }
 
 #endif

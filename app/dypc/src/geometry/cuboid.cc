@@ -7,9 +7,9 @@ namespace dypc {
 
 
 std::array<glm::vec3, 8> cuboid::corners() const {
-	float x_range[2] = { origin_[0], origin_[0] + side_lengths_[0] };
-	float y_range[2] = { origin_[1], origin_[1] + side_lengths_[1] };
-	float z_range[2] = { origin_[2], origin_[2] + side_lengths_[2] };
+	float x_range[2] = { origin[0], extremity[0] };
+	float y_range[2] = { origin[1], extremity[1] };
+	float z_range[2] = { origin[2], extremity[2] };
 	
 	return {
 		glm::vec3(x_range[0], y_range[0], z_range[0]),
@@ -26,9 +26,9 @@ std::array<glm::vec3, 8> cuboid::corners() const {
 
 
 float cuboid::minimal_distance(glm::vec3 pt) const {
-	float x_range[2] = { origin_[0], origin_[0] + side_lengths_[0] };
-	float y_range[2] = { origin_[1], origin_[1] + side_lengths_[1] };
-	float z_range[2] = { origin_[2], origin_[2] + side_lengths_[2] };
+	float x_range[2] = { origin[0], extremity[0] };
+	float y_range[2] = { origin[1], extremity[1] };
+	float z_range[2] = { origin[2], extremity[2] };
 
 	float terms = 0;
 
@@ -56,11 +56,11 @@ float cuboid::maximal_distance(glm::vec3 pt) const {
 
 
 std::array<triangle, 12> cuboid::hull_triangles() const {
-	const auto& o = origin_;
+	const auto& o = origin;
 	glm::vec3 dx, dy, dz;
-	dx.x = side_lengths_.x;
-	dy.y = side_lengths_.y;
-	dz.z = side_lengths_.z;
+	dx.x = side_length_x();
+	dy.y = side_length_y();
+	dz.z = side_length_z();
 	
 	triangle top[2] = {
 		{ o + dx, o + dz, o },
@@ -84,7 +84,6 @@ std::array<triangle, 12> cuboid::hull_triangles() const {
 		front[0] + dz, front[1] + dz	
 	};
 }
-
 
 
 }

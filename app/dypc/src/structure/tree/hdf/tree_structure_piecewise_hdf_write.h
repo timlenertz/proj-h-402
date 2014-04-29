@@ -51,7 +51,7 @@ void write_to_hdf(const std::string& filename, tree_structure_piecewise<Splitter
 		auto hn = hdf_nodes.begin() + old_nodes_count;
 
 		for(std::ptrdiff_t i = 0; i < Splitter::number_of_node_children; ++i) hn->children[i] = 0;
-		hn->cuboid_origin = cub.origin();
+		hn->cuboid_origin = cub.origin;
 		hn->cuboid_sides = cub.side_lengths();
 		
 		if(nd.is_leaf()) {
@@ -107,7 +107,7 @@ void write_to_hdf(const std::string& filename, tree_structure_piecewise<Splitter
 			auto hn = hdf_nodes.begin() + old_nodes_count;
 			
 			const cuboid& cub = nd.get_cuboid();
-			hn->cuboid_origin = cub.origin();
+			hn->cuboid_origin = cub.origin;
 			hn->cuboid_sides = cub.side_lengths();
 			for(std::ptrdiff_t i = 0; i < Splitter::number_of_node_children; ++i) hn->children[i] = 0;
 

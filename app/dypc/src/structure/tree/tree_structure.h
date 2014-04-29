@@ -18,10 +18,10 @@
 namespace dypc {
 
 /**
- * Tree structure where the model is recursively subdivided into cuboid regions.
- * @tparam Splitter Tree structure splitter which defines how space is subdivided into cuboids.
- * @tparam Levels Mipmap levels of downsampling to generate.
- * @tparam PointsContainer Container used to store arrays of points.
+ * Tree structure where the model is recursively subdivided into cuboid regions
+ * @tparam Splitter Tree structure splitter which defines how space is subdivided into cuboids
+ * @tparam Levels Mipmap levels of downsampling to generate
+ * @tparam PointsContainer Container used to store arrays of points
  */
 template<class Splitter, std::size_t Levels, class PointsContainer = std::deque<point>>
 class tree_structure : public mipmap_structure {
@@ -38,18 +38,48 @@ protected:
 	struct no_load_t {};
 	static constexpr no_load_t no_load = no_load_t();
 
-	const std::size_t leaf_capacity_;
+	const std::size_t leaf_capacity_; ///< Maximal number of points per node
 
-	node root_;
-	cuboid root_cuboid_;
-	PointsContainer all_points_[Levels];
+	node root_; ///< The root node
+	cuboid root_cuboid_; ///< The cuboid of the root node, encloses entire model
+	PointsContainer all_points_[Levels]; ///< The ordered point sets for the different levels
 	
-	tree_structure(std::size_t leaf_cap, std::size_t dmin, float damount, downsampling_mode dmode, model& mod, no_load_t) : mipmap_structure(Levels, dmin, damount, dmode, mod), leaf_capacity_(leaf_cap) { }
+	/**
+	 * Create stub tree structure
+	 * Does not load create the tree or load any points from model
+	 * @param leaf_cap Maximal number of points per node
+	 * @param dmin Downsampling minimum output number of points
+	 * @param damount Downsampling amount
+	 * @param dmode Downsampling mode
+	 * @param mod The model, must exist during lifetime of tree structure
+	 * @param no_load Marker
+	 */
+	tree_structure(std::size_t leaf_cap, std::size_t dmin, float damount, downsampling_mode dmode, model& mod, no_load_t no_load) : mipmap_structure(Levels, dmin, damount, dmode, mod), leaf_capacity_(leaf_cap) { }
 	
+	/**
+	 * Unload model
+	 * Unloads points and destroys tree, and frees used memory
+	 */
 	void unload_();
-	void load_(const cuboid& cub, unsigned depth = 0);
+	
+	/**
+	 * Load model
+	 * Load points from model and create tree nodes. Can be restricted to cuboid region of model (for piecewise tree @see tree_structure_piecewise).
+	 * @param cub Cuboid within which to load
+	 */
+	void load_(const cuboid& cub);
 
 public:
+	/**
+	 * Create tree structure
+	 * Creates tree and loads all points. Optionally also loads all downsampled points.
+	 * @param leaf_cap Maximal number of points per node
+	 * @param dmin Downsampling minimum output number of points
+	 * @param damount Downsampling amount
+	 * @param dmode Downsampling mode
+	 * @param mod The model, must exist during lifetime of tree structure
+	 * @param load_all_downsampled If true, also load all levels of downsampled points
+	 */
 	tree_structure(std::size_t leaf_cap, std::size_t dmin, float damount, downsampling_mode dmode, model& mod, bool load_all_downsampled = true);
 	
 	std::size_t number_of_points(std::ptrdiff_t lvl = 0) const { assert(lvl >= 0 && lvl < levels); return all_points_[lvl].size(); }
@@ -87,8 +117,7 @@ void tree_structure<Splitter, Levels, PointsContainer>::unload_() {
 template<class Splitter, std::size_t Levels, class PointsContainer>
 tree_structure<Splitter, Levels, PointsContainer>::tree_structure(std::size_t leaf_cap, std::size_t dmin, float damount, downsampling_mode dmode, model& mod, bool load_all_downsampled) :
 mipmap_structure(Levels, dmin, damount, dmode, mod), leaf_capacity_(leaf_cap) {
-	root_cuboid_ = Splitter::adjust_root_cuboid(mod.enclosing_cuboid());
-	load_(root_cuboid_);
+	load_(mod.enclosing_cuboid());
 	if(load_all_downsampled) for(std::ptrdiff_t lvl = 1; lvl < Levels; ++lvl) load_downsampled_points(lvl);
 }
 
@@ -118,7 +147,7 @@ void tree_structure<Splitter, Levels, PointsContainer>::unload_downsampled_point
 
 
 template<class Splitter, std::size_t Levels, class PointsContainer>
-void tree_structure<Splitter, Levels, PointsContainer>::load_(const cuboid& cub, unsigned depth) {	
+void tree_structure<Splitter, Levels, PointsContainer>::load_(const cuboid& cub) {	
 	unload_();
 	root_cuboid_ = Splitter::adjust_root_cuboid(cub);
 	
@@ -130,7 +159,7 @@ void tree_structure<Splitter, Levels, PointsContainer>::load_(const cuboid& cub,
 	std::cout << all_points_unordered.size() << std::endl;
 
 	progress(all_points_unordered.size(), "Adding points with info to tree...", [&](progress_handle& pr) {
-		root_.add_points_with_information(all_points_unordered, root_cuboid_, depth, leaf_capacity_, pr);
+		root_.add_points_with_information(all_points_unordered, root_cuboid_, 0, leaf_capacity_, pr);
 	});
 
 	root_.move_out_points(all_points_[0]);

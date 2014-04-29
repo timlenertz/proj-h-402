@@ -7,12 +7,22 @@
 
 namespace dypc {
 
+/**
+ * Model from PLY point cloud file
+ * Reads points from "vertex" elements in PLY file.
+ * Coordinates must be \e float properties "x", "y", "z". Colors (if any) must be in \e uchar properties "r", "g", "b", or "red", "green", "blue". There may be other properties and elements in the file, but ASCII format, and "list" type properties are \e not supported.
+ * Optimized so as to allow efficient reading.
+ */
 class ply_model : public model {
 private:
+	/**
+	 * Model handle for PLY model
+	 * Contains file handle for PLY file
+	 */
 	class handle : public model::handle {
 	private:
-		ply_model& model_;
-		std::ifstream file_;
+		ply_model& model_; ///< The ply_model instance
+		std::ifstream file_; ///< File handle
 	
 	public:
 		explicit handle(ply_model&);
@@ -23,26 +33,25 @@ private:
 		std::unique_ptr<model::handle> clone() override;
 	};
 	
-	static constexpr std::size_t vertex_buffer_length_ = 256;
-	static const bool host_is_little_endian_;
+	static const bool host_is_little_endian_; ///< Whether host is little-endian
 
-	std::string filename_;
-	const float scale_;
+	std::string filename_; ///< Path to PLY file
+	const float scale_; ///< Amount by which to scale point coordinates
 	
-	bool little_endian_;
-	std::size_t vertices_offset_;
-	std::size_t vertices_end_;
-	std::size_t vertex_length_;
-	bool has_colors_;
-	std::ptrdiff_t x_;
-	std::ptrdiff_t y_;
-	std::ptrdiff_t z_;
-	std::ptrdiff_t r_;
-	std::ptrdiff_t g_;
-	std::ptrdiff_t b_;
+	bool little_endian_; ///< Whether PLY file is encoded little endian (or big endian)
+	std::size_t vertices_offset_; ///< File offset where vertices list starts
+	std::size_t vertices_end_; ///< File offset where vertices list ends
+	std::size_t vertex_length_; ///< Length ot a vertex element in file
+	bool has_colors_; ///< Whether r_, b_, g_ are defined
+	std::ptrdiff_t x_; ///< Offset of x_ property in vertex element
+	std::ptrdiff_t y_; ///< Offset of y_ property in vertex element
+	std::ptrdiff_t z_; ///< Offset of z_ property in vertex element
+	std::ptrdiff_t r_; ///< Offset of r_ property in vertex element, if has_colors
+	std::ptrdiff_t g_; ///< Offset of g_ property in vertex element, if has_colors
+	std::ptrdiff_t b_; ///< Offset of b_ property in vertex element, if has_colors
 	
 
-	void open_file_(std::ifstream&);
+	void open_file_(std::ifstream&); ///< 
 	void read_header_();
 	std::size_t read_points_(std::ifstream& file, point* pts, std::size_t n);
 

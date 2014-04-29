@@ -6,8 +6,6 @@
 #include "ply_model.h"
 #include "../progress.h"
 
-#include <iostream>
-
 namespace dypc {
 
 static bool check_host_little_endian_() {
@@ -121,8 +119,6 @@ void ply_model::read_header_() {
 	}
 	
 	vertices_end_ = vertices_offset_ + number_of_points_ * vertex_length_;
-		
-	if(vertex_length_ > vertex_buffer_length_) throw std::runtime_error("Vertex element too long");
 }
 
 
@@ -160,7 +156,7 @@ std::size_t ply_model::read_points_(std::ifstream& file, point* pts, std::size_t
 			pt.r = pt.g = pt.b = 255;
 		}
 	}
-	std::cout << "read "<< n << std::endl;
+
 	return n;
 }
 

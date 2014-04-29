@@ -2,12 +2,19 @@
 #include "../progress.h"
 #include <cstring>
 
+#include "../debug.h"
 #include <iostream>
 
 namespace dypc {
 
 cuboid model::bounding_cuboid(float ep) {
 	float two_ep = ep + ep;
+	
+	std::cout << cuboid(
+		glm::vec3(x_minimum() - ep, y_minimum() - ep, z_minimum() - ep),
+		glm::vec3(x_range() + two_ep, y_range() + two_ep, z_range() + two_ep)
+	) << std::endl;
+	
 	return cuboid(
 		glm::vec3(x_minimum() - ep, y_minimum() - ep, z_minimum() - ep),
 		glm::vec3(x_range() + two_ep, y_range() + two_ep, z_range() + two_ep)
@@ -18,6 +25,7 @@ void model::find_bounds_() {
 	auto it = begin();
 	auto it_end = end();
 	
+	// Use first point's coordinates as initial min/max
 	minimum_ = maximum_ = *it;
 	
 	progress_foreach(it, it_end, number_of_points(), "Finding bounds of model", [&](const point& pt) {
@@ -56,8 +64,8 @@ handle_(it.handle_.release()), buffer_(it.buffer_), chunk_size_(it.chunk_size_),
 
 
 model::iterator& model::iterator::operator=(const iterator& it) {
-	if(it.handle_) handle_ = std::move(it.handle_->clone());
-	else handle_.release();
+	if(it.handle_) handle_ = std::move(it.handle_->clone()); // it is not end; copy handle
+	else handle_.release(); // it is end iterator
 
 	if(it.buffer_) {
 		if(! buffer_) buffer_ = new point[maximal_chunk_size_];

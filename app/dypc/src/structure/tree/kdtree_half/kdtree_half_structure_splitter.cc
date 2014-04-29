@@ -15,15 +15,17 @@ std::ptrdiff_t kdtree_half_structure_splitter::node_child_for_point(const point&
 
 
 cuboid kdtree_half_structure_splitter::node_child_cuboid(const std::ptrdiff_t idx, const cuboid& cub, const node_points_information& info, unsigned depth) {
-	glm::vec3 origin = cub.origin();
-	glm::vec3 side_lengths = cub.side_lengths();
-
 	unsigned dimension = depth % 3;
-	auto c = cub.center();
-	if(idx) { origin[dimension] = c[dimension]; side_lengths[dimension] -= c[dimension] - origin[dimension]; }
-	else { side_lengths[dimension] = c[dimension] - origin[dimension]; }
-
-	return cuboid(origin, side_lengths);
+	float c = cub.center()[dimension];
+	if(idx) {
+		glm::vec3 origin = cub.origin;
+		origin[dimension] = c;
+		return make_cuboid(origin, cub.extremity);
+	} else {
+		glm::vec3 extremity = cub.extremity;
+		extremity[dimension] = c;
+		return make_cuboid(cub.origin, extremity);
+	}
 }
 
 }

@@ -23,8 +23,8 @@ bool frustum::contains_point(const glm::vec3& pt) const {
 }
 
 frustum::intersection_t frustum::contains_cuboid(const cuboid& cub) const {
-	auto a = cub.origin();
-	auto b = cub.extremity();
+	const auto& a = cub.origin;
+	const auto& b = cub.extremity;
 	std::size_t c, c2 = 0;
 	for(const plane& p : planes) {
 		c = 0;

@@ -13,14 +13,16 @@ std::ptrdiff_t kdtree_structure_splitter::node_child_for_point(const point& pt, 
 
 
 cuboid kdtree_structure_splitter::node_child_cuboid(const std::ptrdiff_t idx, const cuboid& cub, const node_points_information& info, unsigned depth) {
-	glm::vec3 origin = cub.origin();
-	glm::vec3 side_lengths = cub.side_lengths();
-
 	unsigned dimension = depth % 3;
-	if(idx) { origin[dimension] = info.split_plane; side_lengths[dimension] -= info.split_plane - origin[dimension]; }
-	else { side_lengths[dimension] = info.split_plane - origin[dimension]; }
-
-	return cuboid(origin, side_lengths);
+	if(idx) {
+		glm::vec3 origin = cub.origin;
+		origin[dimension] = info.split_plane;
+		return make_cuboid(origin, cub.extremity);
+	} else {
+		glm::vec3 extremity = cub.extremity;
+		extremity[dimension] = info.split_plane;
+		return make_cuboid(cub.origin, extremity);
+	}
 }
 
 

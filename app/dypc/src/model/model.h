@@ -9,25 +9,34 @@
 #include "../point.h"
 #include "../geometry/cuboid.h"
 
-#include <iostream>
-
 namespace dypc {
 
 /**
  * Model consisting of point cloud
  * The model object does not store the point cloud data in memory, but provides an interface for loading it from its source. This may for example be a PLY file (@see ply_model), or a generator which outputs random points that form a given shape (@see torus_model).
  * Upon request, the bounds of the point cloud are computed (@see compute_bounds_). This may involve scanning through the entire file.
+ * The class has an iterator interface (@see begin) for extracting points from the model. The iterators are independent from each other, i.e. two iterators pointing at different locations in the stream can be used at the same time. This allows for multithreaded processing.
  * 
  */
 class model {
 private:
+	/**
+	 * Check whether bounds have been computed
+	 */
 	bool has_bounds_() const {
 		return (minimum_ != maximum_);
 	}
 	
+	/**
+	 * Scan through the model to find bounds
+	 */
 	void find_bounds_();
 		
 protected:
+	/**
+	 * Handle for reading from model at particular location
+	 * Multiple handles pointing at different locations in the point stream can coexist. Can be implemented by subclass for example using file handle. Used internally by iterator.
+	 */
 	class handle {
 	protected:
 		handle() = default;
@@ -35,21 +44,45 @@ protected:
 		handle& operator=(const handle&) = delete;
 	public:
 		virtual ~handle() { }
+		
+		/**
+		 * Read points from current location
+		 * Subclass may read less points than requested, and this must not necessarily mean the end of file was reached. Must not be called to read beyond end of file.
+		 * @param buffer Output points. Buffer must be able to hold at least \a n points
+		 * @param n Number of points to read
+		 * @return Number of points that were actually read. Lower of equal to \a
+		 */
 		virtual std::size_t read(point* buffer, std::size_t n) = 0;
+		
+		/**
+		 * Check whether end of file was reached
+		 */
 		virtual bool eof() = 0;
+		
+		/**
+		 * Create new handle for same model, pointing at same location
+		 */
 		virtual std::unique_ptr<handle> clone() = 0;
 	};
 
-	std::size_t number_of_points_ = 0;
-	mutable glm::vec3 minimum_;
-	mutable glm::vec3 maximum_;
+	std::size_t number_of_points_ = 0; ///< Number of points in the model
+	mutable glm::vec3 minimum_; ///< If non-zero, coordinates of lower bound
+	mutable glm::vec3 maximum_; ///< If non-zero, coordinates of higher bound
 	
-	virtual std::unique_ptr<handle> make_handle_() = 0;
+	virtual std::unique_ptr<handle> make_handle_() = 0; ///< Create handle for particular subclass
 	
 public:
 	class iterator;
 
+	/**
+	 * Get iterator to beginning of model
+	 * Multiple iterators of the same model can be used and they remain all indendent. (I.e. they can all point to different locations in the model/file)
+	 */
 	iterator begin();
+	
+	/**
+	 * Get iterator to end of model
+	 */
 	iterator end();
 	
 	virtual ~model() { }
@@ -100,15 +133,22 @@ public:
 };
 
 
+/**
+ * Input iterator for reading points from model
+ * Uses internal buffer with preloaded points, in order to improve efficiency.
+ */
 class model::iterator : public std::iterator<std::input_iterator_tag, point> {
 private:
-	static constexpr std::size_t maximal_chunk_size_ = 1024;
+	static constexpr std::size_t maximal_chunk_size_ = 1024; ///< Capacity of internal buffer
 
-	std::unique_ptr<handle> handle_;
-	point* buffer_ = nullptr;
-	std::size_t chunk_size_ = 0;
-	std::ptrdiff_t point_ = 0;
+	std::unique_ptr<handle> handle_; ///< Model handle
+	point* buffer_ = nullptr; ///< Internal buffer
+	std::size_t chunk_size_ = 0; ///< Size of chunk in internal buffer
+	std::ptrdiff_t point_ = 0; ///< Current location in internal buffer
 	
+	/**
+	 * Read next chunk from model handle into buffer
+	 */
 	void read_next_chunk_();
 	
 public:
