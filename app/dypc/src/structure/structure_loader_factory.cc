@@ -16,7 +16,6 @@
 
 #include "tree/tree_structure_simple_loader.h"
 #include "tree/tree_structure_ordered_loader.h"
-#include "tree/tree_structure_sorted_loader.h"
 #include "tree/tree_structure_memory_source.h"
 #include "tree/tree_structure_piecewise.h"
 #include "tree/hdf/tree_structure_hdf_source.h"
@@ -114,7 +113,6 @@ static tree_structure_loader* create_tree_structure_loader_(tree_structure_loade
 	switch(ltype) {
 		case tree_structure_loader_type::simple: return new tree_structure_simple_loader;
 		case tree_structure_loader_type::ordered: return new tree_structure_ordered_loader;
-		case tree_structure_loader_type::sorted: return new tree_structure_sorted_loader;
 	}
 	throw std::invalid_argument("Invalid tree structure loader");
 }

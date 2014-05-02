@@ -8,7 +8,7 @@
 
 namespace dypc {
 
-template<class Splitter, std::size_t Levels, class PointsContainer = std::deque<point>, class PiecesSplitter = kdtree_half_structure_splitter>
+template<class Splitter, std::size_t Levels, class PointsContainer = std::vector<point>, class PiecesSplitter = kdtree_half_structure_splitter>
 class tree_structure_piecewise : public tree_structure<Splitter, Levels, PointsContainer> {
 	static_assert(Splitter::number_of_node_children >= PiecesSplitter::number_of_node_children, "Pieces splitter cannot have more children than nodes splitter");
 	
@@ -63,7 +63,10 @@ private:
 	std::ptrdiff_t data_offset_;
 	
 	void delete_children_() {
-		for(auto child : children_) if(child) delete child;
+		for(auto& child : children_) if(child) {
+			child = nullptr;
+			delete child;
+		}
 	}
 
 public:

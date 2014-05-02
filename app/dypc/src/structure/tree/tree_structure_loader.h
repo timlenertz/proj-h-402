@@ -3,14 +3,14 @@
 
 #include "tree_structure.h"
 #include "tree_structure_source.h"
-#include "../structure_loader.h"
+#include "../../loader/downsampling_loader.h"
 #include "../../enums.h"
 #include <memory>
 #include <utility>
 
 namespace dypc {
 	
-class tree_structure_loader : public structure_loader {	
+class tree_structure_loader : public downsampling_loader {	
 private:
 	std::size_t minimal_number_of_points_for_split_ = 1000;
 	cuboid_distance_mode downsampling_node_distance_ = cuboid_distance_mode::center;

@@ -40,7 +40,7 @@ public:
 	std::string loader_name() const override { return "Cubes Structure SQLite Loader"; }
 
 protected:
-	std::size_t extract_points_(point_buffer_t points, std::size_t capacity, const loader::request_t&);
+	std::size_t compute_downsampled_points_(point_buffer_t points, std::size_t capacity, const loader::request_t&);
 
 public:
 	std::size_t memory_size() const override;

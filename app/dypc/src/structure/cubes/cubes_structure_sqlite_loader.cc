@@ -98,7 +98,7 @@ void cubes_structure_sqlite_loader::create_tables_(sqlite_database& database) {
 	);
 }
 
-std::size_t cubes_structure_sqlite_loader::extract_points_(point_buffer_t points, std::size_t capacity, const loader::request_t& req) {
+std::size_t cubes_structure_sqlite_loader::compute_downsampled_points_(point_buffer_t points, std::size_t capacity, const loader::request_t& req) {
 	std::size_t remaining = capacity;
 	std::size_t total = 0;
 	point_buffer_t buf = points;

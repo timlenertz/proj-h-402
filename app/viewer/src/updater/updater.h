@@ -1,7 +1,7 @@
 #ifndef DYPC_UPDATER_H_
 #define DYPC_UPDATER_H_
 
-#include <dypc/loader.h>
+#include <dypc/dypc.h>
 
 #include <stdexcept>
 #include <thread>
@@ -61,6 +61,7 @@ public:
 	bool get_check_condition() const { return check_condition_; }
 
 	void set_request(const glm::vec3& position, const glm::vec3& velocity, const glm::quat& orientation, const glm::mat4& view_projection_matrix);
+	const dypc_loader_request& get_request() const { return next_request_; }
 	
 	bool new_points_available(std::size_t&) const;
 	bool is_finished() const { return finished_; }

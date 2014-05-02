@@ -3,7 +3,7 @@
 
 namespace dypc {
 
-std::size_t cubes_mipmap_structure_memory_loader::extract_points_(point_buffer_t points, std::size_t capacity, const loader::request_t& req) {
+std::size_t cubes_mipmap_structure_memory_loader::compute_downsampled_points_(point_buffer_t points, std::size_t capacity, const loader::request_t& req) {
 	std::size_t remaining = capacity;
 	std::size_t total = 0;
 

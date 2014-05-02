@@ -2,13 +2,13 @@
 #define DYPC_CUBES_MIPMAP_STRUCTURE_LOADER_H_
 
 #include "cubes_mipmap_structure.h"
-#include "../structure_loader.h"
+#include "../../loader/downsampling_loader.h"
 #include "../../geometry/cuboid.h"
 
 
 namespace dypc {
 
-class cubes_mipmap_structure_loader : public structure_loader {
+class cubes_mipmap_structure_loader : public downsampling_loader {
 protected:
 	bool frustum_culling_ = true;
 		

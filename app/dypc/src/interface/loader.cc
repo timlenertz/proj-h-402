@@ -18,6 +18,7 @@
 #include <glm/gtx/quaternion.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
+#include <fstream>
 
 
 static dypc::loader::request_t convert_loader_request_(const dypc_loader_request& req) {
@@ -169,4 +170,32 @@ dypc_bool dypc_loader_should_compute_points(dypc_loader l, const dypc_loader_req
 	dypc::loader* ld = (dypc::loader*)l;
 	bool r = ld->should_compute_points(convert_loader_request_(*request), convert_loader_request_(*previous_request), std::chrono::milliseconds(dtime));
 	DYPC_INTERFACE_END_RETURN(r, false);
+}
+
+dypc_size dypc_loader_memory_size(dypc_loader l) {
+	DYPC_INTERFACE_BEGIN;
+	dypc::loader* ld = (dypc::loader*)l;
+	DYPC_INTERFACE_END_RETURN(ld->memory_size(), 0);
+}
+
+dypc_size dypc_loader_rom_size(dypc_loader l) {
+	DYPC_INTERFACE_BEGIN;
+	dypc::loader* ld = (dypc::loader*)l;
+	DYPC_INTERFACE_END_RETURN(ld->rom_size(), 0);
+}
+
+dypc_size dypc_loader_number_of_points(dypc_loader l) {
+	DYPC_INTERFACE_BEGIN;
+	dypc::loader* ld = (dypc::loader*)l;
+	DYPC_INTERFACE_END_RETURN(ld->number_of_points(), 0);
+}
+
+
+void dypc_generate_setting_output_statistics(dypc_loader l, const char* filename, dypc_size capacity, const dypc_loader_request* request, float min_setting, float max_setting, float step) {
+	DYPC_INTERFACE_BEGIN;
+	dypc::loader* ld1 = (dypc::loader*)l;
+	dypc::downsampling_loader& ld = dynamic_cast<dypc::downsampling_loader&>(*ld1);
+	std::ofstream output(filename);
+	ld.generate_setting_output_statistics(output, capacity, convert_loader_request_(*request), min_setting, max_setting, step);
+	DYPC_INTERFACE_END;
 }

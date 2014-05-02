@@ -7,6 +7,7 @@
 namespace dypc {
 
 cuboid octree_structure_splitter::adjust_root_cuboid(const cuboid& cub) {
+	// Generate larger cube, that encloses the cuboid. The cuboid will be at the center of the cube.
 	float side_length = std::max({ cub.side_length_x(), cub.side_length_y(), cub.side_length_z() });
 	glm::vec3 origin = cub.origin;
 	origin[0] -= (side_length - cub.side_length_x())/2;
@@ -15,7 +16,8 @@ cuboid octree_structure_splitter::adjust_root_cuboid(const cuboid& cub) {
 	return cuboid(origin, side_length);
 }
 
-std::ptrdiff_t octree_structure_splitter::node_child_for_point(const point& pt, const cuboid& cub, const node_points_information& info, unsigned depth) {	
+std::ptrdiff_t octree_structure_splitter::node_child_for_point(const point& pt, const cuboid& cub, const node_points_information& info, unsigned depth) {
+	// Child node index is determined by position of points relative to center of this cube
 	assert(cub.is_cube());
 	assert(cub.in_range(pt));
 	
@@ -29,6 +31,9 @@ std::ptrdiff_t octree_structure_splitter::node_child_for_point(const point& pt, 
 }
 
 cuboid octree_structure_splitter::node_child_cuboid(const std::ptrdiff_t idx, const cuboid& cub, const node_points_information& info, unsigned depth) {
+	// Generate child cuboid/cube.
+	// Important: The cuboids are stored as origin+extremity vectors. This procedure does not change the origin, or does not change the extremity floating point value, and so no errors due to floating point imprecision can occur on the borders of the cube. That is, the cube will always contain the points when node_child_for_point says they do.
+	
 	assert(cub.is_cube());
 
 	glm::vec3 c = cub.center();

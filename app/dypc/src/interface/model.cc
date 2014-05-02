@@ -29,22 +29,25 @@ dypc_model dypc_create_torus_model(dypc_size count, float r0, float r1) {
 	DYPC_INTERFACE_END_RETURN((dypc_model)mod, nullptr);
 }
 
-void dypc_delete_model(dypc_model mod) {
+void dypc_delete_model(dypc_model m) {
 	DYPC_INTERFACE_BEGIN;
-	delete (dypc::model*)(mod);
+	delete (dypc::model*)(m);
 	DYPC_INTERFACE_END;
 }
 
 void dypc_model_get_bounds(dypc_model m, float* x, float* y, float* z) {
 	DYPC_INTERFACE_BEGIN;
 	dypc::model* mod = (dypc::model*)(m);
-	x[0] = mod->x_minimum();
-	x[1] = mod->x_maximum();
-	y[0] = mod->y_minimum();
-	y[1] = mod->y_maximum();
-	z[0] = mod->z_minimum();
-	z[1] = mod->z_maximum();
+	x[0] = mod->x_minimum(); x[1] = mod->x_maximum();
+	y[0] = mod->y_minimum(); y[1] = mod->y_maximum();
+	z[0] = mod->z_minimum(); z[1] = mod->z_maximum();
 	DYPC_INTERFACE_END;
+}
+
+dypc_size dypc_model_number_of_points(dypc_model m) {
+	DYPC_INTERFACE_BEGIN;
+	dypc::model* mod = (dypc::model*)(m);
+	DYPC_INTERFACE_END_RETURN(mod->number_of_points(), 0);
 }
 
 size_t dypc_uniform_downsampling_side_length_statistics(char* output, size_t output_max, dypc_model m, float max_side, float step) {

@@ -2,6 +2,7 @@
 
 #include "../renderer/renderer.h"
 #include "renderer_canvas.h"
+#include "setting_output_statistics.h"
 
 #include "../ui/model_create/model_create.h"
 #include "../ui/structure_create/structure_create.h"
@@ -59,7 +60,7 @@ void main_frame::statistics_item_update_(const statistics::table_t& table, const
 
 
 void main_frame::special_statistic_updated_(const statistics::value& val) {	
-	wxColour color_red(230, 0, 0);
+/*	wxColour color_red(230, 0, 0);
 	wxColour color_yellow(213, 166, 8);
 	wxColour color_green(26, 175, 35);
 		
@@ -108,12 +109,12 @@ void main_frame::special_statistic_updated_(const statistics::value& val) {
 		if(percent >= 95) points_filter_percent->SetForegroundColour(color_red);
 		else if(percent > 80) points_filter_percent->SetForegroundColour(color_yellow);
 		else points_filter_percent->SetForegroundColour(color_green);
-	}
+	}*/
 }
 
 
 void main_frame::on_statistics_updated_(wxCommandEvent& event) {	
-	void* client_data = event.GetClientData();
+/*	void* client_data = event.GetClientData();
 	const auto& table = statistics::table();
 
 	if(client_data == nullptr) {
@@ -147,7 +148,7 @@ void main_frame::on_statistics_updated_(wxCommandEvent& event) {
 		}
 	}
 	
-	short_statistics_sizer->RecalcSizes();
+	short_statistics_sizer->RecalcSizes();*/
 }
 
 
@@ -299,6 +300,13 @@ void main_frame::on_renderer_capacity_config_(wxCommandEvent& event) {
 		renderer& rd = get_renderer_();
 		rd.set_point_capacity(capacity);
 	}
+}
+
+void main_frame::on_setting_points_stat_(wxCommandEvent& event) {
+	get_renderer_().get_updater().access_loader([&](dypc_loader ld) {
+		setting_output_statistics dialog(get_renderer_().get_updater().get_request(), ld, this);
+	dialog.ShowModal();		
+	});
 }
 
 }

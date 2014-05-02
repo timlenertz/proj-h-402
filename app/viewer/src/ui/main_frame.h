@@ -39,6 +39,7 @@ protected:
 	void on_loader_config_(wxSpinEvent& event) override { on_loader_config_(); }
 	void on_loader_config_(wxCommandEvent& event) override { on_loader_config_(); }
 	void on_loader_update_now_(wxCommandEvent& event) override;
+	void on_setting_points_stat_(wxCommandEvent& event) override;
 
 public:
 	main_frame(wxWindow* parent = nullptr, wxWindowID id = wxID_ANY);

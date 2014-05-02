@@ -15,7 +15,7 @@ namespace dypc {
 class frustum;
 
 /**
- * Axis-aligned cuboid in three-dimensional space
+ * Axis-aligned cuboid in three-dimensional space.
  */
 class cuboid {
 public:
@@ -23,22 +23,22 @@ public:
 	glm::vec3 extremity;
 	
 	/**
-	 * Generate stub cuboid
+	 * Generate stub cuboid.
 	 */
 	cuboid() : origin(0), extremity(0) { }
 	
 	/**
-	 * Generate axis-aligned cuboid with given origin point and side lengths
+	 * Generate axis-aligned cuboid with given origin point and side lengths.
 	 */
 	cuboid(glm::vec3 o, glm::vec3 side_lengths) : origin(o), extremity(o + side_lengths) { }
 	
 	/**
-	 * Generate axis-aligned cube with given origin point and side length
+	 * Generate axis-aligned cube with given origin point and side length.
 	 */
 	cuboid(glm::vec3 o, float side_length) : cuboid(o, glm::vec3(side_length, side_length, side_length)) { }
 
 	/**
-	 * Check whether point is inside the cuboid
+	 * Check whether point is inside the cuboid.
 	 * Coordinates must be greater of equal to origin, and strictly lower than extremity.
 	 * Bounds can be extended by small value epsilon to avoid missing points near border due to floating point imprecision.
 	 * @param pt Point to check.
@@ -50,7 +50,7 @@ public:
 	}
 	
 	/**
-	 * Check whether point is inside the cuboid
+	 * Check whether point is inside the cuboid.
 	 * Coordinates must be greater of equal to origin, and strictly lower than extremity.
 	 * Bounds can be extended by small value epsilon to avoid missing points near border due to floating point imprecision.
 	 * @param pt Point to check.
@@ -63,65 +63,65 @@ public:
 	}
 	
 	/**
-	 * Get 8 corner points of the cuboid
+	 * Get 8 corner points of the cuboid.
 	 */
 	std::array<glm::vec3, 8> corners() const;
 	
 	/**
-	 * Get center point of the cuboid
+	 * Get center point of the cuboid.
 	 */
 	glm::vec3 center() const { return 0.5f*(origin + extremity); }
 	
 	/**
-	 * Compute minimal distance from point to the cuboid
+	 * Compute minimal distance from point to the cuboid.
 	 * @param pt The point. May be inside or outside the cuboid.
 	 * @return Minimal distance from pt to a point on the cuboid's sides.
 	 */
 	float minimal_distance(glm::vec3 pt) const;
 
 	/**
-	 * Compute maximal distance from point to the cuboid
+	 * Compute maximal distance from point to the cuboid.
 	 * @param pt The point. May be inside or outside the cuboid.
 	 * @return Maximal distance from pt to a point on the cuboid's sides.
 	 */
 	float maximal_distance(glm::vec3 pt) const;
 		
 	/**
-	 * Get side length in X direction
+	 * Get side length in X direction.
 	 */
 	float side_length_x() const { return side_lengths()[0]; }
 	
 	/**
-	 * Get side length in Y direction
+	 * Get side length in Y direction.
 	 */
 	float side_length_y() const { return side_lengths()[1]; }
 	
 	/**
-	 * Get side length in Z direction
+	 * Get side length in Z direction.
 	 */
 	float side_length_z() const { return side_lengths()[2]; }
 	
 	/**
-	 * Get 3 side lengths of cuboid
+	 * Get 3 side lengths of cuboid.
 	 */
 	glm::vec3 side_lengths() const { return extremity - origin; }
 	
 	/**
-	 * Check whether the cuboid is cubic 
-	 * True if all side lengths are the same
-	 * @param ep Floating point comparation tolerance
+	 * Check whether the cuboid is cubic.
+	 * True if all side lengths are the same.
+	 * @param ep Floating point comparation tolerance.
 	 */
 	bool is_cube(float ep = 0.001) const {
 		return approximately_equal(side_length_x(), side_length_y()) && approximately_equal(side_length_y(), side_length_z());
 	}
 	
 	/**
-	 * Get the area of the cuboid
+	 * Get the area of the cuboid.
 	 */
 	float area() const { return side_length_x() * side_length_y() * side_length_z(); }
 	
 	/**
-	 * Get triangluation of cuboid surfaces
+	 * Get triangluation of cuboid surfaces.
 	 * Can be used to render cuboid.
 	 * @return 12 triangles that compose the cuboid.
 	 */

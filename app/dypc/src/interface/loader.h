@@ -28,6 +28,11 @@ double dypc_loader_get_setting(dypc_loader, const char* key) DYPC_INTERFACE_DEC;
 void dypc_loader_compute_points(dypc_loader, const dypc_loader_request* request, dypc_points_buffer buffer, dypc_size* count) DYPC_INTERFACE_DEC;
 dypc_bool dypc_loader_should_compute_points(dypc_loader, const dypc_loader_request* request, const dypc_loader_request* previous_request, dypc_milliseconds dtime) DYPC_INTERFACE_DEC;
 
+dypc_size dypc_loader_memory_size(dypc_loader) DYPC_INTERFACE_DEC;
+dypc_size dypc_loader_rom_size(dypc_loader) DYPC_INTERFACE_DEC;
+dypc_size dypc_loader_number_of_points(dypc_loader) DYPC_INTERFACE_DEC;
+
+void dypc_generate_setting_output_statistics(dypc_loader l, const char* filename, dypc_size capacity, const dypc_loader_request* request, float min_setting, float max_setting, float step) DYPC_INTERFACE_DEC;
 
 #ifdef __cplusplus
 }

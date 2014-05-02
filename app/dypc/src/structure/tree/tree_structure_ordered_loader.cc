@@ -42,7 +42,7 @@ std::size_t tree_structure_ordered_loader::extract_node_points_(point_buffer_t p
 
 	
 
-std::size_t tree_structure_ordered_loader::extract_points_(point_buffer_t points, std::size_t capacity, const loader::request_t& req) {
+std::size_t tree_structure_ordered_loader::compute_downsampled_points_(point_buffer_t points, std::size_t capacity, const loader::request_t& req) {
 	bool outside_root = false;
 	while(!outside_root && !position_path_.back()->node_cuboid().in_range(req.position)) {
 		if(position_path_.size() > 1) position_path_.pop_back();

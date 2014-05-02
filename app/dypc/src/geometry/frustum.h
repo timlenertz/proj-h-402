@@ -12,18 +12,18 @@ namespace dypc {
 class cuboid;
 
 /**
- * Viewing frustum formed by clipped pyramid in three-dimensional space
+ * Viewing frustum formed by clipped pyramid in three-dimensional space.
  * Defined by its 6 planes.
  */
 class frustum {
 public:
 	/**
-	 * Possible intersection types of an object with the frustum
+	 * Possible intersection types of an object with the frustum.
 	 */
 	enum intersection_t { outside_frustum = 0, inside_frustum, partially_inside_frustum };
 
 	/**
-	 * Identifiers for the 6 planes
+	 * Identifiers for the 6 planes.
 	 */
 	enum {
 		near_plane = 0,
@@ -35,27 +35,27 @@ public:
 	};
 	
 	/**
-	 * The 6 planes that define the frustum
+	 * The 6 planes that define the frustum.
 	 */
 	plane planes[6];
 	
 	/**
-	 * Generate stub frustum
+	 * Generate stub frustum.
 	 */
-	frustum() { }
+	frustum() = default;
 	
 	/**
-	 * Generate frustum from 4x4 projection matrix
+	 * Generate frustum from 4x4 projection matrix.
 	 */
 	explicit frustum(const glm::mat4& matrix);
 	
 	/**
-	 * Check if point inside frustum
+	 * Check if point inside frustum.
 	 */
 	bool contains_point(const glm::vec3& pt) const;
 	
 	/**
-	 * Check if cuboid inside, partially inside of outside frustum
+	 * Check if cuboid inside, partially inside of outside frustum.
 	 * Also works correctly when the frustum is completely inside the frustum.
 	 * However, can return incorrect results in a small region behind the frustum due to omission of an additional test.
 	 */

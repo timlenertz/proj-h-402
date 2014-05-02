@@ -113,7 +113,7 @@ cubes_mipmap_structure_hdf_loader::cubes_mipmap_structure_hdf_loader(const std::
 }
 
 
-std::size_t cubes_mipmap_structure_hdf_loader::extract_points_(point_buffer_t points, std::size_t capacity, const loader::request_t& req) {
+std::size_t cubes_mipmap_structure_hdf_loader::compute_downsampled_points_(point_buffer_t points, std::size_t capacity, const loader::request_t& req) {
 	std::size_t remaining = capacity;
 	std::size_t total = 0;
 	point_buffer_t buf = points;	

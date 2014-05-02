@@ -35,15 +35,5 @@ std::string float_to_string(double f, std::size_t decimal_digits) {
 	return std::string(decimal);
 }
 
-
-std::string file_formats_to_wildcard(const std::map<std::string, std::string>& file_formats) {
-	std::string wildcard;
-	for(const auto& p : file_formats) {
-		if(wildcard != "") wildcard += "|";
-		wildcard += p.second + " (*." + p.first + ")|*." + p.first;
-	}
-	return wildcard;
-}
-
 }
 

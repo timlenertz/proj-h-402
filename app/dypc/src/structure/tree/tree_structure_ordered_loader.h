@@ -20,7 +20,7 @@ protected:
 	virtual std::size_t extract_node_points_(point_buffer_t points, std::size_t capacity, const loader::request_t& req, const tree_structure_source::node& nd, const source_node* skip = nullptr) const;
 	
 	void updated_source_() override;
-	std::size_t extract_points_(point_buffer_t points, std::size_t capacity, const loader::request_t& req) override;
+	std::size_t compute_downsampled_points_(point_buffer_t points, std::size_t capacity, const loader::request_t& req) override;
 };
 
 

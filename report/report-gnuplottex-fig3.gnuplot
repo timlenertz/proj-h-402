@@ -13,12 +13,13 @@ set xrange [0:maxd]
 set yrange [0:levels + 3]
 unset autoscale
 
-start_distance(s) = s**xp
-step_distance(s) = s
+start_distance(b) = b**xp
+step_distance(b) = b
 constrain_lvl(l) = (l > levels - 1) ? (levels - 1) : l
+b(s) = 100 / s
 
 l(d, s) = constrain_lvl( \
-(d > start_distance(s)) ? ((d - start_distance(s)) / step_distance(s)) : 0 \
+(d > start_distance(b(s))) ? ((d - start_distance(b(s))) / step_distance(b(s))) : 0 \
 )
 
 plot [d=0:maxd] \

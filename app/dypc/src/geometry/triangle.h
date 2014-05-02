@@ -6,12 +6,12 @@
 namespace dypc {
 
 /**
- * Triangle in three-dimensional space
+ * Triangle in three-dimensional space.
  * Implements operators for translations.
  */
 class triangle {
 public:
-	glm::vec3 a, b, c; ///< The points a, b, c that define the triangle
+	glm::vec3 a, b, c; ///< The points a, b, c that define the triangle.
 	
 	triangle() = default;
 	triangle(const triangle&) = default;

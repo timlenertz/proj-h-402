@@ -5,6 +5,9 @@
 
 namespace dypc {
 
+/**
+ * Splitter for Octree structure.
+ */
 class octree_structure_splitter : public tree_structure_splitter {
 public:	
 	static constexpr std::size_t number_of_node_children = 8;

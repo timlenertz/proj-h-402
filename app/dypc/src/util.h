@@ -59,21 +59,28 @@ std::string time_to_string(std::chrono::milliseconds t);
  */
 std::string float_to_string(double f, std::size_t decimal_digits = 2);
 
-std::string file_formats_to_wildcard(const std::map<std::string, std::string>& file_formats);
+
+
+template<class Number> inline Number sq(Number n) { return n * n; } ///< Get square of number.
+
+inline float min(float a, float b) { return (a < b ? a : b); } ///< Get minimum of two values.
+inline float max(float a, float b) { return (a < b ? b : a); } ///< Get maximum of two values.
+
+inline std::ptrdiff_t min(std::ptrdiff_t a, std::ptrdiff_t b) { return (a < b ? a : b); } ///< Get minimum of two values.
+inline std::ptrdiff_t max(std::ptrdiff_t a, std::ptrdiff_t b) { return (a < b ? b : a); } ///< Get maximum of two values.
 
 /**
- * Get square of number.
+ * Epsilon value used to compare floats to approximate equality.
+ * Two floating point values will be considered equal after several operations, if their difference is less than this value.
  */
-template<class Number> inline Number sq(Number n) { return n * n; } 
+constexpr float float_comparison_epsilon = 0.0001;
 
-inline float min(float a, float b) { return (a < b ? a : b); }
-inline float max(float a, float b) { return (a < b ? b : a); }
-
-inline std::ptrdiff_t min(std::ptrdiff_t a, std::ptrdiff_t b) { return (a < b ? a : b); }
-inline std::ptrdiff_t max(std::ptrdiff_t a, std::ptrdiff_t b) { return (a < b ? b : a); }
-
-constexpr float float_comparison_epsilon = 0.001;
-
+/**
+ * Check if two floating point values are approximately equal.
+ * @param a First value.
+ * @param b Second value.
+ * @param ep Epsilon value.
+ */
 inline bool approximately_equal(float a, float b, float ep = float_comparison_epsilon) {
 	if(a == b) return true;
 	else if(a > b) return (a - b) <= ep;

@@ -2,14 +2,14 @@
 #define DYPC_CUBES_STRUCTURE_LOADER_H_
 
 #include "cubes_structure.h"
-#include "../structure_loader.h"
+#include "../../loader/downsampling_loader.h"
 #include "../../geometry/cuboid.h"
 #include "../../downsampling.h"
 
 
 namespace dypc {
 
-class cubes_structure_loader : public structure_loader {
+class cubes_structure_loader : public downsampling_loader {
 protected:
 	bool frustum_culling_ = true;
 	std::size_t downsampling_levels_ = 16;

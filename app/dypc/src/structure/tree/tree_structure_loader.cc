@@ -54,14 +54,14 @@ double tree_structure_loader::get_setting(const std::string& setting) const {
 	if(setting == "minimal_number_of_points_for_split") return minimal_number_of_points_for_split_;
 	else if(setting == "downsampling_node_distance") return (double)downsampling_node_distance_;
 	else if(setting == "additional_split_distance_difference") return additional_split_distance_difference_;
-	else return structure_loader::get_setting(setting);
+	else return downsampling_loader::get_setting(setting);
 }
 
 void tree_structure_loader::set_setting(const std::string& setting, double value) {
 	if(setting == "minimal_number_of_points_for_split") minimal_number_of_points_for_split_ = value;
 	else if(setting == "downsampling_node_distance") downsampling_node_distance_ = (cuboid_distance_mode)value;
 	else if(setting == "additional_split_distance_difference") additional_split_distance_difference_ = value;
-	else structure_loader::set_setting(setting, value);
+	else downsampling_loader::set_setting(setting, value);
 }
 
 }

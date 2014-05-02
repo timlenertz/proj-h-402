@@ -48,7 +48,7 @@ private:
 	std::size_t number_of_points_;
 		
 protected:
-	std::size_t extract_points_(point_buffer_t points, std::size_t capacity, const loader::request_t&);
+	std::size_t compute_downsampled_points_(point_buffer_t points, std::size_t capacity, const loader::request_t&);
 
 public:
 	static void write(const std::string& file, const cubes_structure&);

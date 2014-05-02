@@ -7,11 +7,7 @@
 
 namespace dypc {
 
-renderer::renderer(float w, float h) : viewport_width_(w), viewport_height_(h),
-stat_capacity_(statistics::add("Renderer Capacity", point_buffer_capacity_, statistics::number, statistics::renderer_capacity)),
-stat_count_(statistics::add("Renderer Points", 0, statistics::number, statistics::rendered_points)),
-stat_loader_duration_(statistics::add("Loader Time", 0, statistics::milliseconds, statistics::loader_time))
-{
+renderer::renderer(float w, float h) : viewport_width_(w), viewport_height_(h) {
 	initialize_glew();
 		
 	shaders_ = new program({
@@ -53,9 +49,6 @@ void renderer::initialize_point_buffers_() {
 	glBufferData(GL_ARRAY_BUFFER, point_buffer_capacity_*sizeof(dypc_point), nullptr, GL_STREAM_DRAW);
 
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
-		
-	stat_count_ = 0;
-	renderer_point_buffer_size_ = 0;
 }
 
 void renderer::update_request_() {
@@ -68,17 +61,14 @@ void renderer::check_updater_() {
 	glBindBuffer(GL_ARRAY_BUFFER, loader_point_buffer_);
 	std::size_t sz;
 	if(updater_.new_points_available(sz)) {
-		stat_loader_duration_ = updater_.get_last_compute_duration().count();
 		auto valid = glUnmapBuffer(GL_ARRAY_BUFFER);
 		if(valid) {
 			std::swap(loader_point_buffer_, renderer_point_buffer_);
-			stat_count_ = sz;
 			renderer_point_buffer_size_ = sz;
 		}
 	} else {
 		glUnmapBuffer(GL_ARRAY_BUFFER); // does nothing if buffer was not mapped
 		renderer_point_buffer_size_ = 0;
-		stat_count_ = 0;
 	}
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
 	
@@ -222,7 +212,6 @@ void renderer::set_configuration(float fov, float scale, unsigned char bg_r, uns
 
 void renderer::set_point_capacity(std::size_t capacity) {
 	point_buffer_capacity_ = capacity;
-	stat_capacity_ = capacity;
 	
 	bool was_paused = get_updater_paused();
 	updater_.stop();

@@ -3,9 +3,13 @@
 namespace dypc {
 
 float choose_downsampling_level_continuous(std::size_t levels, float distance, float setting) {
+	if(setting <= 0.0) return 0;
+	float base = 250.0/setting;
+	
 	const float start_distance_exponent = 1.3;
-	float start_distance = std::pow(setting, start_distance_exponent);
-	float step_distance = setting;
+	
+	float start_distance = std::pow(base, start_distance_exponent);
+	float step_distance = base;
 	
 	float i = 0;
 	if(distance > start_distance) i = (distance - start_distance) / step_distance;
@@ -19,6 +23,7 @@ float downsampling_ratio_for_level(float i, std::size_t levels, std::size_t tota
 	float minimum_ratio = (float)minimum / total_points;
 	if(minimum_ratio > 1.0) minimum_ratio = 1.0;
 	float x = i / (levels - 1);
+	
 	return 1.0 - (1.0 - minimum_ratio)*std::pow(x, amount);
 }
 
