@@ -56,7 +56,7 @@ This chapter describes the methods used to compute a smaller set of points based
 \section{Definitions}
 The following definitions are used throughout this report. A \emph{point cloud} is an unordered set of points with an Euclidian coordinate system. Each \emph{point} $p = \langle x, y, z, r, g, b\rangle$ consists of its coordinates $x, y, z$, and RGB color information. The \emph{model} $P$ is the full point cloud used as input. The \emph{point capacity} $C$ is the maximal number of points that can be outputted to the renderer. 
 
-The \emph{view-projection matrix} $\matrixsym{M} = \matrixsym{P} \times \matrixsym{V}$ is a 4x4 matrix that defines the view frustum of the camera. The 6 planes of the frustum can be derived from the matrix as described in \cite{Gri2001}. The \emph{view matrix} $\matrixsym{V}$ transforms the points' coordinate system into one centered around the camera at its current position and orientation, while the \emph{projection matrix} $\matrixsym{P}$ is used to project the points to their two-dimensional screen coordinates. $\matrixsym{P}$ might define both a parallel projection or a perspective projection with a given \emph{field of view} $\lambda$.
+The \emph{view-projection matrix} $\matrixsym{M} = \matrixsym{P} \times \matrixsym{V}$ is a 4x4 matrix that defines the view frustum of the camera. The 6 planes of the frustum can be derived from the matrix as described in \ref{sec:frustum_planes}. The \emph{view matrix} $\matrixsym{V}$ transforms the points' coordinate system into one centered around the camera at its current position and orientation, while the \emph{projection matrix} $\matrixsym{P}$ is used to project the points to their two-dimensional screen coordinates. $\matrixsym{P}$ might define both a parallel projection or a perspective projection with a given \emph{field of view} $\lambda$.
 
 The \emph{filtering function} $f_{P}(\matrixsym{M})$ computes a set of rendered points $P'$ from the model $P$, the matrix $\matrixsym{M}$, and additional parameters. Its main constraint is that $|P'| \leq C$ (whereas $|P|$ may be much larger than $C$). $P'$ does not need to be a subset of $P$: Some methods (such as uniform downsampling) will add points into $P'$ that are not in $P$, in order to achieve a better visual quality.
 
@@ -352,12 +352,12 @@ The $f_{P}$ function described in the previous chapter takes a unordered set $P$
 
 \section{General}
 Since the data structure must contain all the $n_{\text{total}}$ points of $P$, its size must always be at least in $O(n_{\text{total}})$. The algorithm which extracts $P' = f_{P}$ will typically only need to read a small portion consisting of $n \ll n_{\text{total}}$ points. To make this efficient the data structure must be designed such that:
-\begin{enumerate}
+\begin{itemize}
 \item It must be possible to determine the portions of data to extract without searching through the whole structure. The worst case would be a data structure that consists simply of an array of points in any order, because in order to find the points that lie inside the current view frustum the algorithm would have to check every point in the array, leading to a time complexity $O(n_{\text{total}})$. This would defeat the goal of enabling efficient loading of large models.
 \item The data structure is always serialized to storage in one dimension. It is generally much more efficient to read a small number of long segments, rather than many small segments: Seeking times on the storage device are avoided, and various caching mechanisms from the underlying file system are used.
 
 No order can be defined for three dimensional points, but their one-dimensional representations always have an order. So a compromise needs to be found by which the serialization is ordered such that for the majority of cases, points that are close to each other in three dimensional space remain close to each other in the serialization.
-\end{enumerate}
+\end{itemize}
 
 Two techniques are used to achieve this: The model is split into smaller \emph{regions}, and the points within that region remain grouped together in the data structure. Points within the same regions have the property that their distance is upper bounded by the size of the region, and so this contributes to the ordering issue. Also, \emph{pointers} is used in various ways, meaning reading algorithm will directly jump to a given offset in the data independently of its distance.
 
@@ -367,11 +367,11 @@ The data structure is built on top of a \emph{file type}. Several possible file 
 \item[Raw file] Essentially no file type is used, and the data structure is implemented on the lowest level. The implementation needs to write and read the structure as a single continguous segment of binary data. This allows for the highest level of control, but requires an ad-hoc definition of helper structures such as a way to split the file into different parts for points, downsampled points, regions, additional file information... Also the precise way that data values serialized (floating point and integer data types, alignment, endianess) needs to be taken care of in the implementation of the data structure.
 \item[ASCII-based file] Storing data as an ASCII-based text file instead of as raw binary data removes the latter problems of data serialization. The remaining problems stay the same. The files get much larger: If the file contains a set of $1000000$ points with $x, y, z$ coordinates, storing them as 4 byte floating point values would require $\SI{11. 72}{\mega\byte}$. If the values are written in decimal representation with 8 digits, plus separation characters, a size of about $\SI{29. 56}{\mega\byte}$ would result. This additional space requirement, and the parsing overhead when reading from the file, makes such file types impractical for large amounts of data.
 \item[XML] XML would provide a way to represent structured data, and so it would be possible to build the data structure in terms of XML tags, containers and attributes. However, it suffers the same problems as any ASCII-based format, to an increased extent since it tends to be very verbose compared to simpler formats. Also, the purpose of XML is not to deal with large amounts of data that is dynamically read, but rather to deal with relatively small, deeply structured files such as computer programs or web pages, and it provides tools to validate, transform, interlink, etc. such files.
-\item[HDF] HDF (\emph{Hierarchical Data Format}) is used in the program. It is a binary designed designed for storage of large quantities or scientific data in such a way that parts of it can be extracted efficiently. It allows for the definition of simple or combound data types (such as 3 floating point values and 3 bytes for an XYZRGB point), and can store several data sets or such values in the file. These data sets are ordered arrays of one or more dimensions, and the \emph{hyperslap} mechanism provides a way to efficiently read or write in it. HDF stores the data sets either directly as sequential data on the storage device, but can also internally store the data sets in multiple chunks, and provide additional optimizations such as internal caches for dealing with large data sets.
+\item[HDF] HDF (\emph{Hierarchical Data Format}) is the main format used in the program. It is a binary designed designed for storage of large quantities or scientific data in such a way that parts of it can be extracted efficiently. It allows for the definition of simple or combound data types (such as 3 floating point values and 3 bytes for an XYZRGB point), and can store several data sets or such values in the file. These data sets are ordered arrays of one or more dimensions, and the \emph{hyperslap} mechanism provides a way to efficiently read or write in it. HDF stores the data sets either directly as sequential data on the storage device, but can also internally store the data sets in multiple chunks, and provide additional optimizations such as internal caches for dealing with large data sets.
 \item[SQL database] 
 \end{description}
 
-\section{Cuboid regions}
+\section{Cuboid regions} \label{sec:cub_reg}
 All of the data structures used in the projet rely on subdividing the three dimensional space in axis-aligned cuboid regions. A cuboid $\mathcal{C}$ is defined by its \emph{origin} $(x, y, z)$ and its \emph{extremity} $(x', y', z')$, and a point $\overrightarrow{p}$ is considered to be inside the cuboid if and only if $p_{x} \in [x, x'[$, $p_{y} \in [y, y'[$ and $p_{z} \in [z, z'[$.
 
 Because the intervals are open on one side, points that lie on the border of two adjacent cuboid can never fall into both cuboids. However, when defining a bounding cuboid that should enclose a given set of points, it becomes necessary to make the coordinates of its extremity slighly larger than the point with maximal coordinates.
@@ -401,10 +401,24 @@ The figure on the right illustrates this: $d(p, \min_{1}) < d(p, \min_{2})$, whe
 
 As a compromise, one of the proposed definitions needs to be chosen chosen that reduces this effect. Generally, better results are produces when the regions are more or less cubic, and in that case the \textbf{center} definition of $d$ yields good results. Otherwise, \textbf{minimal} tends to be better.
 
-
- 
+\pagebreak
 
 \section{Cubes structure}
+The \emph{cubes structure} is a first attempt at a simple way to organize the set of points such that the algorithm is faster than a naive implementation which would iterate through the whole set of points at each evaluation of $f_{P}$.
+
+Space is subdivided into a regular grid of axis-aligned \emph{cubes} $\mathcal{C}_{i,j,k}$ with a common side length $l$.\footnote{This is unrelated to the cubes used for uniform downsampling in the previous chapter.} These cubes are the cuboid regions for this structure. Because of the way their boundaries are defined, every point $p \in P$ will belong into exactly one cube. The side length can be configured when the structure is created, and is by default set to $l = 5$. $i, j, k$ are the coordinates for the cubes in the grid. For the cube $\mathcal{C}_{0,0,0}$, its \emph{origin} corresponds to the origin of the space.
+
+Only cubes that contain at least one point are created, so their total number will be finite. In the first stage of the structure creation progress, the algorithm iterates through the full set of points $P$, for each point $p$ and determines the coordinates of the cube into $p$ will belong by floor division:
+\begin{equation*}
+	(i, j, k) = \left( \lfloor p_{x}/l \rfloor, \lfloor p_{y}/l \rfloor, \lfloor p_{z}/l \rfloor \right)
+\end{equation*}
+This is correct because the definition of the floor function coincides with the way that the cuboid regions' boundary intervals are defined. Similar relations will occur for the tree structures, where it is critical for the correct functionning of the algorithm that the relations always hold, despite possible floating point imprecision errors.
+
+There are two variants for the cubes structure, one with \emph{weighted points} and one with \emph{LOD regions}. For the weighted points variant, the algorithm proceeds by attributing random weights $w \in [0,1]$ to each point $p \in P$ in an uniform distribution. For the LOD regions variant, the algorithm instead computes for each cube $\mathcal{C}$, the $L-1$ downsampled point sets, for the set of points inside that cube $P(\mathcal{C}) = \{ p \mid p \in \mathcal{C} \}$.
+
+\subsection{Serialization}
+There are two implementations of the cubes structure: Using \emph{HDF} as file type, and using an \emph{SQLite database}. For the \emph{HDF} file, the points are stored into a data set, and are ordered such that points belonging to the same cube are grouped. The order of the groups and the order of the points within the groups does not make a difference. The combound type for this data set consists of 3 floating point values for the $x, y, z$ coordinates of the point, and 3 byte values for the color values.
+
 \section{Tree structures}
 \subsection{Octree}
 \subsection{KdTree}
@@ -414,6 +428,44 @@ As a compromise, one of the proposed definitions needs to be chosen chosen that 
 \chapter{Results}
 
 \chapter{Conclusion}
+
+\appendix
+\chapter{Geometry algorithms}
+
+\section{Definitions}
+The geometric objects used in the algorithms are defined in the following manner:
+\begin{description}
+\item[cuboid] Axis-aligned cuboid $\mathcal{C}$ is defined by \emph{origin} point $x, y, z$, and \emph{extremity} point $x', y', z'$, such that $x' > x$, $y' > y$ and $z' > z$. The coordinate intervals are open on the extremity side, i.e. a point $\overrightarrow{p}$ is considered to be inside the cuboid if and only if $p_{x} \in [x, x'[$, $p_{y} \in [y, y'[$ and $p_{z} \in [z, z'[$. See section \ref{sec:cub_reg} for further explanation.
+
+\item[plane] An oriented two-dimensional plane $P$ in three-dimensional space is defined using four real values $a, b, c, d$. $\overrightarrow{n} = (a, b, c)$ is a normal vector of the plane, while $d$ is the distance from the origin to the plane, multiplied by $|\overrightarrow{n}|$.
+
+In its \emph{normalized} form, $a, b, c, d$ are defined such that $|\overrightarrow{n}| = 1$. Then $d$ is simply the distance from the origin to the plane, and each plane there is exactly one normalized form.
+
+The planes are oriented, that is an (oriented) distance from a point $\overrightarrow{p}$ to the plane is positive when $\overrightarrow{n} \cdot \overrightarrow{p} \geq 0$, and negative otherwise.
+
+\item[frustum] A frustum is defined using the 6 planes that delimit it: the near, far, left, right, top and bottom planes. Supposing that the normal vectors of the planes are all pointing inside the frustum, a point is considered to be inside the frustum if and only if its oriented distance to each one of the planes of positive.
+
+This representation of a frustum not unique, and is only valid when the 6 planes are arranged so as to delimit a frustum. A frustum can be defined using a 4x4 projection matrix, and the following algorithm describes how to get the 6 planes out of it.
+\end{description}
+
+\section{Projection matrix to view frustum} \label{frustum_planes}
+Let $\matrixsym{M}$ be a projection matrix, and $\matrixsym{M}[i, j]$ be the value in $\matrixsym{M}$ at column $i$ and row $j$, counting from 0.
+As described in \cite{Gri2001}, the 6 planes $P = (a, b, c, d)$ can be derived as follows:
+\begin{align*}
+	P_{\text{near}}   = (\matrixsym{M}[0, 3] + \matrixsym{M}[0, 2], \quad \matrixsym{M}[1, 3] + \matrixsym{M}[1, 2], \quad \matrixsym{M}[2, 3] + \matrixsym{M}[2, 2], \quad \matrixsym{M}[3, 3] + \matrixsym{M}[3, 2]) \\
+	P_{\text{far}}    = (\matrixsym{M}[0, 3] - \matrixsym{M}[0, 2], \quad \matrixsym{M}[1, 3] - \matrixsym{M}[1, 2], \quad \matrixsym{M}[2, 3] - \matrixsym{M}[2, 2], \quad \matrixsym{M}[3, 3] - \matrixsym{M}[3, 2]) \\
+	P_{\text{left}}   = (\matrixsym{M}[0, 3] + \matrixsym{M}[0, 0], \quad \matrixsym{M}[1, 3] + \matrixsym{M}[1, 0], \quad \matrixsym{M}[2, 3] + \matrixsym{M}[2, 0], \quad \matrixsym{M}[3, 3] + \matrixsym{M}[3, 0]) \\
+	P_{\text{right}}  = (\matrixsym{M}[0, 3] - \matrixsym{M}[0, 0], \quad \matrixsym{M}[1, 3] - \matrixsym{M}[1, 0], \quad \matrixsym{M}[2, 3] - \matrixsym{M}[2, 0], \quad \matrixsym{M}[3, 3] - \matrixsym{M}[3, 0]) \\
+	P_{\text{bottom}} = (\matrixsym{M}[0, 1] + \matrixsym{M}[0, 1], \quad \matrixsym{M}[1, 3] + \matrixsym{M}[1, 1], \quad \matrixsym{M}[2, 3] + \matrixsym{M}[2, 1], \quad \matrixsym{M}[3, 3] + \matrixsym{M}[3, 1]) \\
+	P_{\text{top}}    = (\matrixsym{M}[0, 1] - \matrixsym{M}[0, 1], \quad \matrixsym{M}[1, 3] - \matrixsym{M}[1, 1], \quad \matrixsym{M}[2, 3] - \matrixsym{M}[2, 1], \quad \matrixsym{M}[3, 3] - \matrixsym{M}[3, 1])
+\end{align*}
+
+\section{Maximal point-to-cuboid distance}
+The maximal distance from a point $\overrightarrow{p}$ to a cuboid $\mathcal{C}$ is always the distance to one of the 8 corners of $\mathcal{C}$. The algorithm simply tests the distances from $\overrightarrow{p}$ to each one of the corners and returns the maximal one. As a small optimization, the algorithm can compare the squares of the distances instead, so as to do only one square root computation.
+
+\section{Minimal point-to-cuboid distance}
+
+\section{Frustum-cuboid intersection}
 
 \bibliographystyle{plain}
 \bibliography{report}

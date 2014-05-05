@@ -18,9 +18,16 @@
 \BOOKMARK [2][-]{subsection.3.3.1}{Floating point issues}{section.3.3}% 18
 \BOOKMARK [2][-]{subsection.3.3.2}{Point-to-cuboid distance}{section.3.3}% 19
 \BOOKMARK [1][-]{section.3.4}{Cubes structure}{chapter.3}% 20
-\BOOKMARK [1][-]{section.3.5}{Tree structures}{chapter.3}% 21
-\BOOKMARK [2][-]{subsection.3.5.1}{Octree}{section.3.5}% 22
-\BOOKMARK [2][-]{subsection.3.5.2}{KdTree}{section.3.5}% 23
-\BOOKMARK [0][-]{chapter.4}{Implementation}{}% 24
-\BOOKMARK [0][-]{chapter.5}{Results}{}% 25
-\BOOKMARK [0][-]{chapter.6}{Conclusion}{}% 26
+\BOOKMARK [2][-]{subsection.3.4.1}{Serialization}{section.3.4}% 21
+\BOOKMARK [1][-]{section.3.5}{Tree structures}{chapter.3}% 22
+\BOOKMARK [2][-]{subsection.3.5.1}{Octree}{section.3.5}% 23
+\BOOKMARK [2][-]{subsection.3.5.2}{KdTree}{section.3.5}% 24
+\BOOKMARK [0][-]{chapter.4}{Implementation}{}% 25
+\BOOKMARK [0][-]{chapter.5}{Results}{}% 26
+\BOOKMARK [0][-]{chapter.6}{Conclusion}{}% 27
+\BOOKMARK [0][-]{appendix.A}{Geometry algorithms}{}% 28
+\BOOKMARK [1][-]{section.A.1}{Definitions}{appendix.A}% 29
+\BOOKMARK [1][-]{section.A.2}{Projection matrix to view frustum}{appendix.A}% 30
+\BOOKMARK [1][-]{section.A.3}{Maximal point-to-cuboid distance}{appendix.A}% 31
+\BOOKMARK [1][-]{section.A.4}{Minimal point-to-cuboid distance}{appendix.A}% 32
+\BOOKMARK [1][-]{section.A.5}{Frustum-cuboid intersection}{appendix.A}% 33

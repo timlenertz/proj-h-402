@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.1415926-2.4-1.40.13 (TeX Live 2012/Debian) (format=pdflatex 2013.9.9)  5 MAY 2014 18:14
+This is pdfTeX, Version 3.1415926-2.4-1.40.13 (TeX Live 2012/Debian) (format=pdflatex 2013.9.9)  6 MAY 2014 00:13
 entering extended mode
  \write18 enabled.
  file:line:error style messages enabled.
@@ -697,9 +697,9 @@ Package: verbatim 2003/08/22 v1.5q LaTeX2e package for verbatim enhancements
 Package: ifthen 2001/05/26 v1.1c Standard LaTeX ifthen package (DPC)
 )
 \verbatim@out=\write3
-runsystem(touch /tmp/w18-test-2014551094)...executed.
+runsystem(touch /tmp/w18-test-20145613)...executed.
 
-runsystem(rm -f /tmp/w18-test-2014551094)...executed.
+runsystem(rm -f /tmp/w18-test-20145613)...executed.
 
 Package gnuplottex Info: Automatically converting gnuplot files. on input line 
 77.
@@ -1313,10 +1313,14 @@ LaTeX Font Info:    Font shape `OML/cmr/bx/it' in size <7> not available
 (Font)              Font shape `OML/cmm/b/it' tried instead on input line 59.
 LaTeX Font Info:    Font shape `OML/cmr/bx/it' in size <5> not available
 (Font)              Font shape `OML/cmm/b/it' tried instead on input line 59.
- [4
 
-]
-<random_weights_inv.png, id=170, 576.1525pt x 233.87375pt>
+
+LaTeX Warning: Reference `sec:frustum_planes' on page 4 undefined on input line
+ 59.
+
+[4
+
+] <random_weights_inv.png, id=200, 576.1525pt x 233.87375pt>
 File: random_weights_inv.png Graphic file (type png)
 
 <use random_weights_inv.png>
@@ -1332,7 +1336,7 @@ LaTeX Font Info:    Font shape `OML/cmr/bx/it' in size <8> not available
 (Font)              Font shape `OML/cmm/b/it' tried instead on input line 117.
 LaTeX Font Info:    Font shape `OML/cmr/bx/it' in size <6> not available
 (Font)              Font shape `OML/cmm/b/it' tried instead on input line 117.
- <uniform_example_inv.png, id=182, 563.10374pt x 476.78125pt>
+ <uniform_example_inv.png, id=211, 563.10374pt x 476.78125pt>
 File: uniform_example_inv.png Graphic file (type png)
 
 <use uniform_example_inv.png>
@@ -1343,7 +1347,7 @@ Overfull \hbox (0.79999pt too wide) in paragraph at lines 125--126
 [][] 
  []
 
-<uniform.png, id=186, 456.7464pt x 216.81pt>
+<uniform.png, id=215, 456.7464pt x 216.81pt>
 File: uniform.png Graphic file (type png)
  <use uniform.png>
 Package pdftex.def Info: uniform.png used on input line 139.
@@ -1359,11 +1363,11 @@ Package gnuplottex Info: report-gnuplottex-fig1.gnuplot converted on input line
 
 (./report-gnuplottex-fig1.tex
 Package epstopdf Info: Source file: <report-gnuplottex-fig1.eps>
-(epstopdf)                    date: 2014-05-05 18:14:24
+(epstopdf)                    date: 2014-05-06 00:13:31
 (epstopdf)                    size: 21292 bytes
 (epstopdf)             Output file: <report-gnuplottex-fig1-eps-converted-to.pd
 f>
-(epstopdf)                    date: 2014-05-05 18:12:08
+(epstopdf)                    date: 2014-05-05 23:56:08
 (epstopdf)                    size: 5126 bytes
 (epstopdf)             Command: <epstopdf --outfile=report-gnuplottex-fig1-eps-
 converted-to.pdf report-gnuplottex-fig1.eps>
@@ -1373,10 +1377,10 @@ runsystem(epstopdf --outfile=report-gnuplottex-fig1-eps-converted-to.pdf report
 
 Package epstopdf Info: Result file: <report-gnuplottex-fig1-eps-converted-to.pd
 f>
-(epstopdf)                    date: 2014-05-05 18:14:24
+(epstopdf)                    date: 2014-05-06 00:13:31
 (epstopdf)                    size: 5126 bytes.
 
-<report-gnuplottex-fig1-eps-converted-to.pdf, id=187, 361.35pt x 252.945pt>
+<report-gnuplottex-fig1-eps-converted-to.pdf, id=216, 361.35pt x 252.945pt>
 File: report-gnuplottex-fig1-eps-converted-to.pdf Graphic file (type pdf)
 
 <use report-gnuplottex-fig1-eps-converted-to.pdf>
@@ -1409,11 +1413,11 @@ Package gnuplottex Info: report-gnuplottex-fig3.gnuplot converted on input line
 
 (./report-gnuplottex-fig3.tex
 Package epstopdf Info: Source file: <report-gnuplottex-fig3.eps>
-(epstopdf)                    date: 2014-05-05 18:14:25
+(epstopdf)                    date: 2014-05-06 00:13:31
 (epstopdf)                    size: 19612 bytes
 (epstopdf)             Output file: <report-gnuplottex-fig3-eps-converted-to.pd
 f>
-(epstopdf)                    date: 2014-05-05 18:12:09
+(epstopdf)                    date: 2014-05-05 23:56:08
 (epstopdf)                    size: 3308 bytes
 (epstopdf)             Command: <epstopdf --outfile=report-gnuplottex-fig3-eps-
 converted-to.pdf report-gnuplottex-fig3.eps>
@@ -1423,10 +1427,10 @@ runsystem(epstopdf --outfile=report-gnuplottex-fig3-eps-converted-to.pdf report
 
 Package epstopdf Info: Result file: <report-gnuplottex-fig3-eps-converted-to.pd
 f>
-(epstopdf)                    date: 2014-05-05 18:14:25
+(epstopdf)                    date: 2014-05-06 00:13:31
 (epstopdf)                    size: 3308 bytes.
 
-<report-gnuplottex-fig3-eps-converted-to.pdf, id=210, 361.35pt x 252.945pt>
+<report-gnuplottex-fig3-eps-converted-to.pdf, id=239, 361.35pt x 252.945pt>
 File: report-gnuplottex-fig3-eps-converted-to.pdf Graphic file (type pdf)
 
 <use report-gnuplottex-fig3-eps-converted-to.pdf>
@@ -1445,11 +1449,11 @@ Package gnuplottex Info: report-gnuplottex-fig4.gnuplot converted on input line
 
 (./report-gnuplottex-fig4.tex
 Package epstopdf Info: Source file: <report-gnuplottex-fig4.eps>
-(epstopdf)                    date: 2014-05-05 18:14:25
+(epstopdf)                    date: 2014-05-06 00:13:32
 (epstopdf)                    size: 20747 bytes
 (epstopdf)             Output file: <report-gnuplottex-fig4-eps-converted-to.pd
 f>
-(epstopdf)                    date: 2014-05-05 18:12:09
+(epstopdf)                    date: 2014-05-05 23:56:09
 (epstopdf)                    size: 4868 bytes
 (epstopdf)             Command: <epstopdf --outfile=report-gnuplottex-fig4-eps-
 converted-to.pdf report-gnuplottex-fig4.eps>
@@ -1459,10 +1463,10 @@ runsystem(epstopdf --outfile=report-gnuplottex-fig4-eps-converted-to.pdf report
 
 Package epstopdf Info: Result file: <report-gnuplottex-fig4-eps-converted-to.pd
 f>
-(epstopdf)                    date: 2014-05-05 18:14:26
+(epstopdf)                    date: 2014-05-06 00:13:32
 (epstopdf)                    size: 4868 bytes.
 
-<report-gnuplottex-fig4-eps-converted-to.pdf, id=215, 361.35pt x 252.945pt>
+<report-gnuplottex-fig4-eps-converted-to.pdf, id=244, 361.35pt x 252.945pt>
 File: report-gnuplottex-fig4-eps-converted-to.pdf Graphic file (type pdf)
 
 <use report-gnuplottex-fig4-eps-converted-to.pdf>
@@ -1470,7 +1474,7 @@ Package pdftex.def Info: report-gnuplottex-fig4-eps-converted-to.pdf used on in
 put line 114.
 (pdftex.def)             Requested size: 361.34912pt x 252.94438pt.
 )
-<distanceDensity.png, id=216, 473.8503pt x 244.0317pt>
+<distanceDensity.png, id=245, 473.8503pt x 244.0317pt>
 File: distanceDensity.png Graphic file (type png)
 
 <use distanceDensity.png>
@@ -1489,11 +1493,11 @@ Package gnuplottex Info: report-gnuplottex-fig5.gnuplot converted on input line
 
 (./report-gnuplottex-fig5.tex
 Package epstopdf Info: Source file: <report-gnuplottex-fig5.eps>
-(epstopdf)                    date: 2014-05-05 18:14:26
+(epstopdf)                    date: 2014-05-06 00:13:32
 (epstopdf)                    size: 19335 bytes
 (epstopdf)             Output file: <report-gnuplottex-fig5-eps-converted-to.pd
 f>
-(epstopdf)                    date: 2014-05-05 18:12:10
+(epstopdf)                    date: 2014-05-05 23:56:09
 (epstopdf)                    size: 3202 bytes
 (epstopdf)             Command: <epstopdf --outfile=report-gnuplottex-fig5-eps-
 converted-to.pdf report-gnuplottex-fig5.eps>
@@ -1503,10 +1507,10 @@ runsystem(epstopdf --outfile=report-gnuplottex-fig5-eps-converted-to.pdf report
 
 Package epstopdf Info: Result file: <report-gnuplottex-fig5-eps-converted-to.pd
 f>
-(epstopdf)                    date: 2014-05-05 18:14:26
+(epstopdf)                    date: 2014-05-06 00:13:32
 (epstopdf)                    size: 3202 bytes.
 
-<report-gnuplottex-fig5-eps-converted-to.pdf, id=231, 361.35pt x 252.945pt>
+<report-gnuplottex-fig5-eps-converted-to.pdf, id=260, 361.35pt x 252.945pt>
 File: report-gnuplottex-fig5-eps-converted-to.pdf Graphic file (type pdf)
 
 <use report-gnuplottex-fig5-eps-converted-to.pdf>
@@ -1525,11 +1529,11 @@ Package gnuplottex Info: report-gnuplottex-fig6.gnuplot converted on input line
 
 (./report-gnuplottex-fig6.tex
 Package epstopdf Info: Source file: <report-gnuplottex-fig6.eps>
-(epstopdf)                    date: 2014-05-05 18:14:26
+(epstopdf)                    date: 2014-05-06 00:13:32
 (epstopdf)                    size: 29438 bytes
 (epstopdf)             Output file: <report-gnuplottex-fig6-eps-converted-to.pd
 f>
-(epstopdf)                    date: 2014-05-05 18:12:10
+(epstopdf)                    date: 2014-05-05 23:56:09
 (epstopdf)                    size: 5693 bytes
 (epstopdf)             Command: <epstopdf --outfile=report-gnuplottex-fig6-eps-
 converted-to.pdf report-gnuplottex-fig6.eps>
@@ -1539,10 +1543,10 @@ runsystem(epstopdf --outfile=report-gnuplottex-fig6-eps-converted-to.pdf report
 
 Package epstopdf Info: Result file: <report-gnuplottex-fig6-eps-converted-to.pd
 f>
-(epstopdf)                    date: 2014-05-05 18:14:26
+(epstopdf)                    date: 2014-05-06 00:13:32
 (epstopdf)                    size: 5693 bytes.
 
-<report-gnuplottex-fig6-eps-converted-to.pdf, id=232, 361.35pt x 252.945pt>
+<report-gnuplottex-fig6-eps-converted-to.pdf, id=261, 361.35pt x 252.945pt>
 File: report-gnuplottex-fig6-eps-converted-to.pdf Graphic file (type pdf)
 
 <use report-gnuplottex-fig6-eps-converted-to.pdf>
@@ -1552,14 +1556,22 @@ put line 106.
 ) [10 <./distanceDensity.png> <./report-gnuplottex-fig5-eps-converted-to.pdf>] 
 [11 <./report-gnuplottex-fig6-eps-converted-to.pdf>]
 Chapter 3.
-[12
+LaTeX Font Info:    Try loading font information for OMS+cmr on input line 356.
+
+(/usr/share/texlive/texmf-dist/tex/latex/base/omscmr.fd
+File: omscmr.fd 1999/05/25 v2.5h Standard LaTeX font definitions
+)
+LaTeX Font Info:    Font shape `OMS/cmr/m/n' in size <10> not available
+(Font)              Font shape `OMS/cmsy/m/n' tried instead on input line 356.
+ [12
 
 ]
 LaTeX Font Info:    Try loading font information for U+eus on input line 375.
- (/usr/share/texlive/texmf-dist/tex/latex/amsfonts/ueus.fd
+
+(/usr/share/texlive/texmf-dist/tex/latex/amsfonts/ueus.fd
 File: ueus.fd 2009/06/22 v3.00 Euler Script
 ) [13]
-<minMaxDistance.png, id=263, 147.9126pt x 236.5638pt>
+<minMaxDistance.png, id=290, 147.9126pt x 236.5638pt>
 File: minMaxDistance.png Graphic file (type png)
  <use minMaxDistance.png>
 Package pdftex.def Info: minMaxDistance.png used on input line 395.
@@ -1569,41 +1581,54 @@ Missing character: There is no 2 in font eusm7!
 Missing character: There is no 1 in font eusm7!
 Missing character: There is no 2 in font eusm7!
 
-[14 <./minMaxDistance.png>]
+[14 <./minMaxDistance.png>] [15]
 Chapter 4.
-[15
-
-]
-Chapter 5.
 [16
 
 ]
-Chapter 6.
-(./report.bbl [17
-
-])
-Package atveryend Info: Empty hook `BeforeClearDocument' on input line 422.
- [18
+Chapter 5.
+[17
 
 ]
-Package atveryend Info: Empty hook `AfterLastShipout' on input line 422.
+Chapter 6.
+[18
+
+]
+Appendix A.
+(./report.bbl [19
+
+] [20])
+Package atveryend Info: Empty hook `BeforeClearDocument' on input line 474.
+ [21
+
+]
+Package atveryend Info: Empty hook `AfterLastShipout' on input line 474.
  (./report.aux)
-Package atveryend Info: Executing hook `AtVeryEndDocument' on input line 422.
-Package atveryend Info: Executing hook `AtEndAfterFileList' on input line 422.
-Package rerunfilecheck Info: File `report.out' has not changed.
-(rerunfilecheck)             Checksum: C903DC2E95EBFF257D1167FEF572CAD8;1621.
+Package atveryend Info: Executing hook `AtVeryEndDocument' on input line 474.
+Package atveryend Info: Executing hook `AtEndAfterFileList' on input line 474.
+
+
+Package rerunfilecheck Warning: File `report.out' has changed.
+(rerunfilecheck)                Rerun to get outlines right
+(rerunfilecheck)                or use package `bookmark'.
+
+Package rerunfilecheck Info: Checksums for `report.out':
+(rerunfilecheck)             Before: AD1DE19B8F99FBF96D44240E86DF6F26;2052
+(rerunfilecheck)             After:  44C47FF00C243F9BF4E30422485BDAAC;2119.
+
+LaTeX Warning: There were undefined references.
 
 
 LaTeX Warning: There were multiply-defined labels.
 
-Package atveryend Info: Empty hook `AtVeryVeryEnd' on input line 422.
+Package atveryend Info: Empty hook `AtVeryVeryEnd' on input line 474.
  ) 
 Here is how much of TeX's memory you used:
- 17640 strings out of 493485
- 335642 string characters out of 3143527
- 477557 words of memory out of 3000000
- 20543 multiletter control sequences out of 15000+200000
- 20778 words of font info for 84 fonts, out of 3000000 for 9000
+ 17680 strings out of 493485
+ 336231 string characters out of 3143527
+ 476665 words of memory out of 3000000
+ 20571 multiletter control sequences out of 15000+200000
+ 21178 words of font info for 86 fonts, out of 3000000 for 9000
  957 hyphenation exceptions out of 8191
  40i,14n,74p,926b,793s stack positions out of 5000i,500n,10000p,200000b,50000s
 </usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmbx10.pfb></us
@@ -1629,10 +1654,10 @@ s/type1/public/amsfonts/cm/cmsy5.pfb></usr/share/texlive/texmf-dist/fonts/type1
 ts/cm/cmti10.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/
 cmti8.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/euler/eusm
 10.pfb>
-Output written on report.pdf (18 pages, 626230 bytes).
+Output written on report.pdf (21 pages, 637406 bytes).
 PDF statistics:
- 382 PDF objects out of 1000 (max. 8388607)
- 321 compressed objects within 4 object streams
- 64 named destinations out of 1000 (max. 500000)
- 259 words of extra memory for PDF output out of 10000 (max. 10000000)
+ 430 PDF objects out of 1000 (max. 8388607)
+ 366 compressed objects within 4 object streams
+ 73 named destinations out of 1000 (max. 500000)
+ 307 words of extra memory for PDF output out of 10000 (max. 10000000)
 
