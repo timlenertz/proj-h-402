@@ -11,14 +11,14 @@ namespace dypc {
 
 class downsampling_loader : public loader {
 private:
-	static constexpr float initial_downsampling_setting_ = 5.0;
+	static constexpr float initial_downsampling_setting_ = 20.0;
 	static constexpr std::size_t maximal_attempts_ = 10;
 	static constexpr float expected_output_ratio_ = 0.4;
 	static constexpr float error_tolerance_ratio = 0.1;
 	static constexpr float output_change_threshold_ratio_ = 0.1;
 	
 protected:
-	bool adaptive_ = true; ///< Whether the loader is adaptive.
+	bool adaptive_ = false; ///< Whether the loader is adaptive.
 	float downsampling_setting_ = initial_downsampling_setting_; ///< Current downsampling setting.
 	std::unique_ptr<downsampling_controller> downsampling_controller_; ///< Downsampling setting controller.
 	bool should_recompute_ = false;

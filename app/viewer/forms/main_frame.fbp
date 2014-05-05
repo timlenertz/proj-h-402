@@ -2647,7 +2647,7 @@
                                                 <property name="initial">200</property>
                                                 <property name="max">50000</property>
                                                 <property name="maximum_size"></property>
-                                                <property name="min">1</property>
+                                                <property name="min">0</property>
                                                 <property name="minimum_size"></property>
                                                 <property name="name">downsampling_setting</property>
                                                 <property name="permission">protected</property>
@@ -2660,7 +2660,7 @@
                                                 <property name="validator_style">wxFILTER_NUMERIC</property>
                                                 <property name="validator_type">wxTextValidator</property>
                                                 <property name="validator_variable"></property>
-                                                <property name="value">200</property>
+                                                <property name="value">20</property>
                                                 <property name="window_extra_style"></property>
                                                 <property name="window_name"></property>
                                                 <property name="window_style"></property>

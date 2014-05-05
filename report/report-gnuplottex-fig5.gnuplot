@@ -11,10 +11,10 @@ n = 5000000
 nmin = 1000000
 rmin = nmin / n
 a = 2
+b(s) = 250 / s
 
-
-start_distance(s) = s**xp
-step_distance(s) = s
+start_distance(s) = b(s)**xp
+step_distance(s) = b(s)
 constrain_lvl(l) = (l > levels - 1) ? (levels - 1) : l
 
 r(l) = 1 - (1 - rmin) * (l/(levels - 1))**a

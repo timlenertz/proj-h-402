@@ -1,7 +1,7 @@
 set terminal latex
 set output 'report-gnuplottex-fig1.tex'
 set terminal epslatex color
-set xlabel "$s$"
+set xlabel "$l$"
 set ylabel "$n / |P|$"
 plot \
 "stat\_dragon.dat" using 1:($2/3609599+0*$2) smooth unique linetype rgb "black" title "dragon.ply", \

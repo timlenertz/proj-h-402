@@ -2,18 +2,10 @@
 #include "../progress.h"
 #include <cstring>
 
-#include "../debug.h"
-#include <iostream>
-
 namespace dypc {
 
 cuboid model::bounding_cuboid(float ep) {
 	float two_ep = ep + ep;
-	
-	std::cout << cuboid(
-		glm::vec3(x_minimum() - ep, y_minimum() - ep, z_minimum() - ep),
-		glm::vec3(x_range() + two_ep, y_range() + two_ep, z_range() + two_ep)
-	) << std::endl;
 	
 	return cuboid(
 		glm::vec3(x_minimum() - ep, y_minimum() - ep, z_minimum() - ep),

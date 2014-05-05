@@ -4,7 +4,7 @@ namespace dypc {
 
 float choose_downsampling_level_continuous(std::size_t levels, float distance, float setting) {
 	if(setting <= 0.0) return 0;
-	float base = 250.0/setting;
+	float base = 25.0/setting;
 	
 	const float start_distance_exponent = 1.3;
 	

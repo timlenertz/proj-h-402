@@ -12,10 +12,15 @@
 \BOOKMARK [2][-]{subsection.2.4.6}{Adaptive downsampling}{section.2.4}% 12
 \BOOKMARK [1][-]{section.2.5}{Occlusion culling}{chapter.2}% 13
 \BOOKMARK [0][-]{chapter.3}{Data structures}{}% 14
-\BOOKMARK [1][-]{section.3.1}{Cubes structure}{chapter.3}% 15
-\BOOKMARK [1][-]{section.3.2}{Tree structures}{chapter.3}% 16
-\BOOKMARK [2][-]{subsection.3.2.1}{Octree}{section.3.2}% 17
-\BOOKMARK [2][-]{subsection.3.2.2}{KdTree}{section.3.2}% 18
-\BOOKMARK [0][-]{chapter.4}{Application}{}% 19
-\BOOKMARK [0][-]{chapter.5}{Results}{}% 20
-\BOOKMARK [0][-]{chapter.6}{Conclusion}{}% 21
+\BOOKMARK [1][-]{section.3.1}{General}{chapter.3}% 15
+\BOOKMARK [1][-]{section.3.2}{File types}{chapter.3}% 16
+\BOOKMARK [1][-]{section.3.3}{Cuboid regions}{chapter.3}% 17
+\BOOKMARK [2][-]{subsection.3.3.1}{Floating point issues}{section.3.3}% 18
+\BOOKMARK [2][-]{subsection.3.3.2}{Point-to-cuboid distance}{section.3.3}% 19
+\BOOKMARK [1][-]{section.3.4}{Cubes structure}{chapter.3}% 20
+\BOOKMARK [1][-]{section.3.5}{Tree structures}{chapter.3}% 21
+\BOOKMARK [2][-]{subsection.3.5.1}{Octree}{section.3.5}% 22
+\BOOKMARK [2][-]{subsection.3.5.2}{KdTree}{section.3.5}% 23
+\BOOKMARK [0][-]{chapter.4}{Implementation}{}% 24
+\BOOKMARK [0][-]{chapter.5}{Results}{}% 25
+\BOOKMARK [0][-]{chapter.6}{Conclusion}{}% 26

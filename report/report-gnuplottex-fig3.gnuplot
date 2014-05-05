@@ -16,7 +16,7 @@ unset autoscale
 start_distance(b) = b**xp
 step_distance(b) = b
 constrain_lvl(l) = (l > levels - 1) ? (levels - 1) : l
-b(s) = 100 / s
+b(s) = 250 / s
 
 l(d, s) = constrain_lvl( \
 (d > start_distance(b(s))) ? ((d - start_distance(b(s))) / step_distance(b(s))) : 0 \
