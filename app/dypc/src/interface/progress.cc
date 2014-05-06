@@ -86,7 +86,7 @@ dypc_progress_callbacks dypc_current_progress_callbacks = default_callbacks_;
 
 void dypc_set_progress_callbacks(const dypc_progress_callbacks* callbacks) {
 	DYPC_INTERFACE_BEGIN;
-	dypc_current_progress_callbacks = *callbacks;
+	//dypc_current_progress_callbacks = *callbacks;
 	DYPC_INTERFACE_END;
 }
 

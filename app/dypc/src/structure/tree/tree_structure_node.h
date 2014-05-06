@@ -176,10 +176,10 @@ void tree_structure_node<Splitter, Levels, PointsContainer>::add_root_node_point
 	
 	// Stage 2: All points have been added into node and children's internal buffers. The output points array is going to be ordered at a concatenation of the tree's node points in depth-first order. That way, points belonging to one node (at any depth) are always in one interval.
 	// Internal buffers are deallocated, and instead the offset in the output array is stored in nodes.
-	move_out_points_(output_points, 0);
+	move_out_points_(output_points, lvl);
 	
 	// Stage 3: All points have been put into output array. Since the output array will no longer be changed, it is now safe to store iterators to it (For deque, the iterators would otherwise be invalidated when the array is changed). The final stage replaces the stored offsets by iterators, so that faster access is possible.
-	finalize_move_out_(output_points, 0);
+	finalize_move_out_(output_points, lvl);
 }
 
 
@@ -234,7 +234,7 @@ void tree_structure_node<Splitter, Levels, PointsContainer>::add_points_with_inf
 			cuboid child_cuboid = Splitter::node_child_cuboid(i, cub, points_information_, depth);
 			auto& set = child_point_sets[i];
 			child(i).add_points_with_information_(set, child_cuboid, depth + 1, leaf_capacity, pr);
-			set.clear(); set.shrink_to_fit(); // Free it now to safe some memory
+			set.clear(); set.shrink_to_fit(); // Free it now to save some memory
 		}
 	}
 }
