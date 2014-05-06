@@ -159,7 +159,7 @@ public:
 template<class Splitter, std::size_t Levels, class PointsContainer>
 void tree_structure_node<Splitter, Levels, PointsContainer>::add_root_node_points(std::ptrdiff_t lvl, PointsContainer& output_points, PointsContainer& all_points, const cuboid& cub, std::size_t leaf_capacity, progress_handle& pr) {
 	assert(lvl >= 0 && lvl < Levels);
-	assert(is_leaf() && number_of_points(lvl) == 0); // Must be called once only, when node is still empty
+	assert(number_of_points(lvl) == 0); // Must be called once only for each level
 	if(lvl == 0) {
 		// Adding non-downsampled points. Must always be done first. Since this point set is the largest in size, it is used to determine node information and recursively split the tree
 		

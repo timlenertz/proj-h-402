@@ -173,7 +173,7 @@ void tree_structure<Splitter, Levels, PointsContainer>::load_downsampled_points(
 	
 	// Add points into root node
 	progress(all_points_[0].size(), "Adding downsampled points, level " + std::to_string(lvl) + "...", [&](progress_handle& pr) {
-		root_.add_root_node_points(lvl, downsampled, level_points, root_cuboid_, leaf_capacity_, pr);
+		root_.add_root_node_points(lvl, level_points, downsampled, root_cuboid_, leaf_capacity_, pr);
 	});
 }
 
@@ -203,7 +203,7 @@ void tree_structure<Splitter, Levels, PointsContainer>::load_(const cuboid& cub)
 
 	// Add points and build tree
 	progress(all_points_unordered.size(), "Adding points and building tree...", [&](progress_handle& pr) {
-		root_.add_root_node_points(0, all_points_unordered, all_points_[0], root_cuboid_, leaf_capacity_, pr);
+		root_.add_root_node_points(0, all_points_[0], all_points_unordered, root_cuboid_, leaf_capacity_, pr);
 	});
 }
 

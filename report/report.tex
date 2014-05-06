@@ -371,6 +371,8 @@ The data structure is built on top of a \emph{file type}. Several possible file 
 \item[SQL database] 
 \end{description}
 
+\section{HDF}
+
 \section{Cuboid regions} \label{sec:cub_reg}
 All of the data structures used in the projet rely on subdividing the three dimensional space in axis-aligned cuboid regions. A cuboid $\mathcal{C}$ is defined by its \emph{origin} $(x, y, z)$ and its \emph{extremity} $(x', y', z')$, and a point $\overrightarrow{p}$ is considered to be inside the cuboid if and only if $p_{x} \in [x, x'[$, $p_{y} \in [y, y'[$ and $p_{z} \in [z, z'[$.
 
@@ -392,7 +394,7 @@ Also for all of the data structures, the implementation of $f_{P}$ will apply do
 \end{description}
 
 \begin{wrapfigure}{r}{4cm}
-\includegraphics[width=4cm]{minMaxDistance.png}
+\includegraphics[width=4cm,height=5cm]{minMaxDistance.png}
 \label{fig:min_max_c_d}
 \end{wrapfigure}
 Assuming that any definition of $d$ gives a value $\geq$ the maximal distance and $\leq$ the minimal distance, it is not possible in general to define $d$ such that if $d(\overrightarrow{p}, \mathcal{C_{1}}) > d(\overrightarrow{p}, \mathcal{C_{2}})$, then for all $\overrightarrow{q_{1}} \in \mathcal{C_{1}}$ and all $\overrightarrow{q_{2}} \in \mathcal{C_{2}}$, it remains true that $d(\overrightarrow{p}, \overrightarrow{q_{1}}) > d(\overrightarrow{p}, \overrightarrow{q_{2}})$. 
@@ -414,10 +416,26 @@ Only cubes that contain at least one point are created, so their total number wi
 \end{equation*}
 This is correct because the definition of the floor function coincides with the way that the cuboid regions' boundary intervals are defined. Similar relations will occur for the tree structures, where it is critical for the correct functionning of the algorithm that the relations always hold, despite possible floating point imprecision errors.
 
-There are two variants for the cubes structure, one with \emph{weighted points} and one with \emph{LOD regions}. For the weighted points variant, the algorithm proceeds by attributing random weights $w \in [0,1]$ to each point $p \in P$ in an uniform distribution. For the LOD regions variant, the algorithm instead computes for each cube $\mathcal{C}$, the $L-1$ downsampled point sets, for the set of points inside that cube $P(\mathcal{C}) = \{ p \mid p \in \mathcal{C} \}$.
+There are two variants for the cubes structure, one with \emph{weighted points} and one with \emph{LOD regions}. 
 
-\subsection{Serialization}
-There are two implementations of the cubes structure: Using \emph{HDF} as file type, and using an \emph{SQLite database}. For the \emph{HDF} file, the points are stored into a data set, and are ordered such that points belonging to the same cube are grouped. The order of the groups and the order of the points within the groups does not make a difference. The combound type for this data set consists of 3 floating point values for the $x, y, z$ coordinates of the point, and 3 byte values for the color values.
+\subsection{Weighted point variant}
+The algorithm proceeds by attributing random weights $w \in [0,1]$ to each point $p \in P$ in an uniform distribution.
+
+When a \emph{HDF} file type is used, two one-dimensional data sets \texttt{points} and \texttt{cubes} are created. The \texttt{points} data set is contains $|P|$ entries of the \texttt{point} combound type. This type consists of four floating point values for the point coordinates $p_{x}, p_{y}, p_{z}$ and the weight $w$, plus three byte values for the RGB color information. The points in $P$ are added into this data set, grouped by the cube in which they belong. Inside each cube group, the point entries are sorted by ascending $w$. The outer order of the cube groups does not matter.
+
+The \texttt{cubes} data set is filled with an entry for each cube. For each cube entry, it contains the three incides of the cube $i, j, k$, the number of points in the cube $N(\mathcal{C})$, and the offset $\text{off}(\mathcal{C})$ in the \texttt{points} data set of the first point from that cube. So given a \texttt{cubes} entry the corresponding array of points in the \texttt{points} ranges from $\text{off}(\mathcal{C})$ to $\text{off}(\mathcal{C}) + N(\mathcal{C}) - 1$.
+
+This data structure is also implemented with an \emph{SQLite database} as backend. Here, two tables for the cubes and for the points are created, except that instead of storing offsets, each cube has a unique \emph{primary index}, the points table contains an \emph{index} column that gives is set to the cube's index. The points corresponding to one cube are loaded using SQL queries, and \emph{SQLite}'s indexing algorithms take care of the internal representation of the data and then necessary optimizations.
+
+\subsection{LOD regions variant}
+For the \emph{LOD regions variant}, the algorithm instead proceeds by generating, for the sets of points in each cube $P_{\mathcal{C}} = \{ p \mid p \in \mathcal{C} \}$, the $L-1$ downsampled point sets $P'_{r}(\mathcal{C})$.\footnote{An alternative implementation would be a generate the downsampled point sets for the entire model $P$, and then reattribute the resulting points $p' \in P'_{r}$ to their respective cubes.}
+
+In the \emph{HDF} file, $L$ different point sets \texttt{points\#} are created which all the points for the downsampled point sets. Again, the points are grouped by their group. Here, the points don't have a weight, and the order of the point entries inside the groups, just like the order of the groups, doesn't matter. The \texttt{cubes} data set now needs to store the cubes' point offsets and counts for each downsampling level, because they will be different.
+
+There is no implementation for a \emph{SQLite database} file type for this variant.
+
+
+\subsection{Extraction algorithm}
 
 \section{Tree structures}
 \subsection{Octree}
@@ -430,7 +448,7 @@ There are two implementations of the cubes structure: Using \emph{HDF} as file t
 \chapter{Conclusion}
 
 \appendix
-\chapter{Geometry algorithms}
+\chapter{Geometric algorithms}
 
 \section{Definitions}
 The geometric objects used in the algorithms are defined in the following manner:
@@ -461,9 +479,14 @@ As described in \cite{Gri2001}, the 6 planes $P = (a, b, c, d)$ can be derived a
 \end{align*}
 
 \section{Maximal point-to-cuboid distance}
-The maximal distance from a point $\overrightarrow{p}$ to a cuboid $\mathcal{C}$ is always the distance to one of the 8 corners of $\mathcal{C}$. The algorithm simply tests the distances from $\overrightarrow{p}$ to each one of the corners and returns the maximal one. As a small optimization, the algorithm can compare the squares of the distances instead, so as to do only one square root computation.
+The maximal distance from a point $\overrightarrow{p}$ to a cuboid $\mathcal{C}$ is always the distance to one of the 8 corners of $\mathcal{C}$ (also if $\overrightarrow{p}$ is inside $\mathcal{C}$). The algorithm simply tests the distances from $\overrightarrow{p}$ to each one of the corners and returns the maximal one. As a small optimization, the algorithm can compare the squares of the distances instead, so as to do only one square root computation.
 
 \section{Minimal point-to-cuboid distance}
+The minimal distane from a point to a $\overrightarrow{p}$ to a cuboid $\mathcal{C}$ can either be the distance to one of the corners of $\mathcal{C}$, or the distance to one of its edges, or one of its sides. If $\overrightarrow{p}$ is inside $\mathcal{C}$, the distance is always $0$. However there is no need to explicitly distinguish all those cases:
+
+Let $\overrightarrow{d} = (\Delta x, \Delta y, \Delta z)$ be the vector from $\overrightarrow{p}$ (point) to the point on $\mathcal{C}$ such that $d = |\overrightarrow{d}|$ is minimal. If $p_{x} \in [x, x']$, then $\overrightarrow{d}$ will point straight to $\mathcal{C}$ in the $x$-direction, so $\Delta x = 0$. If $p_{x} < x$, it needs to turn towards $\mathcal{C}$, so $\Delta x = p_{x} - x$. Same for when $p_{x} > x'$, then $\Delta x = -(x' - p_{x})$.
+
+The coordinates $\Delta y$ and $\Delta z$ are determined the same way. Finally $d = \sqrt{\Delta x^{2} + \Delta y^{2} + \Delta z^{2}}$ is calculated. This implies that $d$ will be set to $0$ when $\overrightarrow{p}$ is inside $\mathcal{C}$. A small optimization might be to avoid calculating the square and square root when none or only one coordinate is non-zero.
 
 \section{Frustum-cuboid intersection}
 
