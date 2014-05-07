@@ -6,6 +6,9 @@
 
 namespace dypc {
 
+/**
+ * Model that generates points based on random number generator.
+ */
 class random_model : public model {
 protected:
 	using random_generator_t = std::mt19937;
@@ -13,9 +16,9 @@ protected:
 private:
 	class handle : public model::handle {
 	private:
-		random_model& model_;
-		std::size_t remaining_;
-		random_generator_t random_generator_;
+		random_model& model_; ///< The random model.
+		std::size_t remaining_; ///< Remaining number of points.
+		random_generator_t random_generator_; ///< Random number generator. Stores seed.
 	
 	public:
 		explicit handle(random_model& mod) : model_(mod), remaining_(mod.number_of_points()) { }
@@ -35,7 +38,7 @@ private:
 		std::unique_ptr<model::handle> clone() override {
 			handle* h = new handle(model_);
 			h->remaining_ = remaining_;
-			h->random_generator_ = random_generator_;
+			h->random_generator_ = random_generator_; // copies current seed
 			return std::unique_ptr<model::handle>(h);
 		}
 	};
@@ -45,6 +48,13 @@ protected:
 		return std::unique_ptr<model::handle>(new handle(*this));
 	}
 	
+	/**
+	 * Create random model.
+	 * Called by subclass.
+	 * @param n Total number of points.
+	 * @param minimum Minimum point coordinate.
+	 * @param minimum Maximum point coordinate.
+	 */
 	random_model(std::size_t n, glm::vec3 minimum, glm::vec3 maximum) {
 		number_of_points_ = n;
 		minimum_ = minimum;

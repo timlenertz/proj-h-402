@@ -14,7 +14,7 @@ namespace dypc {
  */
 class direct_model_loader : public loader {
 private:
-	std::unique_ptr<model> model_;
+	std::unique_ptr<model> model_; ///< The model.
 
 public:
 	/**

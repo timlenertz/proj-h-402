@@ -12,26 +12,61 @@
 #include <cmath>
 #include <iostream>
 #include <cassert>
+#include <random>
 
 namespace dypc {
 
 /**
- * 
+ * Structure which stores uniform downsampling results.
+ * If uniform downsampling is applied several times (i.e. different levels) on the same point set, this structure stores cube side length - ratio information that can be reused to accelerate uniform_downsampling_side_length.
  */
 using uniform_downsampling_previous_results_t = std::map<std::size_t, float>;
 
+
+/**
+ * Structure which stores downsampling ratios for level.
+ */
 using downsampling_ratios_t = std::vector<float>;
 
 
+/**
+ * Choose a continuous downsampling level based on distance.
+ * See report for details.
+ * @param levels Number of downsampling levels.
+ * @param distance Distance of region being downsampled.
+ * @param setting Downsampling setting.
+ * @return Downsampling level.
+ */
 float choose_downsampling_level_continuous(std::size_t levels, float distance, float setting);
 
+/**
+ * Choose a discrete downsampling level based on distance.
+ * See report for details.
+ * @param levels Number of downsampling levels.
+ * @param distance Distance of region being downsampled.
+ * @param setting Downsampling setting.
+ * @return Downsampling level.
+ */
 inline std::ptrdiff_t choose_downsampling_level(std::size_t levels, float distance, float setting) {
 	return std::ceil(choose_downsampling_level_continuous(levels, distance, setting));
 }
 
-float downsampling_ratio_for_level(float i, std::size_t levels, std::size_t total_points, std::size_t minimum, float amount);
+/**
+ * Get downsampling ration for given level.
+ * See report for details.
+ * @param l Downsampling level. 0 means no downsampling. Must be lesser than \a levels.
+ * @param levels Number of levels.
+ * @param total_points Total points in region.
+ * @param minimum Minimal number of points to output.
+ * @param amount Downsampling amount.
+ * @return Downsampling ratio.
+ */
+float downsampling_ratio_for_level(float l, std::size_t levels, std::size_t total_points, std::size_t minimum, float amount);
 
-
+/**
+ * Get continous downsampling ratio for given ratio.
+ * See report for details.
+ */
 inline float choose_downsampling_level_ratio_continuous(std::size_t levels, float distance, float setting, std::size_t total_points, std::size_t minimum, float amount) {
 	float level = choose_downsampling_level_continuous(levels, distance, setting);
 	return downsampling_ratio_for_level(level, levels, total_points, minimum, amount);
@@ -43,7 +78,7 @@ downsampling_ratios_t determine_downsampling_ratios(std::size_t levels, std::siz
 
 /**
  * Apply random downsampling.
- * Number of points in output will be as close to as possible to expected_number_of_points, but not higher.
+ *
  * @tparam Iterator Iterator to point set.
  * @tparam OutputContainer Container type for output.
  * @param pt_begin Begin iterator of points.
@@ -53,11 +88,13 @@ downsampling_ratios_t determine_downsampling_ratios(std::size_t levels, std::siz
  */
 template<class Iterator, class OutputContainer>
 void random_downsampling(Iterator pt_begin, Iterator pt_end, std::size_t expected_number_of_points, OutputContainer& output) {
-	std::size_t n = pt_end - pt_begin;
-	int threshold = expected_number_of_points * RAND_MAX / n;
+	std::size_t total_number_of_points = pt_end - pt_begin;
+	std::mt19937 random_generator;
+	std::discrete_distribution<bool> distribution({ total_number_of_points - expected_number_of_points, expected_number_of_points });
+	
 	for(Iterator pt = pt_begin; (pt != pt_end) && (output.size() < expected_number_of_points); ++pt)
-		if(std::rand() < threshold) output.push_back(*pt);
-		
+		if(distribution(random_generator)) output.push_back(*pt);
+	
 	assert(output.size() <= expected_number_of_points);
 }
 
@@ -132,8 +169,7 @@ float uniform_downsampling_side_length(Iterator pt_begin, Iterator pt_end, std::
 			attempt_side_length = minimal_side_length + (maximal_side_length - minimal_side_length)/2;
 			
 			pr.pulse();
-			
-			std::cout << "expected: " << expected_number_of_points << ", got: " << attempt_number_of_points << "; side: " << attempt_side_length << std::endl;
+			pr.message("expected " + std::to_string(expected_number_of_points) + "; got: " + std::to_string(attempt_number_of_points) + "; side: " + std::to_string(attempt_side_length));
 		} while(std::abs(attempt_number_of_points - expected_number_of_points) > threshold);
 	});
 	

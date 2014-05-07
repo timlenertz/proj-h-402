@@ -58,24 +58,39 @@ public:
 		return root_piece_node_;
 	}
 	
-	void load_piece(const piece_node&);
+	/**
+	 * Load given piece in tree structure.
+	 * Load the portion of the model contained within that piece's cuboid into the tree structure.
+	 * This builds the tree and generated the downsampled sets, just like if a new tree_structure object were
+	 * to be created for that point set.
+	 * @param nd The piece node to load.
+	 */
+	void load_piece(const piece_node& nd);
 	
 	std::size_t total_number_of_points_upper_bound(std::ptrdiff_t lvl) const;
 };
 
 
+/**
+ * Node in the pieces tree.
+ */
 template<class Splitter, std::size_t Levels, class PointsContainer, class PiecesSplitter>
 class tree_structure_piecewise<Splitter, Levels, PointsContainer, PiecesSplitter>::piece_node {
 private:
-	piece_node* children_[PiecesSplitter::number_of_node_children];
-	const cuboid cuboid_;
-	const std::size_t depth_ = 0;
-	std::size_t number_of_points_ = 0;
-	std::ptrdiff_t data_offset_ = -1;
+	piece_node* children_[PiecesSplitter::number_of_node_children]; ///< Child nodes.
+	const cuboid cuboid_; ///< Cuboid for this piece node.
+	const std::size_t depth_ = 0; ///< Depth of this piece node.
+	std::size_t number_of_points_ = 0; ///< Number of points belonging into this piece node.
+	std::ptrdiff_t data_offset_ = -1; ///< Offset that points from this node will have when ordered. -1 when not yet defined.
 	
-	void delete_children_();
+	void delete_children_(); ///< Delete any children.
 
 public:
+	/**
+	 * Create child node with no children.
+	 * @param cub Cuboid for this node.
+	 * @param depth Depth of this node in the tree.
+	 */
 	piece_node(const cuboid& cub, std::size_t depth) : cuboid_(cub), depth_(depth) {
 		for(auto& child : children_) child = nullptr;
 	}
@@ -87,28 +102,52 @@ public:
 	piece_node(const piece_node&) = delete;
 	piece_node& operator=(const piece_node&) = delete;
 	
-	const cuboid& get_cuboid() const { return cuboid_; }
-	std::size_t get_depth() const { return depth_; }
-	std::size_t get_number_of_points() const { return number_of_points_; }
-	std::ptrdiff_t get_data_offset() const { return data_offset_; }
+	const cuboid& get_cuboid() const { return cuboid_; } ///< Get cuboid of this node.
+	std::size_t get_depth() const { return depth_; } ///< Get depth of this node.
+	std::size_t get_number_of_points() const { return number_of_points_; } ///< Get number of points of this node.
+	std::ptrdiff_t get_data_offset() const { assert(data_offset_ != -1); return data_offset_; } ///< Get data offset of this node.
 	
-	bool has_child(std::ptrdiff_t i) const { assert(i >= 0 && i < PiecesSplitter::number_of_node_children); return (children_[i] != nullptr); }
-	piece_node& child(std::ptrdiff_t i) { assert(has_child(i)); return *children_[i]; }
-	const piece_node& child(std::ptrdiff_t i) const { assert(has_child(i)); return *children_[i]; }
+	bool has_child(std::ptrdiff_t i) const { assert(i >= 0 && i < PiecesSplitter::number_of_node_children); return (children_[i] != nullptr); } ///< Check if a given child exists.
+	piece_node& child(std::ptrdiff_t i) { assert(has_child(i)); return *children_[i]; } ///< Get child of node.
+	const piece_node& child(std::ptrdiff_t i) const { assert(has_child(i)); return *children_[i]; } ///< Get child of node.
+
+	bool contains_point(glm::vec3 pt) const { return cuboid_.in_range(pt); } ///< Check if node cuboid contains a given point.
 	
+	/**
+	 * Check if node has no children.
+	 */
 	bool is_leaf() const {
 		for(auto child : children_) if(child) return false;
 		return true;
 	}
 	
-	bool contains_point(glm::vec3 pt) const {
-		return cuboid_.in_range(pt);
-	}
-	
+	/**
+	 * Initialize full tree down to given depth.
+	 * Creates all child node with cuboids given by PieceSplitter, down to given maximal depth.
+	 * Removes existing tree if any, and resets number of points to zero.
+	 * @param max_depth Depth ot tree to create.
+	 */
 	void initialize_tree(std::size_t max_depth);
 	
+	/**
+	 * Recursively increment point count.
+	 * Increments the number of points in this node, and recursively of all child nodes that contain this point.
+	 * (i.e. one branch in the tree). Returns false, if this puts the number of points of a leaf to more than \a maxnum.
+	 * Can be called only after initialize_tree; i.e. when either all of no child nodes exist for and node.
+	 * @param pt Point to count. Must be inside this node's cuboid.
+	 * @param maxnum Maximal number of points that can be in a leaf.
+	 * @return Returns false when too many points in a leaf.
+	 */
 	bool count_point(glm::vec3 pt, std::ptrdiff_t maxnum);
 	
+	/**
+	 * Finalize tree and define data offsets.
+	 * Removes as many nodes as possoble from the tree, such that all child nodes in the remaining tree have a number of
+	 * points less or equal to \a maxnum, yielding the final pieces tree.
+	 * Also sets data offsets of the nodes' points in an ordered list. (@see tree_structure_node)
+	 * count_point must never have returned false
+	 * @param maxnum 
+	 */
 	std::ptrdiff_t make_pieces(std::ptrdiff_t maxnum, std::ptrdiff_t offset = 0);
 };
 
@@ -118,9 +157,7 @@ public:
 template<class Splitter, std::size_t Levels, class PointsContainer, class PiecesSplitter>
 tree_structure_piecewise<Splitter, Levels, PointsContainer, PiecesSplitter>::tree_structure_piecewise(std::size_t leaf_cap, std::size_t dmin, float damount, downsampling_mode dmode, model& mod, std::ptrdiff_t maxnum) :
 super(leaf_cap, dmin, damount, dmode, mod, super::no_load),
-root_piece_node_(mod.enclosing_cuboid(), 0) {
-	maxnum = 70000;
-	
+root_piece_node_(mod.enclosing_cuboid(), 0) {	
 	std::size_t max_depth = expected_maximal_pieces_depth_;
 	bool repeat = true;
 	while(repeat) {
@@ -165,7 +202,7 @@ void tree_structure_piecewise<Splitter, Levels, PointsContainer, PiecesSplitter>
 
 template<class Splitter, std::size_t Levels, class PointsContainer, class PiecesSplitter>
 void tree_structure_piecewise<Splitter, Levels, PointsContainer, PiecesSplitter>::piece_node::initialize_tree(std::size_t max_depth) {
-	delete_children_();
+	delete_children_(); number_of_points_ = 0;
 	if(max_depth == 0) return;
 	typename PiecesSplitter::node_points_information no_info;
 	for(std::ptrdiff_t i = 0; i < PiecesSplitter::number_of_node_children; ++i) {

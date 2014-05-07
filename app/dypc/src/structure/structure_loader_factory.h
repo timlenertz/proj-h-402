@@ -67,6 +67,18 @@ tree_structure_loader* create_tree_structure_memory_loader(structure_type type, 
  */
 loader* create_structure_file_loader(const std::string& filename, tree_structure_loader_type ltype = tree_structure_loader_type::ordered);
 
+
+/**
+ * Create tree structure, and store it in file.
+ * This function allows for the structure type, downsampling levels, and loader type to be specified as runtime variables. One of the (template) classes defined in structure_loader_factory.cc is chosen based on the parameters. The file type is determined from the file name extension, and the structure type information is written to the file.
+ * @param filename Output file path, with extension.
+ * @param type The structure type, must be a tree structure type.
+ * @param levels Downsampling levels, must be 1, 4, 8 or 16.
+ * @param leaf_cap Leaf capacity of the tree structure.
+ * @param dmin Minimal downsampling output.
+ * @param damount Downsampling amount.
+ * @param mod The model. Must exist for lifetime of returned loader.
+ */
 void write_tree_structure_file(const std::string& filename, structure_type type, unsigned levels, std::size_t leaf_cap, std::size_t dmin, float damount, downsampling_mode dmode, model& mod);
 
 }
