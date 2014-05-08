@@ -21,7 +21,8 @@ public:
 	
 	point() = default; ///< Create null point.
 	point(const point&) = default; ///< Copy point.
-	point(glm::vec3 pt) : x(pt[0]), y(pt[1]), z(pt[2]), r(default_color[0]), g(default_color[1]), b(default_color[2]) { } ///< Generate non colored point from position vector.
+	point(glm::vec3 pt, std::uint8_t nr = default_color[0], std::uint8_t ng = default_color[1], std::uint8_t nb = default_color[2]) : x(pt[0]), y(pt[1]), z(pt[2]), r(nr), g(ng), b(nb) { } ///< Generate non colored point from position vector.
+
 		
 	/**
 	 * Create non-null point from position, and color information.

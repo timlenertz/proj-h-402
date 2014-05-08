@@ -36,9 +36,6 @@ downsampling_ratios_t determine_downsampling_ratios(std::size_t levels, std::siz
 	for(std::ptrdiff_t i = levels - 1; i >= 1; --i) result[i] = downsampling_ratio_for_level(i, levels, total_points, minimum, amount);
 	result[0] = 1.0;
 	
-	for(auto r : result) std::cout << r << ", ";
-	std::cout << std::endl;
-	
 	return result;
 }
 

@@ -156,7 +156,7 @@ public:
 
 template<class Splitter, std::size_t Levels, class PointsContainer, class PiecesSplitter>
 tree_structure_piecewise<Splitter, Levels, PointsContainer, PiecesSplitter>::tree_structure_piecewise(std::size_t leaf_cap, std::size_t dmin, float damount, downsampling_mode dmode, model& mod, std::ptrdiff_t maxnum) :
-super(leaf_cap, dmin, damount, dmode, mod, super::no_load),
+super(leaf_cap, dmin, damount, dmode, mod, true, super::no_load),
 root_piece_node_(mod.enclosing_cuboid(), 0) {	
 	std::size_t max_depth = expected_maximal_pieces_depth_;
 	bool repeat = true;

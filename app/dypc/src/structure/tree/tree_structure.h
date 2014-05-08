@@ -49,9 +49,10 @@ protected:
 	 * @param damount Downsampling amount.
 	 * @param dmode Downsampling mode.
 	 * @param mod The model, must exist during lifetime of tree structure.
+	 * @param exact_downsampling If true, generate predictable number of downsampled points.
 	 * @param no_load Marker.
 	 */
-	tree_structure(std::size_t leaf_cap, std::size_t dmin, float damount, downsampling_mode dmode, model& mod, no_load_t no_load) : mipmap_structure(Levels, dmin, damount, dmode, mod), leaf_capacity_(leaf_cap) { }
+	tree_structure(std::size_t leaf_cap, std::size_t dmin, float damount, downsampling_mode dmode, model& mod, bool exact_downsampling, no_load_t no_load) : mipmap_structure(Levels, dmin, damount, dmode, exact_downsampling, mod), leaf_capacity_(leaf_cap) { }
 	
 	/**
 	 * Unload model.
@@ -76,8 +77,9 @@ public:
 	 * @param dmode Downsampling mode.
 	 * @param mod The model, must exist during lifetime of tree structure.
 	 * @param load_all_downsampled If true, also load all levels of downsampled points.
+	 * @param exact_downsampling If true, generate predictable number of downsampled points.
 	 */
-	tree_structure(std::size_t leaf_cap, std::size_t dmin, float damount, downsampling_mode dmode, model& mod, bool load_all_downsampled = true);
+	tree_structure(std::size_t leaf_cap, std::size_t dmin, float damount, downsampling_mode dmode, model& mod, bool load_all_downsampled = true, bool exact_downsampling = false);
 	
 	/**
 	 * Get number of points for given level.
@@ -153,8 +155,8 @@ void tree_structure<Splitter, Levels, PointsContainer>::unload_() {
 
 
 template<class Splitter, std::size_t Levels, class PointsContainer>
-tree_structure<Splitter, Levels, PointsContainer>::tree_structure(std::size_t leaf_cap, std::size_t dmin, float damount, downsampling_mode dmode, model& mod, bool load_all_downsampled) :
-mipmap_structure(Levels, dmin, damount, dmode, mod), leaf_capacity_(leaf_cap) {
+tree_structure<Splitter, Levels, PointsContainer>::tree_structure(std::size_t leaf_cap, std::size_t dmin, float damount, downsampling_mode dmode, model& mod, bool load_all_downsampled, bool exact_downsampling) :
+mipmap_structure(Levels, dmin, damount, dmode, exact_downsampling, mod), leaf_capacity_(leaf_cap) {
 	load_(mod.enclosing_cuboid());
 	if(load_all_downsampled) for(std::ptrdiff_t lvl = 1; lvl < Levels; ++lvl) load_downsampled_points(lvl);
 }
@@ -169,7 +171,7 @@ void tree_structure<Splitter, Levels, PointsContainer>::load_downsampled_points(
 	auto& level_points = all_points_[lvl]; // Will hold ordered downsampled points
 	
 	// Call downsampling algorithm
-	downsample_points_(original_points.begin(), original_points.end(), lvl, root_cuboid_.area(), downsampled, previous_results);
+	downsample_points_(original_points.begin(), original_points.end(), lvl, root_cuboid_, downsampled, previous_results);
 	
 	// Add points into root node
 	progress(all_points_[0].size(), "Adding downsampled points, level " + std::to_string(lvl) + "...", [&](progress_handle& pr) {

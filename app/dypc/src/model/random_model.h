@@ -2,6 +2,7 @@
 #define DYPC_RANDOM_MODEL_H_
 
 #include "model.h"
+#include "../util.h"
 #include <random>
 
 namespace dypc {
@@ -10,9 +11,6 @@ namespace dypc {
  * Model that generates points based on random number generator.
  */
 class random_model : public model {
-protected:
-	using random_generator_t = std::mt19937;
-
 private:
 	class handle : public model::handle {
 	private:

@@ -67,8 +67,16 @@ public:
 	std::size_t size() const;
 	std::size_t number_of_points() const { return point_sets_[0].size(); }
 	
-	void add_point(const point& pt);
-	void generate_downsampling();
+	cuboid get_cuboid(cube_index_t idx) {
+		auto l = structure_.get_side_length();
+		return cuboid(glm::vec3(l*std::get<0>(idx), l*std::get<1>(idx), l*std::get<2>(idx)), l);
+	}
+	
+	void add_point(const point& pt) {
+		point_sets_[0].push_back(pt);
+	}
+	
+	void generate_downsampling(cube_index_t idx);
 		
 	std::size_t extract_points_at_level(point_buffer_t points, std::size_t capacity, std::ptrdiff_t lvl) const;
 };

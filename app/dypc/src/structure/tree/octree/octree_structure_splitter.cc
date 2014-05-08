@@ -8,7 +8,7 @@ namespace dypc {
 
 cuboid octree_structure_splitter::adjust_root_cuboid(const cuboid& cub) {
 	// Generate larger cube, that encloses the cuboid. The cuboid will be at the center of the cube.
-	float side_length = std::max({ cub.side_length_x(), cub.side_length_y(), cub.side_length_z() });
+	float side_length = cub.maximal_side_length();
 	glm::vec3 origin = cub.origin;
 	origin[0] -= (side_length - cub.side_length_x())/2;
 	origin[1] -= (side_length - cub.side_length_y())/2;

@@ -25,7 +25,7 @@ void cubes_mipmap_structure::add_point_(const point& pt) {
 
 
 cubes_mipmap_structure::cubes_mipmap_structure(float side, std::size_t dlevels, std::size_t dmin, float damount, downsampling_mode dmode, model& mod) :
-mipmap_structure(dlevels, dmin, damount, dmode, mod), side_length_(side) {
+mipmap_structure(dlevels, dmin, damount, dmode, false, mod), side_length_(side) {
 	using namespace std::placeholders;
 	
 	progress_foreach(
@@ -35,7 +35,7 @@ mipmap_structure(dlevels, dmin, damount, dmode, mod), side_length_(side) {
 	
 	progress_foreach(
 		cubes_, "Downsampling...",
-		[&](cubes_t::value_type& c) { c.second.generate_downsampling(); }
+		[&](cubes_t::value_type& c) { c.second.generate_downsampling(c.first); }
 	);
 }
 
@@ -78,15 +78,11 @@ std::size_t cubes_mipmap_structure::cube::extract_points_at_level(point_buffer_t
 	return count;
 }
 
-void cubes_mipmap_structure::cube::add_point(const point& pt) {
-	point_sets_[0].emplace_back(pt);
-}
-
-void cubes_mipmap_structure::cube::generate_downsampling() {
-	float area = std::pow(structure_.get_side_length(), 3.0);
+void cubes_mipmap_structure::cube::generate_downsampling(cube_index_t idx) {
+	cuboid cub = get_cuboid(idx);
 	uniform_downsampling_previous_results_t previous_results;
 	for(std::ptrdiff_t lvl = 1; lvl < structure_.get_downsampling_levels(); ++lvl)
-		structure_.downsample_points_(point_sets_[0].begin(), point_sets_[0].end(), lvl, area, point_sets_[lvl], previous_results);
+		structure_.downsample_points_(point_sets_[0].begin(), point_sets_[0].end(), lvl, cub, point_sets_[lvl], previous_results);
 }
 
 std::size_t cubes_mipmap_structure::cube::size() const {

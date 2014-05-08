@@ -7,6 +7,7 @@
 #include <glm/gtc/quaternion.hpp>
 #include <glm/gtx/quaternion.hpp>
 #include <array>
+#include <algorithm>
 #include "../util.h"
 #include "triangle.h"
 
@@ -105,6 +106,11 @@ public:
 	 * Get 3 side lengths of cuboid.
 	 */
 	glm::vec3 side_lengths() const { return extremity - origin; }
+	
+	/**
+	 * Get maximal side length.
+	 */
+	float maximal_side_length() const { return std::max({ side_length_x(), side_length_y(), side_length_z() }); }
 	
 	/**
 	 * Check whether the cuboid is cubic.

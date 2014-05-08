@@ -8,8 +8,6 @@
 #include <vector>
 #include <functional>
 #include <array>
-#include <atomic>
-#include <thread>
 
 namespace dypc {
 
@@ -134,95 +132,6 @@ void write_to_hdf(const std::string& filename, tree_structure_piecewise<Splitter
 		
 	file.write_nodes(hdf_nodes.begin(), hdf_nodes.end());
 }
-
-
-/*
-template<class Splitter, std::size_t Levels, class PointsContainer, class PiecesSplitter>
-void write_to_hdf_parallel(const std::string& filename, tree_structure_piecewise<Splitter, Levels, PointsContainer, PiecesSplitter>& s, std::size_t threads = 2) {
-	using Structure = tree_structure_piecewise<Splitter, Levels, PointsContainer>;
-	using file_t = tree_structure_hdf_file<Levels, Splitter::number_of_node_children>;
-	using hdf_node = typename file_t::hdf_node;
-	using structure_node = typename tree_structure_piecewise<Splitter, Levels, PointsContainer>::node;
-	using piece_node = typename tree_structure_piecewise<Splitter, Levels, PointsContainer>::piece_node;
-	using piece = typename tree_structure_piecewise<Splitter, Levels, PointsContainer>::piece;	
-			
-	file_t file(filename, s.total_number_of_points());
-	
-	using point_data_offsets_t = std::array<std::ptrdiff_t, Levels>;
-	
-	struct add_piece_job {
-		const piece& the_piece;
-		point_data_offsets_t offsets;
-		std::vector<hdf_node> added_nodes;
-		point_data_offsets_t actual_lengths;
-		
-		add_piece_job(const piece& p, const point_data_offsets_t&) :
-		the_piece(p), offsets(off) {
-			actual_lengths.fill(0);
-		}
-	};
-	
-	std::vector<add_piece_job> jobs;
-	std::stack<add_piece_job*> scheduled_jobs;
-	
-	
-
-	std::function<void(const piece_node&, const cuboid&, unsigned)> add_piece_node = [&](const piece_node& nd, const cuboid& cub, unsigned depth) {				
-		if(nd.is_leaf()) {
-			const piece& p = nd.get_piece();
-			add_piece(p, depth);
-		} else {			
-			auto old_nodes_count = hdf_nodes.size();
-			hdf_nodes.push_back(hdf_node());
-			auto hn = hdf_nodes.begin() + old_nodes_count;
-			
-			hn->cuboid_origin = cub.origin();
-			hn->cuboid_sides = cub.side_lengths();
-			for(auto& child : hn->children) child = 0;
-
-			typename PiecesSplitter::node_points_information no_info;				
-			for(std::ptrdiff_t i = 0; i < PiecesSplitter::number_of_node_children; ++i) {
-				if(! nd.has_child(i)) continue;
-				
-				cuboid child_cub = PiecesSplitter::node_child_cuboid(i, cub, no_info, depth);
-				auto previous_nodes_count = hdf_nodes.size();
-				add_piece_node(nd.child(i), child_cub, depth + 1);
-				hn = hdf_nodes.begin() + old_nodes_count;
-				hn->children[i] = previous_nodes_count;
-			}
-			
-			for(std::ptrdiff_t lvl = 0; lvl < Levels; ++lvl) {
-				hn->data_start[lvl] = old_data_offsets[lvl];
-				hn->data_length[lvl] = data_tree_offsets[lvl] - old_data_offsets[lvl];
-			}
-		}
-	};
-
-
-	std::stack<piece_node> stack;
-	point_data_offsets_t point_offsets; point_offsets.fill(0);
-	stack.push(s.root_piece_node());
-	while(! stack.empty()) {
-		auto top = stack.top();
-		stack.pop();
-		if(top.is_leaf()) {
-			jobs.emplace_back(top.get_piece(), point_offsets);
-			
-		} else {
-			for(std::ptrdiff_t i = PiecesSplitter::number_of_node_children - 1; i >= 0; --i)
-				if(top.has_child(i)) stack.push(top.child(i));
-		}
-	}
-
-
-	progress(s.total_number_of_points(), "Writing piecewise tree structure points to HDF...", [&](progress_handle& pr) {
-		add_piece_node(s.root_piece_node(), s.root_piece_cuboid(), 0);
-	});
-		
-	file.write_nodes(hdf_nodes.begin(), hdf_nodes.end());
-
-}
-*/
 
 }
 
