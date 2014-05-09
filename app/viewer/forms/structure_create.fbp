@@ -33,7 +33,7 @@
             <property name="minimum_size"></property>
             <property name="name">structure_create_ui</property>
             <property name="pos"></property>
-            <property name="size">434,300</property>
+            <property name="size">434,400</property>
             <property name="style">wxCAPTION|wxSTAY_ON_TOP</property>
             <property name="subclass"></property>
             <property name="title">Create Structure</property>

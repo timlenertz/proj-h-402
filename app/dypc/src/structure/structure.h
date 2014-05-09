@@ -15,7 +15,11 @@ protected:
 
 	explicit structure(model& mod) : model_(mod) { } ///< Create structure for given model.
 	
+	structure(structure&&) = default;
+	
 	structure(const structure&) = delete;
+	structure& operator=(const structure&) = delete;
+	structure& operator=(structure&&) = delete;
 
 public:
 	virtual ~structure() { }

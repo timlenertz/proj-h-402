@@ -17,7 +17,7 @@ dypc_loader dypc_create_tree_structure_loader(dypc_model mod, dypc_structure_typ
 
 void dypc_write_cubes_structure_to_file(const char* filename, dypc_model mod, float side) DYPC_INTERFACE_DEC;
 void dypc_write_mipmap_cubes_structure_to_file(const char* filename, dypc_model mod, float side, unsigned levels, dypc_size dmin, float damount, dypc_downsampling_mode dmode) DYPC_INTERFACE_DEC;
-void dypc_write_tree_structure_to_file(const char* filename, dypc_model mod, dypc_structure_type str, unsigned levels, dypc_size leaf_cap, dypc_size dmin, float damount, dypc_downsampling_mode dmode) DYPC_INTERFACE_DEC;
+void dypc_write_tree_structure_to_file(const char* filename, dypc_model mod, dypc_structure_type str, unsigned levels, dypc_size leaf_cap, dypc_size dmin, float damount, dypc_downsampling_mode dmode, dypc_size piece_cap, unsigned threads) DYPC_INTERFACE_DEC;
 
 dypc_loader_type dypc_loader_loader_type(dypc_loader) DYPC_INTERFACE_DEC;
 const char* dypc_loader_name(dypc_loader) DYPC_INTERFACE_DEC;

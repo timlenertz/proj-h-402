@@ -5,6 +5,7 @@
 #include "kdtree_half/kdtree_half_structure_splitter.h"
 #include <vector>
 #include <cmath>
+#include <iostream>
 
 namespace dypc {
 
@@ -67,7 +68,22 @@ public:
 	 */
 	void load_piece(const piece_node& nd);
 	
-	std::size_t total_number_of_points_upper_bound(std::ptrdiff_t lvl) const;
+	
+	tree_structure<Splitter, Levels, PointsContainer> load_and_export_piece(const piece_node& nd) const;
+	
+	/**
+	 * Get total number of points in structure.
+	 * Sum of points in all pieces, for given downsampling level. Will give exact value, without loading pieces.
+	 * @param lvl Downsampling level.
+	 */
+	std::size_t total_number_of_points(std::ptrdiff_t lvl = 0) const;
+	
+	/**
+	 * Get number of points in piece.
+	 * Will give exact value, without loading piece.
+	 * @param lvl Downsampling level.
+	 */
+	std::size_t piece_number_of_points(const piece_node& nd, std::ptrdiff_t lvl = 0) const;
 };
 
 
@@ -81,7 +97,7 @@ private:
 	const cuboid cuboid_; ///< Cuboid for this piece node.
 	const std::size_t depth_ = 0; ///< Depth of this piece node.
 	std::size_t number_of_points_ = 0; ///< Number of points belonging into this piece node.
-	std::ptrdiff_t data_offset_ = -1; ///< Offset that points from this node will have when ordered. -1 when not yet defined.
+	int id_ = -1; ///< ID for the piece in the finalized tree. -1 when not yet defined.
 	
 	void delete_children_(); ///< Delete any children.
 
@@ -105,7 +121,7 @@ public:
 	const cuboid& get_cuboid() const { return cuboid_; } ///< Get cuboid of this node.
 	std::size_t get_depth() const { return depth_; } ///< Get depth of this node.
 	std::size_t get_number_of_points() const { return number_of_points_; } ///< Get number of points of this node.
-	std::ptrdiff_t get_data_offset() const { assert(data_offset_ != -1); return data_offset_; } ///< Get data offset of this node.
+	int get_id() const { assert(id_ != -1); return id_; }
 	
 	bool has_child(std::ptrdiff_t i) const { assert(i >= 0 && i < PiecesSplitter::number_of_node_children); return (children_[i] != nullptr); } ///< Check if a given child exists.
 	piece_node& child(std::ptrdiff_t i) { assert(has_child(i)); return *children_[i]; } ///< Get child of node.
@@ -142,13 +158,17 @@ public:
 	
 	/**
 	 * Finalize tree and define data offsets.
-	 * Removes as many nodes as possoble from the tree, such that all child nodes in the remaining tree have a number of
+	 * Removes as many nodes as possible from the tree, such that all child nodes in the remaining tree have a number of
 	 * points less or equal to \a maxnum, yielding the final pieces tree.
-	 * Also sets data offsets of the nodes' points in an ordered list. (@see tree_structure_node)
 	 * count_point must never have returned false
 	 * @param maxnum 
 	 */
-	std::ptrdiff_t make_pieces(std::ptrdiff_t maxnum, std::ptrdiff_t offset = 0);
+	void make_pieces(std::ptrdiff_t maxnum, int& id_counter);
+	
+	void make_pieces(std::ptrdiff_t maxnum) {
+		int id_counter = 0;
+		make_pieces(maxnum, id_counter);
+	}
 };
 
 
@@ -163,12 +183,10 @@ root_piece_node_(mod.enclosing_cuboid(), 0) {
 	while(repeat) {
 		repeat = false;
 		root_piece_node_.initialize_tree(max_depth);
-		progress(mod.number_of_points(), "Counting points in child pieces (max depth " + std::to_string(max_depth) + ")...", [&](progress_handle& pr) {
-			for(const point& pt : mod) {
-				pr.increment();
-				bool ok = root_piece_node_.count_point(pt, maxnum);
-				if(! ok) { repeat = true; ++max_depth; break; }
-			}
+		progress_foreach(mod, "Counting points in child pieces (max depth " + std::to_string(max_depth) + ")...", [&](const point& pt) {
+			if(repeat) return; // no easy way to exit right now
+			bool ok = root_piece_node_.count_point(pt, maxnum);
+			if(! ok) { repeat = true; ++max_depth; }
 		});
 	}
 
@@ -184,10 +202,30 @@ void tree_structure_piecewise<Splitter, Levels, PointsContainer, PiecesSplitter>
 
 
 template<class Splitter, std::size_t Levels, class PointsContainer, class PiecesSplitter>
-std::size_t tree_structure_piecewise<Splitter, Levels, PointsContainer, PiecesSplitter>::total_number_of_points_upper_bound(std::ptrdiff_t lvl) const {
+tree_structure<Splitter, Levels, PointsContainer> tree_structure_piecewise<Splitter, Levels, PointsContainer, PiecesSplitter>::load_and_export_piece(const piece_node& nd) const {
+	return tree_structure<Splitter, Levels, PointsContainer>(
+		super::leaf_capacity_,
+		super::downsampling_minimum_,
+		super::downsampling_amount_,
+		super::downsampling_mode_,
+		super::model_,
+		nd.get_cuboid(),
+		false,
+		true
+	);
+}
+
+
+template<class Splitter, std::size_t Levels, class PointsContainer, class PiecesSplitter>
+std::size_t tree_structure_piecewise<Splitter, Levels, PointsContainer, PiecesSplitter>::total_number_of_points(std::ptrdiff_t lvl) const {
 	std::size_t n = super::total_number_of_points();
-	float ratio = std::pow(super::mipmap_factor_, lvl);
-	return ratio * n;
+	return super::downsampling_number_of_points_exact(n, lvl);
+}
+
+
+template<class Splitter, std::size_t Levels, class PointsContainer, class PiecesSplitter>
+std::size_t tree_structure_piecewise<Splitter, Levels, PointsContainer, PiecesSplitter>::piece_number_of_points(const piece_node& nd, std::ptrdiff_t lvl) const {
+	return super::downsampling_number_of_points_exact(nd.get_number_of_points(), lvl);
 }
 
 
@@ -215,8 +253,7 @@ void tree_structure_piecewise<Splitter, Levels, PointsContainer, PiecesSplitter>
 
 template<class Splitter, std::size_t Levels, class PointsContainer, class PiecesSplitter>
 bool tree_structure_piecewise<Splitter, Levels, PointsContainer, PiecesSplitter>::piece_node::count_point(glm::vec3 pt, std::ptrdiff_t maxnum) {
-	assert(contains_point(pt));
-	assert(data_offset_ == -1);
+	//assert(contains_point(pt));
 	typename PiecesSplitter::node_points_information no_info;
 	++number_of_points_;
 	if(! children_[0]) {
@@ -229,15 +266,13 @@ bool tree_structure_piecewise<Splitter, Levels, PointsContainer, PiecesSplitter>
 
 
 template<class Splitter, std::size_t Levels, class PointsContainer, class PiecesSplitter>
-std::ptrdiff_t tree_structure_piecewise<Splitter, Levels, PointsContainer, PiecesSplitter>::piece_node::make_pieces(std::ptrdiff_t maxnum, std::ptrdiff_t offset) {
+void tree_structure_piecewise<Splitter, Levels, PointsContainer, PiecesSplitter>::piece_node::make_pieces(std::ptrdiff_t maxnum, int& id_counter) {	
 	assert(!is_leaf() || number_of_points_ <= maxnum);
-	data_offset_ = offset;
 	if(number_of_points_ <= maxnum) {
 		delete_children_();
-		return offset + number_of_points_;
+		id_ = ++id_counter;
 	} else {
-		for(auto child : children_) if(child) offset = child->make_pieces(maxnum, offset);
-		return offset;
+		for(auto child : children_) if(child) child->make_pieces(maxnum, id_counter);
 	}
 }
 

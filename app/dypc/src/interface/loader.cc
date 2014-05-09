@@ -116,7 +116,7 @@ void dypc_write_mipmap_cubes_structure_to_file(const char* filename, dypc_model 
 	DYPC_INTERFACE_END;
 }
 
-void dypc_write_tree_structure_to_file(const char* filename, dypc_model m, dypc_structure_type str, unsigned levels, dypc_size leaf_cap, dypc_size dmin, float damount, dypc_downsampling_mode dmode) {
+void dypc_write_tree_structure_to_file(const char* filename, dypc_model m, dypc_structure_type str, unsigned levels, dypc_size leaf_cap, dypc_size dmin, float damount, dypc_downsampling_mode dmode, dypc_size piece_cap, unsigned threads) {
 	DYPC_INTERFACE_BEGIN;
 	dypc::model* mod = (dypc::model*)m;
 	dypc::write_tree_structure_file(
@@ -127,7 +127,9 @@ void dypc_write_tree_structure_to_file(const char* filename, dypc_model m, dypc_
 		dmin,
 		damount,
 		(dypc::downsampling_mode)(dmode),
-		*mod
+		piece_cap,
+		*mod,
+		threads
 	);
 	DYPC_INTERFACE_END;
 }

@@ -66,6 +66,8 @@ public:
 		progress->set(value);
 	}
 	
+	static void pulse(dypc_progress pr) { }
+	
 	static void message(dypc_progress pr, const char* msg) {
 		progress_view* progress = (progress_view*)pr;
 		progress->print_ident();
@@ -79,7 +81,7 @@ public:
 };
 
 
-static const dypc_progress_callbacks default_callbacks_ = { &progress_view::open, &progress_view::close, &progress_view::set, &progress_view::message };
+static const dypc_progress_callbacks default_callbacks_ = { &progress_view::open, &progress_view::close, &progress_view::set, &progress_view::pulse, &progress_view::message };
 
 
 dypc_progress_callbacks dypc_current_progress_callbacks = default_callbacks_;

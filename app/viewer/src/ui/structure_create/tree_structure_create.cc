@@ -40,8 +40,10 @@ void tree_structure_create::write_structure_file(dypc_model mod, const std::stri
 	std::size_t dmin = dmin_spin->GetValue();
 	double damount; amount_text->GetLineText(0).ToDouble(&damount);
 	dypc_downsampling_mode dmode = (mode_choice->GetSelection() == 0 ? dypc_random_downsampling_mode : dypc_uniform_downsampling_mode);
+	unsigned piece_cap = piece_capacity_spin->GetValue();
+	unsigned threads = threads_spin->GetValue();
 
-	dypc_write_tree_structure_to_file(filename.c_str(), mod, structure_type_, selected_levels_(), leaf_cap, dmin, damount, dmode);
+	dypc_write_tree_structure_to_file(filename.c_str(), mod, structure_type_, selected_levels_(), leaf_cap, dmin, damount, dmode, piece_cap, threads);
 }
 
 

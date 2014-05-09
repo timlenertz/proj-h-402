@@ -12,6 +12,7 @@ typedef struct {
 	dypc_progress parent);
 	void (*close)(dypc_progress id);
 	void (*set)(dypc_progress id, unsigned value);
+	void (*pulse)(dypc_progress id);
 	void (*message)(dypc_progress id, const char* msg);
 } dypc_progress_callbacks;
 

@@ -14,6 +14,8 @@
 
 #include <deque>
 #include <vector>
+#include <utility>
+#include <array>
 
 namespace dypc {
 
@@ -39,7 +41,7 @@ protected:
 
 	node root_; ///< The root node.
 	cuboid root_cuboid_; ///< The cuboid of the root node, encloses entire model.
-	PointsContainer all_points_[Levels]; ///< The ordered point sets for the different levels.
+	std::array<PointsContainer, Levels> all_points_; ///< The ordered point sets for the different levels.
 	
 	/**
 	 * Create stub tree structure.
@@ -76,10 +78,35 @@ public:
 	 * @param damount Downsampling amount.
 	 * @param dmode Downsampling mode.
 	 * @param mod The model, must exist during lifetime of tree structure.
+	 * @param cub Cuboid defining portion of model to load.
 	 * @param load_all_downsampled If true, also load all levels of downsampled points.
 	 * @param exact_downsampling If true, generate predictable number of downsampled points.
 	 */
-	tree_structure(std::size_t leaf_cap, std::size_t dmin, float damount, downsampling_mode dmode, model& mod, bool load_all_downsampled = true, bool exact_downsampling = false);
+	tree_structure(std::size_t leaf_cap, std::size_t dmin, float damount, downsampling_mode dmode, model& mod, const cuboid& cub, bool load_all_downsampled = true, bool exact_downsampling = false);
+	
+	
+	/**
+	 * Create tree structure.
+	 * Creates tree and loads all points. Optionally also loads all downsampled points.
+	 * @param leaf_cap Maximal number of points per node.
+	 * @param dmin Downsampling minimum output number of points.
+	 * @param damount Downsampling amount.
+	 * @param dmode Downsampling mode.
+	 * @param mod The model, must exist during lifetime of tree structure.
+	 * @param load_all_downsampled If true, also load all levels of downsampled points.
+	 * @param exact_downsampling If true, generate predictable number of downsampled points.
+	 */
+	tree_structure(std::size_t leaf_cap, std::size_t dmin, float damount, downsampling_mode dmode, model& mod, bool load_all_downsampled = true, bool exact_downsampling = false) :
+	tree_structure(leaf_cap, dmin, damount, dmode, mod, mod.enclosing_cuboid(), load_all_downsampled, exact_downsampling) { }	
+	
+	
+	/**
+	 * Move construct tree structure.
+	 * Invalidates this object.
+	 */
+	tree_structure(tree_structure&& s) :
+	mipmap_structure(std::move(*this)), leaf_capacity_(s.leaf_capacity_), root_(std::move(s.root_)), root_cuboid_(s.root_cuboid_), all_points_(std::move(s.all_points_)) { }
+
 	
 	/**
 	 * Get number of points for given level.
@@ -135,6 +162,7 @@ public:
 	/**
 	 * Get offset for given node in ordered points array.
 	 * Points in array returned by points_at_level starting at the returned offset are points of that node.
+	 * Undefined result if downsampled point set \a lvl not loaded.
 	 * @param nd Node of this tree structure.
 	 * @param lvl Mipmap level, 0 for not downsampled.
 	 */
@@ -146,7 +174,7 @@ public:
 
 template<class Splitter, std::size_t Levels, class PointsContainer>
 void tree_structure<Splitter, Levels, PointsContainer>::unload_() {
-	root_ = node();
+	root_.clear();
 	for(auto& pts : all_points_) {
 		pts.clear();
 		pts.shrink_to_fit(); // Make sure memory is freed
@@ -155,9 +183,9 @@ void tree_structure<Splitter, Levels, PointsContainer>::unload_() {
 
 
 template<class Splitter, std::size_t Levels, class PointsContainer>
-tree_structure<Splitter, Levels, PointsContainer>::tree_structure(std::size_t leaf_cap, std::size_t dmin, float damount, downsampling_mode dmode, model& mod, bool load_all_downsampled, bool exact_downsampling) :
+tree_structure<Splitter, Levels, PointsContainer>::tree_structure(std::size_t leaf_cap, std::size_t dmin, float damount, downsampling_mode dmode, model& mod, const cuboid& cub, bool load_all_downsampled, bool exact_downsampling) :
 mipmap_structure(Levels, dmin, damount, dmode, exact_downsampling, mod), leaf_capacity_(leaf_cap) {
-	load_(mod.enclosing_cuboid());
+	load_(cub);
 	if(load_all_downsampled) for(std::ptrdiff_t lvl = 1; lvl < Levels; ++lvl) load_downsampled_points(lvl);
 }
 
@@ -174,7 +202,7 @@ void tree_structure<Splitter, Levels, PointsContainer>::load_downsampled_points(
 	downsample_points_(original_points.begin(), original_points.end(), lvl, root_cuboid_, downsampled, previous_results);
 	
 	// Add points into root node
-	progress(all_points_[0].size(), "Adding downsampled points, level " + std::to_string(lvl) + "...", [&](progress_handle& pr) {
+	progress(downsampled.size(), "Adding downsampled points, level " + std::to_string(lvl) + "...", [&](progress_handle& pr) {
 		root_.add_root_node_points(lvl, level_points, downsampled, root_cuboid_, leaf_capacity_, pr);
 	});
 }

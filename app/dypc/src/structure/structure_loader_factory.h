@@ -77,9 +77,10 @@ loader* create_structure_file_loader(const std::string& filename, tree_structure
  * @param leaf_cap Leaf capacity of the tree structure.
  * @param dmin Minimal downsampling output.
  * @param damount Downsampling amount.
+ * @param piece_cap Maximal number of points per piece. @see tree_structure_piecewise
  * @param mod The model. Must exist for lifetime of returned loader.
  */
-void write_tree_structure_file(const std::string& filename, structure_type type, unsigned levels, std::size_t leaf_cap, std::size_t dmin, float damount, downsampling_mode dmode, model& mod);
+void write_tree_structure_file(const std::string& filename, structure_type type, unsigned levels, std::size_t leaf_cap, std::size_t dmin, float damount, downsampling_mode dmode, std::size_t piece_cap, model& mod, std::size_t threads);
 
 }
 

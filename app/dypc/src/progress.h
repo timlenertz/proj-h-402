@@ -43,7 +43,7 @@ public:
 	 * Calls interface callback. Makes the progress indicator move to show there is some progress.
 	 */
 	void pulse() {
-		set(0);
+		dypc_current_progress_callbacks.pulse(progress_);
 	}
 	
 	/**

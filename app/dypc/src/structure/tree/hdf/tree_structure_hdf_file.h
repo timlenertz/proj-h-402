@@ -12,7 +12,12 @@
 namespace dypc {
 
 /**
- * 
+ * HDF file storing tree structure.
+ * Can read existing file, or write into new file.
+ * When writing, full nodes array must be written in one go, while points can be written
+ * in multiple chunks with given offset. But maximal number of points must be indicated upon construction.
+ * @tparam Levels Number of downsampling levels.
+ * @tparam NumberOfChildren Number of children that nodes in tree structure have.
  */
 template<std::size_t Levels, std::size_t NumberOfChildren>
 class tree_structure_hdf_file {
@@ -21,7 +26,7 @@ public:
 		std::uint32_t data_start[Levels];
 		std::uint32_t data_length[Levels];
 		glm::vec3 cuboid_origin;
-		glm::vec3 cuboid_sides;
+		glm::vec3 cuboid_extremity;
 		std::uint32_t children[NumberOfChildren];
 		
 		static constexpr std::ptrdiff_t no_child_index = -1;
@@ -31,7 +36,7 @@ public:
 			return true;
 		}
 		
-		cuboid node_cuboid() const { return cuboid(cuboid_origin, cuboid_sides); }
+		cuboid node_cuboid() const { return make_cuboid(cuboid_origin, cuboid_extremity); }
 		bool has_child(std::ptrdiff_t i) const { return children[i]; }
 		const hdf_node& child_node(const hdf_node* begin, std::ptrdiff_t i) const { assert(has_child(i)); return *(begin + children[i]); }
 		std::ptrdiff_t child_index_for_point(const hdf_node* begin, glm::vec3 pt) const;
@@ -173,7 +178,7 @@ H5::CompType tree_structure_hdf_file<Levels, NumberOfChildren>::initialize_node_
 	t.insertMember("data_start", HOFFSET(hdf_node, data_start), H5::ArrayType(H5::PredType::NATIVE_UINT32, 1, levels_dims));
 	t.insertMember("data_length", HOFFSET(hdf_node, data_length), H5::ArrayType(H5::PredType::NATIVE_UINT32, 1, levels_dims));
 	t.insertMember("cuboid_origin", HOFFSET(hdf_node, cuboid_origin), H5::ArrayType(H5::PredType::NATIVE_FLOAT, 1, three_dims));
-	t.insertMember("cuboid_sides", HOFFSET(hdf_node, cuboid_sides), H5::ArrayType(H5::PredType::NATIVE_FLOAT, 1, three_dims));
+	t.insertMember("cuboid_extremity", HOFFSET(hdf_node, cuboid_extremity), H5::ArrayType(H5::PredType::NATIVE_FLOAT, 1, three_dims));
 	t.insertMember("children", HOFFSET(hdf_node, children), H5::ArrayType(H5::PredType::NATIVE_UINT32, 1, child_dims));
 	return t;
 }

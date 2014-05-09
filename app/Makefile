@@ -1,4 +1,4 @@
-DEPLOY := 0
+DEPLOY := 1
 
 CXX := g++
 CC := gcc
@@ -26,7 +26,7 @@ make_viewer : dist_dir
 
 make_tools : dist_dir
 	$(MAKE) -C tools && \
-	$(CP) tools/ply2hdf tools/uniform_stat dist/
+	$(CP) tools/piecewise_file_test dist/
 
 clean :
 	$(MAKE) -C dypc clean && \

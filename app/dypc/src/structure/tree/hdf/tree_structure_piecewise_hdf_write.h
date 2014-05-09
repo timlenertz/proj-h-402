@@ -23,114 +23,180 @@ namespace dypc {
  * @param s The piecewise tree structure.
  */
 template<class Splitter, std::size_t Levels, class PointsContainer, class PiecesSplitter>
-void write_to_hdf(const std::string& filename, tree_structure_piecewise<Splitter, Levels, PointsContainer, PiecesSplitter>& s) {
-	using Structure = tree_structure_piecewise<Splitter, Levels, PointsContainer>;
+void write_to_hdf(const std::string& filename, tree_structure_piecewise<Splitter, Levels, PointsContainer, PiecesSplitter>& s) {	
+	// Some type definitions...
+	using Structure = tree_structure_piecewise<Splitter, Levels, PointsContainer, PiecesSplitter>;
+	using single_piece_structure_t = tree_structure<Splitter, Levels, PointsContainer>;
+	
+	
 	using file_t = tree_structure_hdf_file<Levels, Splitter::number_of_node_children>;
 	using hdf_node = typename file_t::hdf_node;
-	using structure_node = typename tree_structure_piecewise<Splitter, Levels, PointsContainer>::node;
-	using piece_node = typename tree_structure_piecewise<Splitter, Levels, PointsContainer>::piece_node;
+	using structure_node = typename tree_structure_piecewise<Splitter, Levels, PointsContainer>::node; // Node in tree inside a piece
+	using piece_node = typename tree_structure_piecewise<Splitter, Levels, PointsContainer>::piece_node; // Node in pieces tree
 	
-	std::vector<hdf_node> hdf_nodes;
+	using point_data_offsets_t = std::array<std::ptrdiff_t, Levels>; // Stores offsets in the L point sets
+				
+	file_t file(filename, s.total_number_of_points()); // The output file. Total number of points is known.
 	
-	std::array<std::ptrdiff_t, Levels> data_output_offsets, data_tree_offsets;
-	data_output_offsets.fill(0); data_tree_offsets.fill(0);
+	std::vector<hdf_node> all_hdf_nodes; // Will contain full nodes list for file. (Combined from pieces tree + trees in each piece)
+	
+	// Task to add nodes+points from one piece
+	struct add_piece_task {
+		explicit add_piece_task(const piece_node& nd) : node(nd) { }
 		
-	file_t file(filename, s.total_number_of_points());
+		const piece_node& node; // The node of the piece
+		std::ptrdiff_t parent_node_entry_offset; // Index of entry for its parent piece in all_hdf_nodes. -1 if none (--> 1 piece only)
+		std::ptrdiff_t parent_node_child; // parent_node_entry_offset.child(parent_node_child) = node
+		point_data_offsets_t point_data_offsets; // Offset in file's point data sets where points of this piece should be written
+		std::vector<hdf_node> output_piece_nodes; // On task completion: Nodes inside tree.
+		// The child offsets in output_piece_nodes local output_piece_nodes.
+		// When adding to all_hdf_nodes, these indices, and the references from the pieces tree, need to be updated
+	};
 	
-	progress_handle* root_progress_handle = nullptr;
+	std::vector<add_piece_task> scheduled_tasks; // Tasks to do
 	
-	std::function<bool(const structure_node&, const cuboid&, unsigned)> add_structure_node = [&](const structure_node& nd, const cuboid& cub, unsigned depth)->bool {		
-		if(nd.number_of_points() == 0) return false;
-		
-		auto old_data_offsets = data_tree_offsets;
-		auto old_nodes_count = hdf_nodes.size();
-		
+	
+	// Function: Recursively add a node inside tree of one piece. 
+	std::function<std::ptrdiff_t(const structure_node&,const cuboid&,unsigned,std::vector<hdf_node>&,point_data_offsets_t&)> add_node =
+	[&add_node](const structure_node& nd, const cuboid& cub, unsigned depth, std::vector<hdf_node>& hdf_nodes, point_data_offsets_t& points_offsets)->std::ptrdiff_t {
+		std::ptrdiff_t this_node_offset = hdf_nodes.size();
 		hdf_nodes.push_back(hdf_node());
-		auto hn = hdf_nodes.begin() + old_nodes_count;
-
-		for(std::ptrdiff_t i = 0; i < Splitter::number_of_node_children; ++i) hn->children[i] = 0;
+		auto hn = hdf_nodes.begin() + this_node_offset;
 		hn->cuboid_origin = cub.origin;
-		hn->cuboid_sides = cub.side_lengths();
-		
+		hn->cuboid_extremity = cub.extremity;
+		for(std::ptrdiff_t lvl = 0; lvl < Levels; ++lvl) {
+			// The point data is located in depth-first order, at global offset given by points_offsets
+			auto n = nd.number_of_points(lvl);
+			hn->data_start[lvl] = points_offsets[lvl];
+			hn->data_length[lvl] = nd.number_of_points(lvl);
+		}
 		if(nd.is_leaf()) {
-			for(std::ptrdiff_t lvl = 0; lvl < Levels; ++lvl) data_tree_offsets[lvl] += nd.number_of_points(lvl);
+			for(std::ptrdiff_t i = 0; i < Splitter::number_of_node_children; ++i) hn->children[i] = 0; // no children
+			for(std::ptrdiff_t lvl = 0; lvl < Levels; ++lvl) points_offsets[lvl] += nd.number_of_points(lvl); //  count points only once (---> in leaf)
 		} else {
 			for(std::ptrdiff_t i = 0; i < Splitter::number_of_node_children; ++i) {
-				typename Splitter::node_points_information no_info;
-				cuboid child_cub = Splitter::node_child_cuboid(i, cub, no_info, depth);
-				auto previous_nodes_count = hdf_nodes.size();
-				bool has_child_points = add_structure_node(nd.child(i), child_cub, depth + 1);
-				hn = hdf_nodes.begin() + old_nodes_count;
-				if(has_child_points) hn->children[i] = previous_nodes_count;
+				cuboid child_cub = Splitter::node_child_cuboid(i, cub, nd.get_points_information(), depth);
+				auto child_offset = add_node(nd.child(i), child_cub, depth + 1, hdf_nodes, points_offsets);
+				hn = hdf_nodes.begin() + this_node_offset; // Iterator might have been invalidated
+				hn->children[i] = child_offset; // now relative to hdf_nodes. when copying to all_hdf_nodes in postprocessing, will need to add global offset of nodes list
 			}
 		}
-		
-		for(std::ptrdiff_t lvl = 0; lvl < Levels; ++lvl) {
-			hn->data_start[lvl] = old_data_offsets[lvl];
-			hn->data_length[lvl] = data_tree_offsets[lvl] - old_data_offsets[lvl];
-		}
-		
-		return true;
+		return this_node_offset;
 	};
 	
 	
-	std::function<void(const piece_node&)> add_piece_node = [&](const piece_node& nd) {
+	// Traverse pieces tree, and for leaves, schedule task for them to be added.
+	std::function<std::ptrdiff_t(const piece_node&,std::ptrdiff_t,std::ptrdiff_t,point_data_offsets_t&)> add_piece_node_and_schedule =
+	[&](const piece_node& nd, std::ptrdiff_t p_nd_entry_off, std::ptrdiff_t p_nd_chld, point_data_offsets_t& points_offsets)->std::ptrdiff_t {
 		if(nd.is_leaf()) {
-			s.load_piece(nd);
+			// Piece is leaf; schedule task to add nodes+points in that piece
+			add_piece_task task(nd);
+			task.parent_node_entry_offset = p_nd_entry_off;
+			task.parent_node_child = p_nd_chld;
+			task.point_data_offsets = points_offsets;
+			scheduled_tasks.push_back(task);
+						
+			for(std::ptrdiff_t lvl = 0; lvl < Levels; ++lvl) points_offsets[lvl] += s.piece_number_of_points(nd, lvl);
 			
-			auto n = s.number_of_points();
-			if(n == 0) return;
-			
-			root_progress_handle->increment(n);
-			
-			const auto& pts = s.points_at_level(0);
-			file.write_points(pts.begin(), pts.end(), 0, data_output_offsets[0]);
-			data_output_offsets[0] += pts.size();		
-	
-			for(std::ptrdiff_t lvl = 1; lvl < Levels; ++lvl) {
-				s.load_downsampled_points(lvl);
-				const auto& pts = s.points_at_level(lvl);
-				file.write_points(pts.begin(), pts.end(), lvl, data_output_offsets[lvl]);
-				data_output_offsets[lvl] += pts.size();		
-				s.unload_downsampled_points(lvl);
-			}
-			
-			add_structure_node(s.root_node(), s.root_cuboid(), nd.get_depth()); 
-
 		} else {
-			auto old_data_offsets = data_tree_offsets;
+			// Pieces tree node is not a leaf. 
 			
-			auto old_nodes_count = hdf_nodes.size();
-			hdf_nodes.push_back(hdf_node());
-			auto hn = hdf_nodes.begin() + old_nodes_count;
-			
+			// Remember current offset in points set
+			// (will be incremented as points are added in recursive calls)
+			auto old_points_offsets = points_offsets;
+
+			// Add entry for this node.
+			std::ptrdiff_t this_node_offset = all_hdf_nodes.size();
+			all_hdf_nodes.push_back(hdf_node());
+			auto hn = all_hdf_nodes.begin() + this_node_offset;
 			const cuboid& cub = nd.get_cuboid();
 			hn->cuboid_origin = cub.origin;
-			hn->cuboid_sides = cub.side_lengths();
+			hn->cuboid_extremity = cub.extremity;
 			for(std::ptrdiff_t i = 0; i < Splitter::number_of_node_children; ++i) hn->children[i] = 0;
 
+			// Recursively add child nodes after hn, and store the children's offsets in hn
 			for(std::ptrdiff_t i = 0; i < PiecesSplitter::number_of_node_children; ++i) {
 				if(! nd.has_child(i)) continue;
 
-				auto previous_nodes_count = hdf_nodes.size();
-				add_piece_node(nd.child(i));
-				hn = hdf_nodes.begin() + old_nodes_count;
-				hn->children[i] = previous_nodes_count;
+				// Recursive call. Adds nodes, and schedules points and nodes inside piece to be added.
+				// Moves points offsets.
+				auto child_offset = add_piece_node_and_schedule(nd.child(i), this_node_offset, i, points_offsets);
+				hn = all_hdf_nodes.begin() + this_node_offset; // Iterator might have been invalidated
+
+				if(child_offset) hn->children[i] = child_offset;				
 			}
 			
+			// Make node to segment of points inside that node
 			for(std::ptrdiff_t lvl = 0; lvl < Levels; ++lvl) {
-				hn->data_start[lvl] = old_data_offsets[lvl];
-				hn->data_length[lvl] = data_tree_offsets[lvl] - old_data_offsets[lvl];
+				hn->data_start[lvl] = old_points_offsets[lvl];
+				hn->data_length[lvl] = points_offsets[lvl] - old_points_offsets[lvl];
 			}
+			
+			return this_node_offset;
 		}
 	};
 	
-	progress(s.total_number_of_points(), "Writing piecewise tree structure points to HDF...", [&](progress_handle& pr) {
-		root_progress_handle = &pr;
-		add_piece_node(s.root_piece_node());
-	});
+	
+	// Load a piece, and add its nodes tree, points
+	// Function designed so that multiple instances can be run simulataneously. (used in parallel version)
+	// Loads piece into local variable, then only works on local variables. (except writing to output file --> add mutex in par)
+	// Model class designed to allow multiple reading threads. (see model/model.h)
+	auto execute_add_piece_task =
+	[&file, &add_node](const Structure& piecewise_s, add_piece_task& task) {
+	progress("Adding tree structure piece " + std::to_string(task.node.get_id()) + "...", [&](progress_handle& pr) {
+		single_piece_structure_t s = piecewise_s.load_and_export_piece(task.node);
 		
-	file.write_nodes(hdf_nodes.begin(), hdf_nodes.end());
+		// Write all points to the file...
+		const auto& pts = s.points_at_level(0);
+		file.write_points(pts.begin(), pts.end(), 0, task.point_data_offsets[0]);
+		
+		for(std::ptrdiff_t lvl = 1; lvl < Levels; ++lvl) {
+			s.load_downsampled_points(lvl);
+			const auto& pts = s.points_at_level(lvl);
+			file.write_points(pts.begin(), pts.end(), lvl, task.point_data_offsets[lvl]);
+			s.unload_downsampled_points(lvl);
+		}
+
+		point_data_offsets_t init_points_offsets = task.point_data_offsets;
+		add_node(s.root_node(), s.root_cuboid(), 0, task.output_piece_nodes, init_points_offsets);
+	});
+	};
+	
+	
+	
+	// procedure:
+	
+	// First, recursively traverse pieces tree, and add corresponding nodes entries in all_hdf_nodes.
+	// For leaves, create an add_piece_task, and assign its point set a segment in the hdf file.
+	// The exact size of downsampled sets is known without loading the piece.
+	point_data_offsets_t init_points_offsets;
+	init_points_offsets.fill(0);
+	add_piece_node_and_schedule(s.root_piece_node(), -1, -1, init_points_offsets);
+	
+	// Execute the scheduled tasks.
+	// Will write points directly to assigned location in file, and nodes in local array, with local offsets
+	for(add_piece_task& task : scheduled_tasks) {
+		execute_add_piece_task(s, task);
+	}
+	
+	// Postprocessong:
+	for(add_piece_task& task : scheduled_tasks) {
+		std::ptrdiff_t offset = all_hdf_nodes.size(); // Offset of the local nodes tree from this task,in the global tree. (They are concatenated)
+		for(hdf_node& entry : task.output_piece_nodes) {
+			// Add the offset to child references. Except if 0 = no child.
+			for(auto& child_off : entry.children) if(child_off) child_off += offset;
+		}
+		// Append the adjusted local nodes list.
+		all_hdf_nodes.insert(all_hdf_nodes.end(), task.output_piece_nodes.begin(), task.output_piece_nodes.end());
+		if(task.parent_node_entry_offset != -1) {
+			// Adjust the child reference of the piece node that was pointing to this
+			// Cannot be done in advance because size of nodes tree of piece is now known without loading the piece.
+			all_hdf_nodes[task.parent_node_entry_offset].children[task.parent_node_child] = offset;
+		}
+	}
+	
+	// Finally write the nodes
+	file.write_nodes(all_hdf_nodes.begin(), all_hdf_nodes.end());
 }
 
 }

@@ -22,9 +22,12 @@ static dypc_progress progress_open_(const char* label, unsigned maximum, dypc_pr
 
 static void progress_set_(dypc_progress pr, unsigned value) {
 	wxProgressDialog* dialog = (wxProgressDialog*)pr;
-	/*int maximum = dialog->GetRange();
-	if(maximum == wxNOT_FOUND || maximum == 0) dialog->Pulse();
-	else*/ dialog->Update(value);
+	dialog->Update(value);
+}
+
+static void progress_pulse_(dypc_progress pr) {
+	wxProgressDialog* dialog = (wxProgressDialog*)pr;
+	dialog->Pulse();
 }
 
 static void progress_message_(dypc_progress pr, const char* msg) {
@@ -43,6 +46,7 @@ bool application::OnInit() {
 		&progress_open_,
 		&progress_close_,
 		&progress_set_,
+		&progress_pulse_,
 		&progress_message_
 	};
 	dypc_set_progress_callbacks(&progress_callbacks);

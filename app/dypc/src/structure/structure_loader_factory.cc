@@ -19,8 +19,7 @@
 #include "tree/tree_structure_memory_source.h"
 #include "tree/tree_structure_piecewise.h"
 #include "tree/hdf/tree_structure_hdf_source.h"
-#include "tree/hdf/tree_structure_hdf_write.h"
-#include "tree/hdf/tree_structure_piecewise_hdf_write.h"
+#include "tree/hdf/tree_structure_piecewise_hdf_write_parallel.h"
 
 #include "tree/octree/octree_structure.h"
 #include "tree/kdtree/kdtree_structure.h"
@@ -69,15 +68,16 @@ struct create_tree_structure_ {
 class write_tree_structure_to_hdf_ {
 private:
 	std::string filename_;
+	unsigned threads_;
 
 public:
-	write_tree_structure_to_hdf_(const std::string& filename) : filename_(filename) { }
+	write_tree_structure_to_hdf_(const std::string& filename, unsigned threads) : filename_(filename), threads_(threads) { }
 
 	using result_t = void;
 
 	template<class Structure>
 	result_t call(structure& s) const {
-		write_to_hdf(filename_, dynamic_cast<Structure&>(s));
+		write_to_hdf_parallel(filename_, dynamic_cast<Structure&>(s), threads_);
 	}
 };
 
@@ -169,7 +169,7 @@ void write_sqlite_structure_file_type(const std::string& filename, structure_typ
 	database.execute("CREATE TABLE structure_type ( type INTEGER NOT NULL, levels INTEGER )");
 	database.execute(std::string("INSERT INTO structure_type (type, levels) VALUES (") + std::to_string(type_int) + ", " + std::to_string(levels) + ")");
 	} catch(const std::exception& ex) {
-		std::cout << ex.what() << std::endl;
+	//	std::cout << ex.what() << std::endl;
 	}
 }
 
@@ -216,14 +216,12 @@ loader* create_structure_file_loader(const std::string& filename, tree_structure
 }
 
 
-void write_tree_structure_file(const std::string& filename, structure_type type, unsigned levels, std::size_t leaf_cap, std::size_t dmin, float damount, downsampling_mode dmode, model& mod) {
-	const std::size_t maximal_number_of_points_per_piece = 24 * 1024 * 1024;
-	
+void write_tree_structure_file(const std::string& filename, structure_type type, unsigned levels, std::size_t leaf_cap, std::size_t dmin, float damount, downsampling_mode dmode, std::size_t piece_cap, model& mod, std::size_t threads) {	
 	auto ext = file_path_extension(filename);
-	std::unique_ptr<structure> s( call_(create_tree_structure_(), type, levels, leaf_cap, dmin, damount, dmode, mod, maximal_number_of_points_per_piece) );
+	std::unique_ptr<structure> s( call_(create_tree_structure_(), type, levels, leaf_cap, dmin, damount, dmode, mod, piece_cap) );
 
 	if(ext == "hdf") {
-		write_tree_structure_to_hdf_ f(filename);
+		write_tree_structure_to_hdf_ f(filename, threads);
 		call_(f, type, levels, *s);
 		write_hdf_structure_file_type(filename, type, levels);
 	} else {

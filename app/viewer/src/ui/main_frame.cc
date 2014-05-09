@@ -173,6 +173,14 @@ void main_frame::on_create_structure_file_(wxCommandEvent& event) {
 	}
 
 	structure_dialog.write_structure_file(mod);
+	
+	wxMessageDialog dialog(
+		nullptr,
+		wxT("The structure file has been generated."),
+		wxT("Success"),
+		wxOK
+	);
+	dialog.ShowModal();
 }
 
 
