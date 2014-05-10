@@ -7,6 +7,7 @@
 #include "../../debug.h"
 #include <array>
 #include <utility>
+#include <cstring>
 
 namespace dypc {
 
@@ -51,7 +52,18 @@ private:
 		void add_point_to_buffer(const point& pt, std::size_t leaf_capacity) {
 			// Allocate buffer if not yet done, and add the point
 			if(! points_buffer) points_buffer = new point [leaf_capacity];
-			assert(number_of_points < leaf_capacity);
+			
+			if(number_of_points = leaf_capacity) {
+				// Crossing the leaf capacity: Double size of buffer
+				point* new_points_buffer = new point [2 * leaf_capacity];
+				std::memcpy((void*)new_points_buffer, (const void*)points_buffer, sizeof(point)*leaf_capacity);
+				delete[] points_buffer;
+				points_buffer = new_points_buffer;
+			} else if(number_of_points = leaf_capacity*2) {
+				// Cannot go further
+				throw std::runtime_error("Too far beyond leaf capacity");
+			}
+			
 			points_buffer[number_of_points++] = pt;
 		}
 	};
@@ -71,23 +83,23 @@ private:
 	 * @param depth Depth of this node.
 	 * @param leaf_capacity The leaf capacity.
 	 * @param pr Process handle to track progress of adding points.
+	 * @param pr_tot Maximal value for progress.
 	 */
-	void add_points_with_information_(PointsContainer& all_points, const cuboid& cub, unsigned depth, std::size_t leaf_capacity, progress_handle& pr);
+	void add_points_with_information_(PointsContainer& all_points, const cuboid& cub, unsigned depth, std::size_t leaf_capacity);
 
 	/**
 	 * Add of downsampled level into tree.
 	 * Adds point into internal buffer of a leaf. Unlike add_points_with_information_, it does not further split the tree,
 	 * as downsampled point sets contain fewer points. However, it may occur that more points fall into one leaf than before
-	 * downsampling. False is returned if trying to add too many points.
+	 * downsampling. Will enlarge leaf capacity by two-fold when necessary. (see report)
 	 * @see add_root_node_points
 	 * @param lvl Downsampling level, must be greater than 0.
 	 * @param pt Point to add.
 	 * @param cub Cuboid of this node.
 	 * @param depth Depth of this node.
 	 * @param leaf_capacity The leaf_capacity.
-	 * @return True on success, false if beyond leaf capacity.
 	 */
-	bool add_higher_level_point_(std::ptrdiff_t lvl, const point& pt, const cuboid& cub, unsigned depth, std::size_t leaf_capacity);
+	void add_higher_level_point_(std::ptrdiff_t lvl, const point& pt, const cuboid& cub, unsigned depth, std::size_t leaf_capacity);
 	
 	/**
 	 * Recursively move points from interal buffers into output array.
@@ -147,8 +159,9 @@ public:
 	 * @param cub Cuboid for this node.
 	 * @param leaf_capacity Leaf nodes capacity for the tree.
 	 * @param pr Progress handle to track progress during filling process.
+	 * @param pr_tot Maximal value for progress.
 	 */
-	void add_root_node_points(std::ptrdiff_t lvl, PointsContainer& all_points, PointsContainer& output_points, const cuboid& cub, std::size_t leaf_capacity, progress_handle& pr);
+	void add_root_node_points(std::ptrdiff_t lvl, PointsContainer& all_points, PointsContainer& output_points, const cuboid& cub, std::size_t leaf_capacity);
 		
 	/**
 	 * Get number of nodes in tree starting from this node.
@@ -185,14 +198,14 @@ void tree_structure_node<Splitter, Levels, PointsContainer>::clear() {
 
 
 template<class Splitter, std::size_t Levels, class PointsContainer>
-void tree_structure_node<Splitter, Levels, PointsContainer>::add_root_node_points(std::ptrdiff_t lvl, PointsContainer& output_points, PointsContainer& all_points, const cuboid& cub, std::size_t leaf_capacity, progress_handle& pr) {
+void tree_structure_node<Splitter, Levels, PointsContainer>::add_root_node_points(std::ptrdiff_t lvl, PointsContainer& output_points, PointsContainer& all_points, const cuboid& cub, std::size_t leaf_capacity) {
 	assert(lvl >= 0 && lvl < Levels);
 	assert(number_of_points(lvl) == 0); // Must be called once only for each level
 	if(lvl == 0) {
 		// Adding non-downsampled points. Must always be done first. Since this point set is the largest in size, it is used to determine node information and recursively split the tree
 		
 		// Stage 1: Generate node points information from point set, split node if necessary (if number of points larger than leaf capacity), and add points into internal buffers of node and child nodes.
-		add_points_with_information_(all_points, cub, 0, leaf_capacity, pr);
+		add_points_with_information_(all_points, cub, 0, leaf_capacity);
 	} else {
 		assert(! is_empty()); // Must already have been called for level 0
 		// Adding downsampled points. The tree structure and node informations have already been generated before.
@@ -212,7 +225,7 @@ void tree_structure_node<Splitter, Levels, PointsContainer>::add_root_node_point
 
 
 template<class Splitter, std::size_t Levels, class PointsContainer>
-bool tree_structure_node<Splitter, Levels, PointsContainer>::add_higher_level_point_(std::ptrdiff_t lvl, const point& pt, const cuboid& cub, unsigned depth, std::size_t leaf_capacity) {
+void tree_structure_node<Splitter, Levels, PointsContainer>::add_higher_level_point_(std::ptrdiff_t lvl, const point& pt, const cuboid& cub, unsigned depth, std::size_t leaf_capacity) {
 	assert(lvl > 0);
 	
 	auto& set = point_sets_[lvl];
@@ -220,21 +233,17 @@ bool tree_structure_node<Splitter, Levels, PointsContainer>::add_higher_level_po
 		// This is not a leaf; add point to appropriate child
 		auto child_index = Splitter::node_child_for_point(pt, cub, points_information_, depth);
 		auto child_cuboid = Splitter::node_child_cuboid(child_index, cub, points_information_, depth);
-		return children_[child_index]->add_higher_level_point_(lvl, pt, child_cuboid, depth + 1, leaf_capacity);
-	} else if(set.number_of_points < leaf_capacity) {
+		children_[child_index]->add_higher_level_point_(lvl, pt, child_cuboid, depth + 1, leaf_capacity);
+	} else {
 		// This is a leaf; add point to internal buffer
 		assert(cub.in_range(pt));
-		set.add_point_to_buffer(pt, leaf_capacity);
-		return true;
-	} else {
-		// Error: Tried to add more points into node than there were for non-downsampled point set
-		return false;
+		set.add_point_to_buffer(pt, leaf_capacity); // will increase buffer when needed
 	}
 }
 
 
 template<class Splitter, std::size_t Levels, class PointsContainer>
-void tree_structure_node<Splitter, Levels, PointsContainer>::add_points_with_information_(PointsContainer& all_points, const cuboid& cub, unsigned depth, std::size_t leaf_capacity, progress_handle& pr) {
+void tree_structure_node<Splitter, Levels, PointsContainer>::add_points_with_information_(PointsContainer& all_points, const cuboid& cub, unsigned depth, std::size_t leaf_capacity) {
 	assert(is_leaf());
 	
 	// Compute node points information. E.g. for kdTree, this is the split plane calculated from the median of a coordinate of the points
@@ -244,7 +253,6 @@ void tree_structure_node<Splitter, Levels, PointsContainer>::add_points_with_inf
 		// The points to add fit into leaf capacity; add them all to internal buffer of this node
 		auto& set = point_sets_[0];
 		for(const point& pt : all_points) { assert(cub.in_range(pt)); set.add_point_to_buffer(pt, leaf_capacity); }
-		pr.increment(all_points.size());
 		
 	} else {
 		// There are more points than would fit into one leaf.
@@ -262,7 +270,7 @@ void tree_structure_node<Splitter, Levels, PointsContainer>::add_points_with_inf
 		for(std::ptrdiff_t i = 0; i < Splitter::number_of_node_children; ++i) {
 			cuboid child_cuboid = Splitter::node_child_cuboid(i, cub, points_information_, depth);
 			auto& set = child_point_sets[i];
-			child(i).add_points_with_information_(set, child_cuboid, depth + 1, leaf_capacity, pr);
+			child(i).add_points_with_information_(set, child_cuboid, depth + 1, leaf_capacity);
 			set.clear(); set.shrink_to_fit(); // Free it now to save some memory
 		}
 	}

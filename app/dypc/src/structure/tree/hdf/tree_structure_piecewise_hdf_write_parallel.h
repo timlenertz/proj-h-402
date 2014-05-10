@@ -29,7 +29,7 @@ namespace dypc {
  */
 template<class Splitter, std::size_t Levels, class PointsContainer, class PiecesSplitter>
 void write_to_hdf_parallel(const std::string& filename, tree_structure_piecewise<Splitter, Levels, PointsContainer, PiecesSplitter>& s, std::size_t number_of_threads = std::thread::hardware_concurrency()) {
-	//if(number_of_threads <= 1) return write_to_hdf(filename, s);
+	if(number_of_threads <= 1) return write_to_hdf(filename, s);
 	
 	// Some type definitions...
 	using Structure = tree_structure_piecewise<Splitter, Levels, PointsContainer, PiecesSplitter>;

@@ -25,7 +25,7 @@ namespace dypc {
  * @tparam Levels Mipmap levels of downsampling to generate.
  * @tparam PointsContainer Container used to store arrays of points.
  */
-template<class Splitter, std::size_t Levels, class PointsContainer = std::deque<point>>
+template<class Splitter, std::size_t Levels, class PointsContainer = std::vector<point>>
 class tree_structure : public mipmap_structure {
 public:
 	using splitter = Splitter; ///< Splitter type for this tree structure class.
@@ -202,8 +202,8 @@ void tree_structure<Splitter, Levels, PointsContainer>::load_downsampled_points(
 	downsample_points_(original_points.begin(), original_points.end(), lvl, root_cuboid_, downsampled, previous_results);
 	
 	// Add points into root node
-	progress(downsampled.size(), "Adding downsampled points, level " + std::to_string(lvl) + "...", [&](progress_handle& pr) {
-		root_.add_root_node_points(lvl, level_points, downsampled, root_cuboid_, leaf_capacity_, pr);
+	progress("Adding downsampled points, level " + std::to_string(lvl) + "...", [&](progress_handle& pr) {
+		root_.add_root_node_points(lvl, level_points, downsampled, root_cuboid_, leaf_capacity_);
 	});
 }
 
@@ -232,8 +232,8 @@ void tree_structure<Splitter, Levels, PointsContainer>::load_(const cuboid& cub)
 	});
 
 	// Add points and build tree
-	progress(all_points_unordered.size(), "Adding points and building tree...", [&](progress_handle& pr) {
-		root_.add_root_node_points(0, all_points_[0], all_points_unordered, root_cuboid_, leaf_capacity_, pr);
+	progress("Adding points and building tree...", [&](progress_handle& pr) {
+		root_.add_root_node_points(0, all_points_[0], all_points_unordered, root_cuboid_, leaf_capacity_);
 	});
 }
 

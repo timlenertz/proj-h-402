@@ -3,9 +3,6 @@
 
 #include <map>
 #include "../../forms/main_frame.h"
-#include "../statistics.h"
-
-DECLARE_EVENT_TYPE(DYPC_STATISTICS_UPDATED_EVENT, -1)
 
 namespace dypc {
 	
@@ -14,7 +11,6 @@ class model;
 
 class main_frame : public main_frame_ui {
 private:
-	std::map<const statistics::element_t*, long> statistics_list_items_;
 	std::size_t renderer_points_stat_ = 0;
 	std::size_t renderer_capacity_stat_ = 0;	
 
@@ -23,12 +19,8 @@ private:
 	void on_renderer_config_();
 	void on_loader_config_();
 	
-	void statistics_table_update_(const statistics::table_t&);
-	void statistics_item_update_(const statistics::table_t&, const statistics::element_t&);
-	
-	void on_statistics_updated_(wxCommandEvent& event);
-	void special_statistic_updated_(const statistics::value&);
-
+	void updated_callback_();
+		
 protected:
 	void on_create_structure_file_(wxCommandEvent& event) override;
 	void on_loader_choice_(wxCommandEvent& event) override;

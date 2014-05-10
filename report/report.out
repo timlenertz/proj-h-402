@@ -11,26 +11,45 @@
 \BOOKMARK [2][-]{subsection.2.4.5}{Definition of the downsampling functions}{section.2.4}% 11
 \BOOKMARK [2][-]{subsection.2.4.6}{Adaptive downsampling}{section.2.4}% 12
 \BOOKMARK [1][-]{section.2.5}{Occlusion culling}{chapter.2}% 13
-\BOOKMARK [0][-]{chapter.3}{Data structures}{}% 14
-\BOOKMARK [1][-]{section.3.1}{General}{chapter.3}% 15
-\BOOKMARK [1][-]{section.3.2}{File types}{chapter.3}% 16
-\BOOKMARK [1][-]{section.3.3}{HDF}{chapter.3}% 17
-\BOOKMARK [1][-]{section.3.4}{Cuboid regions}{chapter.3}% 18
-\BOOKMARK [2][-]{subsection.3.4.1}{Floating point issues}{section.3.4}% 19
-\BOOKMARK [2][-]{subsection.3.4.2}{Point-to-cuboid distance}{section.3.4}% 20
-\BOOKMARK [1][-]{section.3.5}{Cubes structure}{chapter.3}% 21
-\BOOKMARK [2][-]{subsection.3.5.1}{Weighted point variant}{section.3.5}% 22
-\BOOKMARK [2][-]{subsection.3.5.2}{LOD regions variant}{section.3.5}% 23
-\BOOKMARK [2][-]{subsection.3.5.3}{Extraction algorithm}{section.3.5}% 24
-\BOOKMARK [1][-]{section.3.6}{Tree structures}{chapter.3}% 25
-\BOOKMARK [2][-]{subsection.3.6.1}{Octree}{section.3.6}% 26
-\BOOKMARK [2][-]{subsection.3.6.2}{KdTree}{section.3.6}% 27
-\BOOKMARK [0][-]{chapter.4}{Implementation}{}% 28
-\BOOKMARK [0][-]{chapter.5}{Results}{}% 29
-\BOOKMARK [0][-]{chapter.6}{Conclusion}{}% 30
-\BOOKMARK [0][-]{appendix.A}{Geometric algorithms}{}% 31
-\BOOKMARK [1][-]{section.A.1}{Definitions}{appendix.A}% 32
-\BOOKMARK [1][-]{section.A.2}{Projection matrix to view frustum}{appendix.A}% 33
-\BOOKMARK [1][-]{section.A.3}{Maximal point-to-cuboid distance}{appendix.A}% 34
-\BOOKMARK [1][-]{section.A.4}{Minimal point-to-cuboid distance}{appendix.A}% 35
-\BOOKMARK [1][-]{section.A.5}{Frustum-cuboid intersection}{appendix.A}% 36
+\BOOKMARK [2][-]{subsection.2.5.1}{Point shadows}{section.2.5}% 14
+\BOOKMARK [2][-]{subsection.2.5.2}{HPR Operator}{section.2.5}% 15
+\BOOKMARK [0][-]{chapter.3}{Data structures}{}% 16
+\BOOKMARK [1][-]{section.3.1}{General}{chapter.3}% 17
+\BOOKMARK [1][-]{section.3.2}{File types}{chapter.3}% 18
+\BOOKMARK [1][-]{section.3.3}{HDF}{chapter.3}% 19
+\BOOKMARK [1][-]{section.3.4}{Cuboid regions}{chapter.3}% 20
+\BOOKMARK [2][-]{subsection.3.4.1}{Floating point issues}{section.3.4}% 21
+\BOOKMARK [2][-]{subsection.3.4.2}{Point-to-cuboid distance}{section.3.4}% 22
+\BOOKMARK [1][-]{section.3.5}{Cubes structure}{chapter.3}% 23
+\BOOKMARK [2][-]{subsection.3.5.1}{Weighted point variant}{section.3.5}% 24
+\BOOKMARK [2][-]{subsection.3.5.2}{LOD regions variant}{section.3.5}% 25
+\BOOKMARK [2][-]{subsection.3.5.3}{Extraction algorithm}{section.3.5}% 26
+\BOOKMARK [1][-]{section.3.6}{Tree structures}{chapter.3}% 27
+\BOOKMARK [1][-]{section.3.7}{Serialization}{chapter.3}% 28
+\BOOKMARK [2][-]{subsection.3.7.1}{Octree}{section.3.7}% 29
+\BOOKMARK [2][-]{subsection.3.7.2}{KdTree}{section.3.7}% 30
+\BOOKMARK [2][-]{subsection.3.7.3}{Splitter}{section.3.7}% 31
+\BOOKMARK [2][-]{subsection.3.7.4}{Extraction algorithm}{section.3.7}% 32
+\BOOKMARK [2][-]{subsection.3.7.5}{Creation algorithm}{section.3.7}% 33
+\BOOKMARK [1][-]{section.3.8}{Piecewise tree structure}{chapter.3}% 34
+\BOOKMARK [2][-]{subsection.3.8.1}{Building the outer tree}{section.3.8}% 35
+\BOOKMARK [2][-]{subsection.3.8.2}{Building the inner trees}{section.3.8}% 36
+\BOOKMARK [2][-]{subsection.3.8.3}{Combining the trees}{section.3.8}% 37
+\BOOKMARK [1][-]{section.3.9}{Parallelized piecewise tree creation}{chapter.3}% 38
+\BOOKMARK [0][-]{chapter.4}{Implementation}{}% 39
+\BOOKMARK [1][-]{section.4.1}{Library}{chapter.4}% 40
+\BOOKMARK [2][-]{subsection.4.1.1}{Overview}{section.4.1}% 41
+\BOOKMARK [2][-]{subsection.4.1.2}{Loader}{section.4.1}% 42
+\BOOKMARK [2][-]{subsection.4.1.3}{Tree structure}{section.4.1}% 43
+\BOOKMARK [2][-]{subsection.4.1.4}{Additional parts}{section.4.1}% 44
+\BOOKMARK [1][-]{section.4.2}{Viewer}{chapter.4}% 45
+\BOOKMARK [2][-]{subsection.4.2.1}{Streaming mechanism}{section.4.2}% 46
+\BOOKMARK [2][-]{subsection.4.2.2}{Renderer}{section.4.2}% 47
+\BOOKMARK [0][-]{chapter.5}{Results}{}% 48
+\BOOKMARK [0][-]{chapter.6}{Conclusion}{}% 49
+\BOOKMARK [0][-]{appendix.A}{Geometric algorithms}{}% 50
+\BOOKMARK [1][-]{section.A.1}{Definitions}{appendix.A}% 51
+\BOOKMARK [1][-]{section.A.2}{Projection matrix to view frustum}{appendix.A}% 52
+\BOOKMARK [1][-]{section.A.3}{Maximal point-to-cuboid distance}{appendix.A}% 53
+\BOOKMARK [1][-]{section.A.4}{Minimal point-to-cuboid distance}{appendix.A}% 54
+\BOOKMARK [1][-]{section.A.5}{Frustum-cuboid intersection}{appendix.A}% 55

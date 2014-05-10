@@ -3,6 +3,7 @@
 
 #include <functional>
 #include <string>
+#include <type_traits>
 #include "interface/progress.h"
 
 namespace dypc {
@@ -116,6 +117,32 @@ void progress_foreach(Iterator begin, Iterator end, std::size_t total, const std
 		std::size_t counter = 0;
 		for(Iterator it = begin; it != end; ++it, ++counter) {
 			func(*it);
+			if(counter == update_step) {
+				pr.increment();
+				counter = 0;
+			}
+		}
+	});
+}
+
+
+/**
+ * Iterate through list, and and show progress bar.
+ * Version that breaks when function returns false.
+ * @see progress
+ * @param begin Iterator to start of list.
+ * @param end Iterator to end of list.
+ * @param total Number of elements in list.
+ * @param label Label for progress bar.
+ * @param func Function that is called. Takes argument with dereference type of iterator, by reference. Break when return false.
+ */
+template<class Iterator, class Function>
+void progress_foreach_break(Iterator begin, Iterator end, std::size_t total, const std::string& label, Function func) {
+	progress(100, label, [&](progress_handle& pr) {
+		std::size_t update_step = total/100;
+		std::size_t counter = 0;
+		for(Iterator it = begin; it != end; ++it, ++counter) {
+			if(! func(*it)) break;
 			if(counter == update_step) {
 				pr.increment();
 				counter = 0;

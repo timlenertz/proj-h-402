@@ -27,7 +27,7 @@ class tree_structure_piecewise : public tree_structure<Splitter, Levels, PointsC
 	
 private:
 	using super = tree_structure<Splitter, Levels, PointsContainer>;
-	static constexpr std::size_t expected_maximal_pieces_depth_ = 3; ///< Expected maximal depth for pieces tree.
+	static constexpr std::size_t expected_maximal_pieces_depth_ = 8; ///< Expected maximal depth for pieces tree.
 
 public:
 	class piece_node;
@@ -183,10 +183,10 @@ root_piece_node_(mod.enclosing_cuboid(), 0) {
 	while(repeat) {
 		repeat = false;
 		root_piece_node_.initialize_tree(max_depth);
-		progress_foreach(mod, "Counting points in child pieces (max depth " + std::to_string(max_depth) + ")...", [&](const point& pt) {
-			if(repeat) return; // no easy way to exit right now
+		progress_foreach_break(mod.begin(), mod.end(), mod.number_of_points(), "Counting points in child pieces (max depth " + std::to_string(max_depth) + ")...", [&](const point& pt)->bool {
 			bool ok = root_piece_node_.count_point(pt, maxnum);
-			if(! ok) { repeat = true; ++max_depth; }
+			if(! ok) { repeat = true; max_depth *= 2; return false; }
+			return true;
 		});
 	}
 
@@ -253,7 +253,7 @@ void tree_structure_piecewise<Splitter, Levels, PointsContainer, PiecesSplitter>
 
 template<class Splitter, std::size_t Levels, class PointsContainer, class PiecesSplitter>
 bool tree_structure_piecewise<Splitter, Levels, PointsContainer, PiecesSplitter>::piece_node::count_point(glm::vec3 pt, std::ptrdiff_t maxnum) {
-	//assert(contains_point(pt));
+	assert(contains_point(pt));
 	typename PiecesSplitter::node_points_information no_info;
 	++number_of_points_;
 	if(! children_[0]) {

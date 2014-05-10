@@ -74,7 +74,7 @@ inline std::ptrdiff_t max(std::ptrdiff_t a, std::ptrdiff_t b) { return (a < b ? 
  * Epsilon value used to compare floats to approximate equality.
  * Two floating point values will be considered equal after several operations, if their difference is less than this value.
  */
-constexpr float float_comparison_epsilon = 0.0001;
+constexpr float float_comparison_epsilon = 0.000001;
 
 /**
  * Random number generator type used in the library.

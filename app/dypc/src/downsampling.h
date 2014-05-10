@@ -194,7 +194,7 @@ float uniform_downsampling_side_length(Iterator pt_begin, Iterator pt_end, std::
 	sample attempt(last_side_length, 0);
 	
 	progress("Finding uniform downsampling cube size...", [&](progress_handle& pr) {
-		do {
+		do {			
 			attempt.number_of_points = uniform_downsampling_number_of_points_for_side_length(pt_begin, pt_end, attempt.side_length, maximal_increment);
 
 			pr.pulse();
@@ -206,6 +206,7 @@ float uniform_downsampling_side_length(Iterator pt_begin, Iterator pt_end, std::
 			else upper_bound = attempt;
 			last_side_length = attempt.side_length;
 			attempt.side_length = lower_bound.side_length + (upper_bound.side_length - lower_bound.side_length)/2;
+			if(attempt.side_length < float_comparison_epsilon) break; // don't let it become zero
 		} while(attempt.number_of_points > expected_number_of_points || expected_number_of_points - attempt.number_of_points > tolerance);
 	
 	});

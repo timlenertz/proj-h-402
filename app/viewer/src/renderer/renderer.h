@@ -19,6 +19,7 @@
 #include <string>
 #include <utility>
 #include <chrono>
+#include <functional>
 
 namespace dypc {
 
@@ -65,6 +66,8 @@ private:
 	glm::quat orientation_; ///< Current camera orientation as quaternion.
 	glm::vec3 velocity_; ///< Current camera velocity.
 	glm::vec3 view_target_velocity_;
+	
+	std::function<void()> callback_;
 
 	void compute_projection_matrix_();
 	void compute_view_matrix_();
@@ -105,6 +108,13 @@ public:
 	float get_loader_downsampling_setting();
 	void set_loader_adaptive(bool adaptive);
 	bool get_loader_adaptive();
+	
+	void set_callback(const std::function<void()>& f) { callback_ = f; }
+	void clear_callback() { callback_ = nullptr; }
+	std::function<void()> get_callback() const { return callback_; }
+	
+	std::size_t get_capacity() const { return point_buffer_capacity_; }
+	std::size_t get_rendered_points() const { return renderer_point_buffer_size_; } 
 	
 	void update_now();
 	void switch_loader(dypc_loader);

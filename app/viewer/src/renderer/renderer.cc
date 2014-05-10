@@ -66,6 +66,8 @@ void renderer::check_updater_() {
 			std::swap(loader_point_buffer_, renderer_point_buffer_);
 			renderer_point_buffer_size_ = sz;
 		}
+		
+		if(callback_) callback_();
 	} else {
 		glUnmapBuffer(GL_ARRAY_BUFFER); // does nothing if buffer was not mapped
 		renderer_point_buffer_size_ = 0;

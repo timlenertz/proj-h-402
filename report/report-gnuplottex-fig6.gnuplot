@@ -2,7 +2,7 @@ set terminal latex
 set output 'report-gnuplottex-fig6.tex'
 set terminal epslatex color
 set xlabel "$s$"
-set ylabel "$|P'| / n_{\min}$"
+set ylabel "$n / n_{\min}$"
 set yrange [0.0:1.1]
 
 nmin = 1000000
