@@ -45,11 +45,13 @@
 \BOOKMARK [1][-]{section.4.2}{Viewer}{chapter.4}% 45
 \BOOKMARK [2][-]{subsection.4.2.1}{Streaming mechanism}{section.4.2}% 46
 \BOOKMARK [2][-]{subsection.4.2.2}{Renderer}{section.4.2}% 47
-\BOOKMARK [0][-]{chapter.5}{Conclusion}{}% 48
-\BOOKMARK [0][-]{appendix.A}{Geometric algorithms}{}% 49
-\BOOKMARK [1][-]{section.A.1}{Definitions}{appendix.A}% 50
-\BOOKMARK [1][-]{section.A.2}{Projection matrix to view frustum}{appendix.A}% 51
-\BOOKMARK [1][-]{section.A.3}{Maximal point-to-cuboid distance}{appendix.A}% 52
-\BOOKMARK [1][-]{section.A.4}{Minimal point-to-cuboid distance}{appendix.A}% 53
-\BOOKMARK [1][-]{section.A.5}{Frustum-cuboid intersection}{appendix.A}% 54
-\BOOKMARK [1][-]{section.A.6}{Frustum-cuboid \(partial\) intersection}{appendix.A}% 55
+\BOOKMARK [1][-]{section.4.3}{Usage}{chapter.4}% 48
+\BOOKMARK [2][-]{subsection.4.3.1}{Compilation}{section.4.3}% 49
+\BOOKMARK [2][-]{subsection.4.3.2}{Example files}{section.4.3}% 50
+\BOOKMARK [0][-]{appendix.A}{Geometric algorithms}{}% 51
+\BOOKMARK [1][-]{section.A.1}{Definitions}{appendix.A}% 52
+\BOOKMARK [1][-]{section.A.2}{Projection matrix to view frustum}{appendix.A}% 53
+\BOOKMARK [1][-]{section.A.3}{Maximal point-to-cuboid distance}{appendix.A}% 54
+\BOOKMARK [1][-]{section.A.4}{Minimal point-to-cuboid distance}{appendix.A}% 55
+\BOOKMARK [1][-]{section.A.5}{Frustum-cuboid intersection}{appendix.A}% 56
+\BOOKMARK [1][-]{section.A.6}{Frustum-cuboid \(partial\) intersection}{appendix.A}% 57

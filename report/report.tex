@@ -354,9 +354,9 @@ The following graph shows how the downsampling setting $s$ affects the number of
 
 The outputted number of points $n$ never gets larger than $n_{\min}$ because in this example $n_{\min} = C$ the capacity of the renderer, and the algorithm that extracts points from the data source never outputs more than $C$ points. It is chosen so that in the extreme case where all points from $P$ lie in the view frustum, it can still be rendered by choosing the highest downsampling level $\ell = L-1$ everywhere. This is the case in \texttt{dragon far cm8}. frustum culling makes the actual outputted number of points $n$ smaller than $n_{\min}$ as seen in the graph.
 
-For view points where only a small portion of the model is visible, $n$ can remain smaller than $n_{min}$ for any setting. An extreme case is the a close-up view list in \texttt{dragon closeup cm8}.
+For viewpoints where only a small portion of the model is visible, $n$ can remain smaller than $n_{min}$ for any setting. An extreme case is a close-up view as shown in \texttt{dragon closeup cm8}.
 
-The optimal setting $s$ is one where $n$ is as large as possible, but below $n_{min}$. If it is smaller than is could be, the renderer capacity would still allow for a higher number of points and thus higher quality. If it hits $n_{min}$, then the program attempts to extract more than $C$ points and breaks up in the process, leading to missing parts in the output.
+The optimal setting $s$ is one where $n$ is as large as possible, but below $n_{min}$. If it is smaller than it could be, the renderer capacity would still allow for a higher number of points and thus higher quality. If it hits $n_{min}$, then the program attempts to extract more than $C$ points and breaks up in the process, leading to missing parts in the output.
 
 Also the aspect of the curve varies greatly with the camera position and orientation, especially for composite models where different parts have different point densities. So the user would have to keep adjusting the setting $s$ in order to get good results. It may be possible to implement a controller mechanism that automatically adjusts $s$. Possibly a system similar to a \emph{PID} controller could be used. This is not implemented in the program.
 
@@ -369,17 +369,17 @@ Occlusion culling, or hidden surface removal is the process of removing points f
 Different algorithms exist to approximate occlusion culling on a point set without knowledge of the surfaces.
 
 \subsection{Point shadows}
-A simple method that is implemented in the application is do draw a black \emph{shadow} behind each rendered point. The shadow is a disk or square a few pixels wide centered around the point. If a surface is at a reasonable distance from the camera, its points will all be just a few pixels apart on the projection, and the shadows completely cover the points behind it. Thanks GPU's \emph{depth testing}, this still works when those points are rendered after those from the surface.
+A simple method that is implemented in the application is do draw a black \emph{shadow} behind each rendered point. The shadow is a disk or square a few pixels wide centered around the point. If a surface is at a reasonable distance from the camera, its points will all be just a few pixels apart on the projection, and the shadows completely cover the points behind it. Thanks to the GPU's \emph{depth testing}, this still works when those points are rendered after the ones from the occluding surface.
 
-The method can improve visual quality, but it no longer works when the camera is too close to the surface, and as a side effect it produces black contours around the edges of the model, since the shadows don't take the (unknown) normal vectors of the points on their surface into account. Also, it increases the load on the GPU too much since every pixel of the shadow it processed the same way as a point from $P'$, and there can easily be many unnecessary overlapping pixels produces this way. Because it is implemented on the GPU (as an OpenGL shader), it does not contribute to the goal of reducing the size $P'$ to fit $C$.
+The method can improve visual quality, but it no longer works when the camera is too close to the surface, and as a side effect it produces black contours around the edges of the model, since the shadows don't take the (unknown) normal vectors of the points on their surface into account. Also, it increases the load on the GPU too much since every pixel of the shadow is processed the same way as a point from $P'$, and there can easily be many unnecessary overlapping pixels. Because it is implemented on the GPU (as an OpenGL shader), it does not contribute to the goal of reducing the size $P'$ to fit $C$.
 
 \subsection{HPR Operator}
-Another possibility is the \emph{HPS operator} described in \cite{Katz2007}: In a coordinate system centered around the current camera position $O$, the following \emph{spherical flipping} transformation is applied to the points in the frustum:
+Another possibility is the \emph{HPR operator} described in \cite{Kat2007}: In a coordinate system centered around the current camera position $O$, the following \emph{spherical flipping} transformation is applied to the points in the view frustum:
 \begin{equation}
-	p' = p + 2(R - |p|) \frac{}{p}{|p|}
+	p' = p + 2(R - |p|) \frac{p}{|p|}
 \end{equation}
 
-where $R$ is the radius of a sphere centered in $O$ that englobes all visible points. This transformation has the property that if for two points $p_{1}, p_{2}$, $p_{1}$ is closer to the $O$ than $p_{2}$, the image $p'_{1}$ will now be further away from $O$ than $p'_{2}$.
+where $R$ is the radius of a sphere centered in $O$ that covers all visible points. This transformation has the property that if for two points $p_{1}, p_{2}$, one has that $p_{1}$ is closer to $O$ than $p_{2}$, then the image $p'_{1}$ will now be further away from $O$ than $p'_{2}$.
 
 Then, the convex hull is calculated on the transformed point set. As output, the algorithm returns only the points $p \in P$ whose image $p'$ is part of that convex hull. The following picture illustrates the transformation in 2D, along with the resulting output. The figure is copied from \cite{Kat2007}.
 
@@ -388,18 +388,22 @@ Then, the convex hull is calculated on the transformed point set. As output, the
 	\includegraphics[width=10cm]{hpr.png}
 \end{figure}
 
-However, this algorithm is not useable in a dynamic setting because of the complexity of computing the three-dimensional convex hull of a large point set. It tends to take a few seconds to compute for about $3000$ points.
+However, this algorithm is not usable in a dynamic setting because of the complexity of computing the three-dimensional convex hull of a large point set. It tends to take a few seconds for about $3000$ points.
 
 An modified ``Fast HPR operator'' is presented in \cite{Ren2012} that calculates an approximate convex hull instead. According to the article, this technique may be efficient enough for interactive usage.
 
+In short, it works in a manner similar to uniform downsampling. The view frustum is subdivided into a regular grid of three-dimensional sectors pointing outward the camera into the visible points. For each sector only the point furthest away is retained.\footnote{Actually the dot product of the point with the directing vector at the center of the sector is compared.} Then the algorithm applies additional post-processing on neighboring sectors to improve the quality of the convex hull approximation.
+
+
+
 \chapter{Data structures}
-The $f_{P}$ function described in the previous chapter takes a unordered set $P$ of three-dimensional points as input. In an implementation, $P$ will be stored in a certain \emph{data structure}, which is essentially a way of representing $P$ using a one-dimensional array of bits. The data structure will hold the points $P$, along with weights or LOD sets for downsampling, and possibly additional information. The criterion for choosing a data structure is that $f_{P}$ can be implemented in an efficient way.
+The $f_{P}$ function described in the previous chapter takes a unordered set $P$ of three-dimensional points as input. In an implementation, $P$ will be stored in a certain \emph{data structure}, which itself exists as a one-dimensional array of bits. The data structure will hold the points $P$, along with weights or \emph{LOD} sets for downsampling, and possibly additional information. The criterion for choosing a data structure is that $f_{P}$ can be implemented in an efficient way.
 
 \section{General}
 Since the data structure must contain all the $n_{\text{total}}$ points of $P$, its size must always be at least in $O(n_{\text{total}})$. The algorithm which extracts $P' = f_{P}$ will typically only need to read a small portion consisting of $n \ll n_{\text{total}}$ points. To make this efficient the data structure must be designed such that:
 \begin{itemize}
-\item It must be possible to determine the portions of data to extract without searching through the whole structure. The worst case would be a data structure that consists simply of an array of points in any order, because in order to find the points that lie inside the current view frustum the algorithm would have to check every point in the array, leading to a time complexity $O(n_{\text{total}})$. This would defeat the goal of enabling efficient loading of large models.
-\item The data structure is always serialized to storage in one dimension. It is generally much more efficient to read a small number of long segments, rather than many small segments: Seeking times on the storage device are avoided, and various caching mechanisms from the underlying file system are used.
+\item It must be possible to determine the portions of data to extract without searching through the whole structure. The worst case would be a data structure that consists simply of an array of points in any order, because to find the points that lie inside the current view frustum the algorithm would have to check every point in the array, leading to a time complexity $O(n_{\text{total}})$.
+\item The data structure is always serialized to storage in one dimension. It is generally much more efficient to read a small number of long segments, rather than many small segments: Seeking times on the storage device are avoided, and various caching mechanisms from the underlying file system take effect.
 
 No order can be defined for three dimensional points, but their one-dimensional representations always have an order. So a compromise needs to be found by which the serialization is ordered such that for the majority of cases, points that are close to each other in three dimensional space remain close to each other in the serialization.
 \end{itemize}
@@ -410,32 +414,32 @@ Two techniques are used to achieve this: The model is split into smaller \emph{r
 The data structure is built on top of a \emph{file type}. Several possible file types were compared:
 \begin{description}
 \item[Raw file] Essentially no file type is used, and the data structure is implemented on the lowest level. The implementation needs to write and read the structure as a single continguous segment of binary data. This allows for the highest level of control, but requires an ad-hoc definition of helper structures such as a way to split the file into different parts for points, downsampled points, regions, additional file information... Also the precise way that data values serialized (floating point and integer data types, alignment, endianess) needs to be taken care of in the implementation of the data structure.
-\item[ASCII-based file] Storing data as an ASCII-based text file instead of as raw binary data removes the latter problems of data serialization. The remaining problems stay the same. The files get much larger: If the file contains a set of $1000000$ points with $x, y, z$ coordinates, storing them as 4 byte floating point values would require $\SI{11. 72}{\mega\byte}$. If the values are written in decimal representation with 8 digits, plus separation characters, a size of about $\SI{29. 56}{\mega\byte}$ would result. This additional space requirement, and the parsing overhead when reading from the file, makes such file types impractical for large amounts of data.
+\item[ASCII-based file] Storing data as an ASCII-based text file instead of as raw binary data removes the latter problems of data serialization. The remaining problems stay the same. The files get much larger: If the file contains a set of $1000000$ points with $x, y, z$ coordinates, storing them as 4 byte floating point values would require $\SI{11.72}{\mega\byte}$. If the values are written in decimal representation with 8 digits, plus separation characters, a size of about $\SI{29.56}{\mega\byte}$ would result. This additional space requirement, and the parsing overhead when reading from the file, makes such file types impractical for large amounts of data.
 \item[XML] XML would provide a way to represent structured data, and so it would be possible to build the data structure in terms of XML tags, containers and attributes. However, it suffers the same problems as any ASCII-based format, to an increased extent since it tends to be very verbose compared to simpler formats. Also, the purpose of XML is not to deal with large amounts of data that is dynamically read, but rather to deal with relatively small, deeply structured files such as computer programs or web pages, and it provides tools to validate, transform, interlink, etc. such files.
-\item[HDF] HDF (\emph{Hierarchical Data Format}) is the main format used in the program. It is a binary designed designed for storage of large quantities or scientific data in such a way that parts of it can be extracted efficiently. It allows for the definition of simple or combound data types (such as 3 floating point values and 3 bytes for an XYZRGB point), and can store several data sets or such values in the file. These data sets are ordered arrays of one or more dimensions, and the \emph{hyperslap} mechanism provides a way to efficiently read or write in it. HDF stores the data sets either directly as sequential data on the storage device, but can also internally store the data sets in multiple chunks, and provide additional optimizations such as internal caches for dealing with large data sets.
-\item[SQL database] Using a relational database database such as \emph{SQLite} allows for implementing the structure on a higher level, while the database takes care of arranging the data internally so as to allow for fast retrieval. This includes its internal data structures and algorithms used to implement indexing, executing \emph{SELECT} queries, caching...
+\item[HDF] HDF (\emph{Hierarchical Data Format}) is the main format used in the program. It is a binary format designed for storage of large quantities or scientific data in such a way that parts of it can be extracted efficiently. It stores the data sets either directly as sequential data on the storage device, but can also internally store the data sets in multiple chunks, and provide additional optimizations such as internal caches for dealing with large data sets.
+\item[SQL database] Using a relational database such as \emph{SQLite} allows for implementing the structure on a higher level, while the database takes care of arranging the data internally so as to allow for fast retrieval. This includes its internal data structures and algorithms used to implement indexing, executing \emph{SELECT} queries, caching...
 \end{description}
 
 In general, it seems a much better choice to stay with a lower level file format like \emph{HDF} that still provides basic facilities for separating data sets, defining data types, etc. The definition of the \emph{data structure} should include how it is serialized to a one-dimensional representation, since this is critical for its performance.
 
 \section{HDF}
-The \emph{Hierarchical Data Format} HDF, was designed to allow for storing large quantities of multi-dimensional numerical data, such as fields recorded by scientific instruments. Using to serialize a data structure is not its main purpose, but the features \emph{HDF} provides still make it a good option. Here is a brief overview of some building blocks of \emph{HDF5}:
+The \emph{Hierarchical Data Format} HDF, was designed to allow for storing large quantities of multi-dimensional numerical data, such as fields recorded by scientific instruments. Using it to serialize a data structure is not its main purpose, but the features \emph{HDF} provides still make it a good choice. Here is a brief overview of some building blocks of \emph{HDF5}:
 \begin{description}
 \item[data type] Usually numeric (integer or real), possible to have fixed length arrays for any data type. The precise representation (endianness, bit size) can be defined.
 \item[combound data type] Similar to a \texttt{struct} in C: Data type composed of several named members of different types.
 \item[data set] An HDF5 file contains one or more data sets, and these contain the actual data. It has a data type (can be combound), and can be one- or multi-dimensional. Usually its length needs to be specified at creation, but \emph{chunked data sets} are stored internally in a way that allows for a dynamic unlimited extend.
-\item[data space] A selection of data in a data set. Can be a simple one-dimensional interval, or a \emph{hyperslab} that can represent a selection on a serialized multi-dimensional data set.
-\item[attribute] Single named data values that can be attributed to a data set of another object. Used to attach additional information to the file.
+\item[data space] A selection of data in a data set. Can be a simple one-dimensional interval, or a \emph{hyperslab} that can represent a selection on a serialized multi-dimensional data set. Data is read and written into data spaces.
+\item[attribute] Single named data values that can be attributed to a data set or another object. Used to attach additional information to the file.
 \end{description}
 Here, only one-dimensional data sets are used. The \texttt{points} data set would be a data set of a combound type \emph{point}, which has data members for the coordinates and color.
 
 \section{Cuboid regions} \label{sec:cub_reg}
 All of the data structures used in the projet rely on subdividing the three dimensional space in axis-aligned cuboid regions. A cuboid $\mathcal{C}$ is defined by its \emph{origin} $(x, y, z)$ and its \emph{extremity} $(x', y', z')$, and a point $\overrightarrow{p}$ is considered to be inside the cuboid if and only if $p_{x} \in [x, x'[$, $p_{y} \in [y, y'[$ and $p_{z} \in [z, z'[$.
 
-Because the intervals are open on one side, points that lie on the border of two adjacent cuboid can never fall into both cuboids. However, when defining a bounding cuboid that should enclose a given set of points, it becomes necessary to make the coordinates of its extremity slighly larger than the point with maximal coordinates.
+Because the intervals are open on one side, points that lie on the border of two adjacent cuboids can never fall into both of them. However, when defining a bounding cuboid that should enclose a given set of points, it becomes necessary to make the coordinates of its extremity slightly larger than the point with maximal coordinates.
 
 \subsection{Floating point issues}
-Cuboids are defined in terms of origin and extremity, instead of origin and side lengths, in order to deal with floating point imprecision problems that would otherwise occur in the implementation: For the \emph{tree structures}, cuboids will be recursively subdivided into smaller cuboids, out of which some share extremitiy coordinates with the parent cuboid. If side length were to be used, those floating point values would not be copied, but rather need to be recomputed from the new origins and side lengths of the child cuboids. This could make their values slightly different, and as a consequence the algorithms would be incorrect, as they could for instance encounter points that are inside a child cuboid, but outside the parent cuboid.
+Cuboids are defined in terms of origin and extremity, instead of origin and side lengths, in order to deal with floating point imprecision problems that would otherwise occur in the implementation: For the \emph{tree structures}, cuboids will be recursively subdivided into smaller cuboids, out of which some share extremity coordinates with the parent cuboid. If side lengths were to be used, those floating point values would not be copied, but rather need to be recomputed from the new origins and side lengths of the child cuboids. This will make their values slightly different, and as a consequence the algorithms would be incorrect. They could for instance encounter points that are inside a child cuboid, but outside the parent cuboid.
 These edge cases are significant because the coordinates are real values, whereas quantities of points are discrete. Parts of the program rely on having exact knowledge of these quantities, for example to align data segments in files the right way.
 
 In other situations where floating point imprecisions are tolerated, the program uses a small threshold value $\epsilon$ to test two floating point values for ``equality''. That is, $f_{1} \approx f_{2} \Longleftrightarrow |f_{1} - f_{2}| < \epsilon$.
@@ -457,16 +461,16 @@ Assuming that any definition of $d$ gives a value $\geq$ the maximal distance an
 
 The figure on the right illustrates this: $d(p, \min_{1}) < d(p, \min_{2})$, whereas $d(p, \max_{1}) > d(p, \max_{2})$. So no matter how the \emph{point-to-cuboid distance} is defined in that case, there will always be points in one of the cuboids that don't fullfill the condition. When such points are inside the view frustum, is leads to visual discontinuities, as there are places where the downsampling ratio gets lower at a greater distance instead of higher.
 
-As a compromise, one of the proposed definitions needs to be chosen chosen that reduces this effect. Generally, better results are produces when the regions are more or less cubic, and in that case the \textbf{center} definition of $d$ yields good results. Otherwise, \textbf{minimal} tends to be better.
+As a compromise, one of the proposed definitions needs to be chosen chosen that reduces this effect. Generally, better results are produced when the regions are more or less cubic, and in that case the \textbf{center} definition of $d$ yields good results. Otherwise, \textbf{minimal} tends to be better.
 
 \pagebreak
 
 \section{Cubes structure}
-The \emph{cubes structure} is a first attempt at a simple way to organize the set of points such that the algorithm is faster than a naive implementation which would iterate through the whole set of points at each evaluation of $f_{P}$.
+The \emph{cubes structure} is a first attempt at a simple way to organize the set of points such that the algorithm is faster than a naive implementation that would iterate through the whole set of points at each evaluation of $f_{P}$.
 
-Space is subdivided into a regular grid of axis-aligned \emph{cubes} $\mathcal{C}_{i,j,k}$ with a common side length $l$.\footnote{This is unrelated to the cubes used for uniform downsampling in the previous chapter.} These cubes are the cuboid regions for this structure. Because of the way their boundaries are defined, every point $p \in P$ will belong into exactly one cube. The side length can be configured when the structure is created, and is by default set to $l = 5$. $i, j, k$ are the coordinates for the cubes in the grid. For the cube $\mathcal{C}_{0,0,0}$, its \emph{origin} corresponds to the origin of the space.
+Space is subdivided into a regular grid of axis-aligned \emph{cubes} $\mathcal{C}_{i,j,k}$ with a common side length $l$.\footnote{This is unrelated to the cubes used for uniform downsampling in the previous chapter.} These cubes are the cuboid regions for this structure. Because of the way their boundaries are defined, every point $p \in P$ will belong into exactly one cube. The side length can be configured when the structure is created, and is by default set to $l = 5$. The integers $i, j, k$ are the coordinate indexes for the cubes in the grid. For the cube $\mathcal{C}_{0,0,0}$, its \emph{origin} corresponds to the origin of the space.
 
-Only cubes that contain at least one point are created, so their total number will be finite. In the first stage of the structure creation progress, the algorithm iterates through the full set of points $P$, for each point $p$ and determines the coordinates of the cube into $p$ will belong by floor division:
+Only cubes that contain at least one point are created, so their total number will be finite. In the first stage of the structure creation progress, the algorithm iterates through the full set of points $P$, and for each point $p$ determines the coordinates of the cube into which $p$ will belong by floor division:
 \begin{equation*}
 	(i, j, k) = \left( \lfloor p_{x}/l \rfloor, \lfloor p_{y}/l \rfloor, \lfloor p_{z}/l \rfloor \right)
 \end{equation*}
@@ -477,26 +481,26 @@ There are two variants for the cubes structure, one with \emph{weighted points} 
 \subsection{Weighted point variant}
 The algorithm proceeds by attributing random weights $w \in [0,1]$ to each point $p \in P$ in an uniform distribution.
 
-When a \emph{HDF} file type is used, two one-dimensional data sets \texttt{points} and \texttt{cubes} are created. The \texttt{points} data set is contains $|P|$ entries of the \texttt{point} combound type. This type consists of four floating point values for the point coordinates $p_{x}, p_{y}, p_{z}$ and the weight $w$, plus three byte values for the RGB color information. The points in $P$ are added into this data set, grouped by the cube in which they belong. Inside each cube group, the point entries are sorted by ascending $w$. The outer order of the cube groups does not matter.
+When a \emph{HDF} file type is used, two one-dimensional data sets \texttt{points} and \texttt{cubes} are created. The \texttt{points} data set contains $|P|$ entries of the \texttt{point} compound type. This type consists of four floating point values for the point coordinates $p_{x}, p_{y}, p_{z}$ and the weight $w$, plus three byte values for the RGB color information. The points in $P$ are added into this data set, grouped by the cube in which they belong. Inside each cube group, the point entries are sorted by ascending $w$. The outer order of the cube groups does not matter.
 
-The \texttt{cubes} data set is filled with an entry for each cube. For each cube entry, it contains the three incides of the cube $i, j, k$, the number of points in the cube $N(\mathcal{C})$, and the offset $\text{off}(\mathcal{C})$ in the \texttt{points} data set of the first point from that cube. So given a \texttt{cubes} entry the corresponding array of points in the \texttt{points} ranges from $\text{off}(\mathcal{C})$ to $\text{off}(\mathcal{C}) + N(\mathcal{C}) - 1$.
+The \texttt{cubes} data set is filled with an entry for each cube. For each cube entry, it contains the three indexes of the cube $i, j, k$, the number of points in the cube $N(\mathcal{C})$, and the offset $\text{off}(\mathcal{C})$ in the \texttt{points} data set of the first point from that cube. So in given a \texttt{cubes} entry the corresponding array of points in \texttt{points} ranges from $\text{off}(\mathcal{C})$ to $\text{off}(\mathcal{C}) + N(\mathcal{C}) - 1$.
 
-This data structure is also implemented with an \emph{SQLite database} as backend. Here, two tables for the cubes and for the points are created, except that instead of storing offsets, each cube has a unique \emph{primary index}, the points table contains an \emph{index} column that gives is set to the cube's index. The points corresponding to one cube are loaded using SQL queries, and \emph{SQLite}'s indexing algorithms take care of the internal representation of the data and then necessary optimizations.
+This data structure is also implemented with an \emph{SQLite database} as backend. Here, two tables for the cubes and for the points are created, except that instead of storing offsets, each cube gets a unique \emph{primary index} and, the points table contains an \emph{foreign key index} column that is set to its cube's index. The points corresponding to one cube are loaded using SQL queries, and \emph{SQLite}'s indexing algorithms take care of the internal representation of the data and then necessary optimizations.
 
 \subsection{LOD regions variant}
 For the \emph{LOD regions variant}, the algorithm instead proceeds by generating, for the sets of points in each cube $P_{\mathcal{C}} = \{ p \mid p \in \mathcal{C} \}$, the $L-1$ downsampled point sets $P'_{r}(\mathcal{C})$.\footnote{An alternative implementation would be a generate the downsampled point sets for the entire model $P$, and then reattribute the resulting points $p' \in P'_{r}$ to their respective cubes.}
 
-In the \emph{HDF} file, $L$ different point sets \texttt{points\#} are created which all the points for the downsampled point sets. Again, the points are grouped by their group. Here, the points don't have a weight, and the order of the point entries inside the groups, just like the order of the groups, doesn't matter. The \texttt{cubes} data set now needs to store the cubes' point offsets and counts for each downsampling level, because they will be different.
+In the \emph{HDF} file, $L$ different point sets \texttt{points\#} are created which will be filled with all the points for the downsampled point sets. Again, the points are grouped by their cube. Here, the points don't have a weight, and the order of the point entries inside the groups, just like the order of the groups, does not matter. The \texttt{cubes} data set now needs to store the cubes' point offsets and counts for each downsampling level, because they will be different.
 
 There is no implementation for a \emph{SQLite database} file type for this variant.
 
 
 \subsection{Extraction algorithm}
-The \emph{extraction algorithm} of a data structure is executed repeatedly as the used moves through the points cloud and his camera position and view frustum changes. One of the main goals of the project is for this algorithm do be as efficient as possible, even when the model is very large.
+The \emph{extraction algorithm} of a data structure is executed repeatedly as the user moves through the point cloud and his camera position and view frustum changes. One of the main goals of the project is for this algorithm do be as efficient as possible, even when the model is very large.
 
 For the cubes structure, the algorithm iterates through the full list of cubes each time, and for each cube, checks whether it is completely or partially inside the view frustum. This test is done on the cube alone and without considering the points in that cube, using the test described in \ref{sec:fr_cub_inter}. If the test is positive, it determines a downsampling level $\ell$ for that cube using $\ell(d, s)$ where the point-to-cuboid $d$ is calculated by one of the schemes described above.
 
-For the \emph{LOD regions} variant, it then copies the points of the cube for level $\ell$ from the file into the output buffer. This always a single segment of data. For the \emph{weighted points} distance, it extracts the points for which $w < r$. So this requires iterating through the points, but because the points are sorted by ascending $w$, the procedure can stop when $w \geq r$ is reached. So the \emph{weighted points} variant is slower, but requires less storage space. It also allows for $r$ of a cube to take any value as opposed to only $L$ possibilities, but small discontinuities still occur at the boundaries of the cubes grid.
+For the \emph{LOD regions} variant, it then copies the all of the points of the cube for level $\ell$ from the file into the output buffer. This always a single segment of data. For the \emph{weighted points} variant, it extracts the points for which $w < r$. So this requires iterating through the points, but because the points are sorted by ascending $w$, the procedure can stop when $w \geq r$ is reached. So the \emph{weighted points} variant is slower, but requires less storage space. It also allows for $r$ of a cube to take any value as opposed to only $L$ possibilities. But small discontinuities still occur at the boundaries of the cubes grid.
 
 The complexity of the algorithm is linear with respect to the number of cubes, and so it scales too much with the size of the model.
 
@@ -507,31 +511,31 @@ The \emph{tree structures} recursively subdivide space into cuboid regions. A \e
 
 
 \section{Serialization} \label{sec:tree_ser}
-The constraints for the rule by which the cuboids are subdivided imply that it is possible to order the points in such a way that the points inside a given cuboid $\mathcal{C}$ of any depth lie on one segment of the ordered list. If $\mathcal{C}_{1}$ is a child cuboid of $\mathcal{C}_{0}$, then $p \in \mathcal{C}_{1} \Rightarrow p \in \mathcal{C}_{0}$, and if $p \in \mathcal{C}$ and $\mathcal{C}$ is not a leaf, then there must exist exactly one child cuboid of $\mathcal{C}$ that also contains $p$.
+The constraints for the rule by which the cuboids are subdivided imply that it is possible to order the points in such a way that the subset of points inside a given cuboid $\mathcal{C}$ of any depth always lie on one segment of the ordered list.
 
-This can be reproduced in the one dimensional representation by recursively sudividing segments in the same manner. So, each cuboid will be associated an \emph{offset} $\text{off}(\mathcal{C})$ in the points list, and a \emph{number of points} $N(\mathcal{C})$.
+If $\mathcal{C}_{1}$ is a child cuboid of $\mathcal{C}_{0}$, then $p \in \mathcal{C}_{1} \Rightarrow p \in \mathcal{C}_{0}$, and if $p \in \mathcal{C}$ and $\mathcal{C}$ is not a leaf, there must exist exactly one child cuboid of $\mathcal{C}$ that also contains $p$. This relation can be reproduced in the one dimensional representation by recursively subdividing segments in the same manner. So, each cuboid will be associated an \emph{offset} $\text{off}(\mathcal{C})$ in the points list, and a \emph{number of points} $N(\mathcal{C})$.
 
-Just like with the \emph{cubes structure}, downsampling can be added through the use of \emph{LOD regions}, where there are multiple offsets and numbers of points for each point. However, it is no longer possible to effectively implement a \emph{weighted points} variant: The points belonging to a cuboid cannot be ordered by their weight $w$ because subsegments would also have to be ordered the same way. Without this, the program would be forced to iterate through all points in the view frustum.
+Just like with the \emph{cubes structure}, downsampling can be added through the use of \emph{LOD regions}. However, it is no longer possible to effectively implement a \emph{weighted points} variant: The points belonging to a cuboid cannot be ordered by their weight $w$ because subsegments would also have to be ordered the same way. Without this, the program would be forced to iterate through all points in the view frustum.
 
-Similarily to cubes in the \emph{cubes structure}, cuboids ``nodes'' are stored in a separate list, with their link (offset, count) to the points sets. Also the offsets (in the same list) of a node's child nodes are stored with it, as well as the node's cuboid. There is no need for the nodes to be ordered in a specific way.\footnote{This is useful in a parallelized implementation of the structure creation algorithm; see further.} Storing the cuboid with the node slightly increases the file size, but it simplifies implementation, avoids the need to store the \emph{node points information}, and allows for trees formed by several different rules. (see later)
+Similarly to cubes in the \emph{cubes structure}, cuboids ``nodes'' are stored in a separate list, with their link (offset, count) to the points sets. Also the offsets (in the same list) of a node's child nodes are stored with it, as well as the node's cuboid. There is no need for the nodes to be ordered in a specific way.\footnote{This is useful in a parallelized implementation of the structure creation algorithm; see further.} Storing the cuboid with the node slightly increases the file size, but it simplifies implementation, and allows for trees formed by several different rules. (see later)
 
 In the implementation, \emph{splitters} define the rule by which the cuboids are chosen and subdivided. The following three are implemented:
 
 \subsection{Octree}
-All cuboids must be cubic, i.e. have equal side length. The \emph{root cuboid} will be the smallers cube that encloses the entire model, such that the model is placed at the center of the cube. Each cube will be subdivided into 8 child cubes, that are on the 8 sides of the cube's center point.
+All cuboids must be cubic, i.e. have equal side length. The \emph{root cuboid} will be the smallest cube that encloses the entire model, such that the model is placed at the center of that cube. Each cube will be subdivided into 8 child cubes, that are on the 8 sides of the cube's center point.
 
-This is a good alternative in most cases because the regions are cubic, and so choosing the distance from the camera to the center of a cube as \emph{point-to-cuboid} distance yields good results.
+This is a good option in most cases because the regions are cubic, and so choosing the distance from the camera to the center of a cube as \emph{point-to-cuboid} distance yields good results.
 
 \subsection{KdTree}
 For the \emph{KdTree}, the cuboids no longer need to be cubes. Each cuboid is split into 2 child cuboids. The \emph{split plane} that separates them is alternately orthogonal to the $X, Y, Z, X, ...$ axis, depending on the \emph{depth}\footnote{The \emph{depth} of the \emph{root cuboid} is set to 0. For each cuboid $\mathcal{C}$, its depth is that of its parent plus one.} of the cuboid modulo 3. Two different ways of choosing the position of the split plane on that axis are implemented:
 
 \subsubsection{Half}
-The split plane is always at the center of the cuboid. That way if the \emph{root cuboid} is near-cubic, and  cuboids won't diverge from an near-cubic shape. Its advantage over the \emph{Octree} is that there are only two children per node, which useful for the \emph{piecewise tree structure} (see further).
+The split plane is always at the center of the cuboid. That way if the \emph{root cuboid} is near-cubic, child cuboids won't diverge from a near-cubic shape. Its advantage over the \emph{Octree} is that there are only two children per node, which useful for the \emph{piecewise tree structure} (see further).
 
 \subsubsection{Median}
 In the proper definition of a \emph{KdTree}, the position of the \emph{split plane} is at the median of the coordinates for the given axis, of all the points in the cuboid. This implies that there will be the same number of points in both children, and so the entire tree will be perfectly balanced.
 
-This could in general accelerate descent into a tree. But it does not present an advantage here, and leads two problems: The cuboids tend to become strongly non-cubic, making it impossible to define a good \emph{point-to-cuboid distance}. And in order to calculate the median, the entire array of coordinates needs to be stored temporarily in memory and then sorted. This is not practical for large point sets.
+This could in general accelerate descent into a tree. But it does not present an advantage here, and leads to two problems: The cuboids tend to become strongly non-cubic, making it impossible to define a good \emph{point-to-cuboid distance}. And in order to calculate the median, the entire array of coordinates needs to be stored temporarily in memory and then sorted. This is not practical for large point sets.
 
 There are algorithms for approximating a median value without this. For example, one way would be to build a histogram on intervals, find its median, and repeat the same on that interval. This is not implemented in the application.
 
@@ -541,7 +545,7 @@ The \emph{splitter} of a \emph{tree structure} consists of these elements:
 \item[adjust root cuboid] For example making the root cuboid cubic for the \emph{OcTree}.
 \item[node points information] Information associated to each node that is deduced from the points in the cuboid. For \emph{KdTree}, it is the position of the split plane.
 \item[child cuboid function] Calculates the cuboid of a child node, using the child index $i$, the \emph{node points information}, and the \emph{depth} and \emph{cuboid} of this node.
-\item[child index function] Calculates the index of the child (of this node) that contains a given point $p$. Also uses the \emph{node points information}, and the \emph{depth} and \emph{cuboid} of this node. This can be implemented faster than checking every child cuboid, for example using just a floating point value comparation with the \emph{KdTree} \emph{split plane} position.
+\item[child index function] Calculates the index of the child (of this node) that contains a given point $p$. Also uses the \emph{node points information}, \emph{depth} and \emph{cuboid} of this node. This can be implemented more simply than checking every child cuboid, for example using just a floating point value comparison with the \emph{KdTree} \emph{split plane} position.
 \end{description}
 As described previously, the implementation must take care of floating point imprecisions for these two functions.
 
@@ -550,109 +554,109 @@ As described previously, the implementation must take care of floating point imp
 \includegraphics[width=6cm]{octree.png}
 \label{fig:octree}
 \end{wrapfigure}
-The recursive algorithm starts with the \emph{root cuboid}. If it is completely inside the view frustum, the full set of points for that cuboid is extracted. If it is partially inside the view frustum and not a leaf, the algorithm recursively descends into the child cuboids. It it is completely outside the view frustum, the cuboid is discarded. So unlike for the \emph{cubes structure}, large parts of the model can be immediately either included or excluded. The sizes of the cuboids change exponentially with the depth in the tree, so it is very well possible to immediatly exclude over half of the model, but be very precise inside the frustum.
+The recursive algorithm starts with the \emph{root cuboid}. If it is completely inside the view frustum, the full set of points for that cuboid is extracted. If it is partially inside the view frustum and not a leaf, the algorithm recursively descends into the child cuboids. It it is completely outside the view frustum, the cuboid is discarded. So unlike for the \emph{cubes structure}, large parts of the model can be immediately either included or excluded. The sizes of the cuboids change exponentially with the depth in the tree, so it is very well possible to immediately exclude over half of the model, but be very precise inside the frustum.
 
 \subsubsection{Extra splits}
 Including a cuboid means that the set of points inside that cuboid is copied to the output buffer. As described before, these points are always on a single data segment. The downsampling level $\ell$ for this cuboid is chosen using a \emph{point-to-cuboid} distance, as described before. However there is the problem that if large cuboids are to be included, choosing a single downsampling level for it will not be appropriate.
 
-Therefore, the algorithm further recursively splits such cuboids, as long as the difference between its \emph{maximal} and \emph{minimal} \emph{point-to-cuboid} distance is larger than a given threshold. This difference corresponds to the two extrema where $r(d)$ would be most different.
+Therefore, the algorithm further recursively splits such cuboids, as long as the difference between its \emph{maximal} and \emph{minimal} \emph{point-to-cuboid} distances is larger than a given threshold. This difference corresponds to the two extrema where $r(d)$ would be most different.
 
 \subsubsection{Load order}
-The algorithm described here does not specify in which order the children of a cuboid should be traversed. This becomes a problem when the \emph{downsampling setting} is not sufficient, and the algorithm stops at some instant during the recursions because the capacity $C$ has already been filled. Then it can happen that parts of the model farther to the camera are rendered, but closer parts are no longer included.
+The algorithm described here does not specify in which order the children of a cuboid should be traversed. This becomes a problem when the \emph{downsampling setting} is not sufficient, and the algorithm stops at some instant during the recursions because the capacity $C$ has already been filled. Then it can happen that parts of the model farther to the camera are rendered, but closer parts are lost.
 
 If such an overflow occurs, it is preferential to first render the closer parts, and maybe drop the points in the background.\footnote{This is especially true when occlusion culling is added.} A modified, ``ordered nodes'' version of the algorithm does this.
 
-Firstly, when traversing the child cuboids of a cuboids, the algortihm first sorts them by their \emph{point-to-cuboid} distance to the camera, and recurses into the closer ones first.
+Firstly, when traversing the child cuboids of a cuboids, the algorithm first sorts them by their \emph{point-to-cuboid} distances to the camera, and recurses into the closer ones first.
 
-In addition to this, it also must no longer begin with the \emph{root cuboid}, but rather begin at the \emph{leaf} containing the camera, and then move outward. This is mostly an optimization, but in somecases, for instance when the \emph{minimal} \emph{point-to-cuboid} distance is chosen, prevents the algorithm from moving down the wrong node.
+In addition to this, it must no longer begin with the \emph{root cuboid}, but rather begin at the \emph{leaf} containing the camera, and then move outward. This is mostly an optimization, but in some cases, for instance when the \emph{minimal} \emph{point-to-cuboid} distance is chosen, it is necessary to prevent the algorithm from moving down the wrong node.
 
-Also as a small optimization, the algorithm stores the current node containing the camera and tracks as the camera moves into parent/neightboring nodes.
+Also as a small optimization, the algorithm stores the current node containing the camera and tracks as the camera moves into parent or neighboring nodes.
 
 \subsection{Creation algorithm}
 The following describes the procedure taken to create a tree structure. First the bounds of the model are determined by finding the minima and maxima of the points' coordinates. An enclosing cuboid (adjusted to \emph{include} all points, and to fit needs of splitter) is created.
 
-Recursively, starting with the root node, these steps are taken: The list of points from the current node $p \in \mathcal{C}$ is used to calculate the \emph{node points information}. Then, the points are distributed into $c$\footnote{number of children per node} lists according which child node they belong. At this point, the algorithm requires memory for two times the full list if points. This is necessary because the algorithm that calculates \emph{node points information} for the \emph{KdTree-Median} requires a list of points. It also simplifies things because the numbers of points are known.
+Recursively, starting with the root node, these steps are taken: The list of points from the current node $p \in \mathcal{C}$ is used to calculate the \emph{node points information}. Then, the points are distributed into $c$\footnote{number of children per node} new lists according which child node they belong. At this point, the algorithm requires memory for two times the full list of points. This is necessary because the algorithm that calculates \emph{node points information} for the \emph{KdTree-Median} requires a list of points. It also simplifies things because the numbers of points are always known, and with it whether a node will be a leaf.
 
-The full points list is now no longer needed and memory can be released. Using the \emph{node points information}, cuboids for the child nodes are computed. Then the child node points lists are used to recursively execute the same process in each child node. The recursion stops when the number of points is smaller than the \emph{leaf capacity}, and the \emph{leafs} store their points in an internal buffer. So at the end, each point is exactly once in memory, a leaf's buffer.
+The full points list is now no longer needed and memory can be released. Using the \emph{node points information}, cuboids for the child nodes are computed. Then the child node points lists are used to recursively execute the same process in each child node. The recursion stops when the number of points is smaller than the \emph{leaf capacity}, and the \emph{leafs} store their points in an internal buffer. So at the end, each point exists exactly once in memory, in a leaf's buffer.
 
-The points used as input for the whole algorithm don't come in any specific order. Their required final order (for extraction of node points as segment) can be known only after the full tree, with numbers of points in each node, is determined. So the second phase is to \emph{move out} the points from the leaves' buffers into a global list of points.
+The points used as input for the whole algorithm don't come in any specific order. Their required final order (for extraction of node points as segment) can be known only after the full tree, i.e. the numbers of points in each node, is determined. So the second phase is to \emph{move out} the points from the leaves' buffers into a global list of points.
 
-A depth-first descent into the tree is done, and for each leaf its points are appended to the global list. During traversal, each node stores the current length of the global list: It will become the offset in the list that contains the points for that node. The recursive descent is also used to sum up the numbers of points for non-leaf nodes.
+A depth-first descent into the tree is done, and for each leaf its points are appended to the global list. During traversal, each node stores the current length of the global list: It will become the offset in the list of the segment that contains the points of that node. The recursive descent is also used to sum up the numbers of points for non-leaf nodes.
 
 \subsubsection{Downsampled points}
 Adding downsampled points to the tree structure is easier because the nodes of the tree and their cuboids have already been determined.
 
 Unlike with the \emph{cubes structure}, the downsampling algorithm is applied to the entire set of points. The leaves likely have not enough points to allow for good quality downsampling. Then each point in the resulting set $P'$ is added into an internal buffer (for that downsampling level) of a leaf.
 
-Even though the downsampled point set always contains fewer points than the full points set, it is possible that within a given cuboid there will be more points: Uniform downsampling will produce different points than there were in the input, so this is unpredictable on a local level. As a consequence it occurs sometimes that points don't fit into the capacity of the leave's internal buffer. In that case the buffer is increased.
+Even though the downsampled point set always contains fewer points than the full points set, it is possible that within a given cuboid there will be more points: Uniform downsampling will produce different points than there were in the input, so this is unpredictable on a local level. As a consequence it occurs sometimes that points don't fit into the capacity of the leaf's internal buffer.
 
-The algorithm must not delete points because the total number of downsampled points in the structure must be predictable. (explained further)
+In that case the buffer is increased. The algorithm must not delete points because the total number of downsampled points in the structure must be predictable. (explained later)
 
 After this the points are \emph{moved out} the same way as for the original point set, so as to create the ordered list.
 
 
 \section{Piecewise tree structure}
-The entire algorithm described before aims at creating the tree structure \emph{in memory}, and so the maximal model size it limited. Also, it required much more memory during the process than the final structure will take (internal/temporary buffers, etc.)
+The entire algorithm described before aims at creating the tree structure \emph{in memory}, and so the maximal model size is limited. Also, it requires much more memory during the process than the final structure will take (internal/temporary buffers, etc.)
 
 Exporting the \emph{in-memory} tree structure into an HDF file is relatively straightforward. In order to allow for huge models to be ``streamed'' from the raw point set to an HDF file containing the tree structure, the idea used is to construct several temporary tree structures in memory that contain only a \emph{piece} of the model, and to combine them into a complete tree structure in the HDF file.
 
-Since the goal is to end up with a large \emph{tree} structure, the pieces will be cuboids of leaves on a outer ``meta-tree'' created from the full point set. In this text, the term \emph{outer tree} denotes this tree, whereas the term \emph{inner tree} the temporary tree structure built from a \emph{piece}.
+Since the goal is to end up with a large \emph{tree} structure, the pieces will be cuboids of leaves on a outer ``meta-tree'' created from the full point set. In this text, the term \emph{outer tree} denotes that tree, whereas the term \emph{inner tree} denotes the temporary tree structure built for a \emph{piece}.
 
-As described in \ref{sec:tree_ser}, the structure of the \emph{HDF} representation allows the \emph{outer} and \emph{inner} trees to be created by different rules. This is useful because the \emph{inner} trees will subdivide the model into very small regions and aim for high visual output quality, making the \emph{Octree} a good choise.
+As described in \ref{sec:tree_ser}, the structure of the \emph{HDF} representation allows the \emph{outer} and \emph{inner} trees to be created by different rules. This is useful because the \emph{inner} trees will subdivide the model into very small regions and aim for high visual output quality, making the \emph{Octree} a good choice.
 
 In contrary, the \emph{outer} tree will have very large leaves, and the number of points in the leaves should be controllable: It should be as small enough so that the \emph{inner} tree structures will still fit in memory, but there should not be too many small pieces. The \emph{KdTree-Half} is a good choice here because it subdivides by two instead of by eight, so there is no explosion in the number of pieces.
 
-The \emph{KdTree-Median} might be a better choice since it equalizes the number of points in its children, but here the entire points set can't be loaded into memory to calculate a median.
+The \emph{KdTree-Median} might be a better choice since it equalizes the number of points in its children, but is not usable here because the entire points set can't be loaded into memory to calculate a median.
 
 \subsection{Building the outer tree}
-The outer tree will not store any points in memory, but just the nodes and cuboids information. It cannot be built the same way as described before (normal tree structure, aka \emph{inner} trees), because here temporary lists of points are kept and distributed. An analogue algorithm that does not keep lists in memory would need to read through the entire input file (containing the full point set) at each recursion, and consider only the points in its cuboid. Also an algorithm in which leaves are turned into nodes as new points get added is not possible because no information is kept about the points in the nodes.
+The outer tree will not store any points in memory, but just the nodes and cuboids information. It cannot be built the same way as described before (normal tree structure, aka \emph{inner} trees), because there temporary lists of points are kept. An analogue algorithm that does not keep lists in memory would need to read through the entire input file (containing the full point set) at each recursion, and consider only the points in its cuboid. This would be very inefficient. Also an algorithm in which leaves are turned into nodes as new points get added is not possible because no information is kept about the points in the leaves.
 
-Instead, the algorithm begins by builing a tree where every node has $c$ children, down to a predefined depth $d_{\max}$. All nodes have an internal counter initialized at zero. Then the program reads through the file, and for each point, increments the counters in \emph{all} of the nodes down to the leaf in which the point belongs. In case the counter of a leaf gets greater than $k$\footnote{The leaf capacity of the outer tree, aka the maximal number of points in a \emph{piece}.}, the entire algorithm must restart, this time with a larger maximal depth $d_{\max}$.
+Instead, the algorithm begins by building a tree where every node has $c$ children, down to a predefined depth $d_{\max}$. All nodes have an internal counter initialized at zero. Then the program reads through the file, and for each point, increments the counters in \emph{all} of the nodes down to the leaf in which the point belongs. In case the counter of a leaf gets greater than $k$\footnote{The leaf capacity of the outer tree, aka the maximal number of points there can be in a \emph{piece}.}, the entire algorithm must restart, this time with a larger maximal depth $d_{\max}$.
 
-After this has succeeded, the program traverses the nodes, and if and non-leaf node has less than or exactly $k$ points, it removes its children and turns it into a leaf. The resulting tree now represents outer tree. The sum of the numbers of points in the leaves necessarily corresponds to the total number of input points and so the (theoretical) data offsets for an ordered points list can be calculated. The leaves of this outer tree will be the \emph{pieces} or the piecewise tree structure.
+After this has succeeded, the program traverses the nodes, and if a non-leaf node has less than or exactly $k$ points, it removes its children and turns it into a leaf. The resulting tree now represents the outer tree. The sum of the numbers of points in the leaves necessarily corresponds to the total number of input points and so the (theoretical) data offsets for an ordered points list can be calculated. The leaves of this outer tree will be the \emph{pieces} of the piecewise tree structure.
 
 \subsection{Building the inner trees}
-For each \emph{piece}, an inner tree is built the same way as described for the ``normal'' tree structure; except that only the points that lie inside the cuboid of the piece are taken.
+For each \emph{piece}, an inner tree is built the same way as described for the ``normal'' tree structure; except that only the points that lie inside the cuboid of the piece are taken from $P$.
 
 \subsection{Combining the trees}
 After the outer tree is built, the program starts by writing its nodes information into the HDF file, by recursively traversing it. When a leaf is reached, it builds the temporary inner tree, and then writes its nodes and points into the file.
 
 The offsets by which a node in the inner tree refers to its child nodes in the \texttt{nodes} \emph{HDF} data set must be ajusted by adding the offset in the global nodes list where the inner tree's nodes list is appended.
 
-For the points data offsets associated to outer tree nodes, the algorith just needs to keep track of the current length in the points list. The points sets from the different inner trees are concatenated one after the other.
+For the points data offsets associated to outer tree nodes, the algorithm just needs to keep track of the current length in the points list. The point sets from the different inner trees are concatenated one after the other.
 
 
 \section{Parallelized piecewise tree creation}
-Because the inner trees are independent from each other (up to the absolute offsets after adjustment), the same mechanism can be also be used to parallelize the creation of a tree structure, by constructing several inner trees simultaneously. This again increases memory usage, but can more than halven the execution time.
+Because the inner trees are independent from each other (except the absolute offsets after adjustment), the same mechanism can be also be used to parallelize the creation of a tree structure, by constructing several inner trees simultaneously. This again increases memory usage, but can cut the execution time by more than half.
 
-The main problem is that both the number of nodes and the number of points in the inner trees are only known after the tree is built, but they need to be concatenated in the final \emph{HDF} file.
+The main problem is that both the number of nodes and the number of points in the inner trees are only known after the tree is built, but these lists need to be concatenated right after each other in the final \emph{HDF} file.
 
 The nodes may be listed in the \emph{HDF} file in any order, as explained in \ref{sec:tree_ser}. So the tasks that create inner trees will just store the inner tree's nodes list separately in memory. After all inner trees have been created, their nodes lists are adjusted (offsets, etc.) and concatenated into the final list, in a sequential postprocessing stage.
 
-However, the points data needs to be in the correct order. There also cannot be gaps in the data because then the points corresponding to outer tree nodes would no longer be in a contiguous segment. The reason why the length of the inner tree's point sets is not known in advance is because both they depend on the random and uniform downsampling algorithms (see \ref{sec:downsampling}).
+However, the points data needs to be in the correct order. There also cannot be gaps in the data because then the points corresponding to outer tree nodes would no longer be in a contiguous segment. The reason why the length of the inner tree's point sets is not known in advance is because both they depend on the output of the random and uniform downsampling algorithms (see \ref{sec:downsampling}).
 
 Because of this random downsampling is implemented in a manner so that the exact number of points to output can be specified. For uniform downsampling, the program resorts to making the uniform downsampling algorithm yield a slightly smaller-than-requested output quantity, and then fills the set up with duplicates of randomly chosen points from itself.
 
-With the number of downsampled points that the inner tree structures will contain being known advance, it is possible to allocate the right segment in the complete \emph{HDF} points set for the results to be produced by the different inner structures.
+With the number of downsampled points that the inner tree structures will contain being now known in advance, it is possible to in advance allocate the right segment in the complete \emph{HDF} points set for the results to be produced by the different inner structures.
 
 
 \chapter{Implementation}
 The implementation consists of two parts:
 \begin{description}
-\item[Library] The \emph{Dynamic Point Cloud Library} (\texttt{dypc}) implements all of the data structures and algorithms described here. It provides an interface to load models from \emph{PLY}\footnote{File format used to store output from 3D scanners} files or generate example models, to create data structures containing a model, store it in a file, and to dynamically load points out a data structure stored in memory or in a file.
-\item[Viewer] An executable that renders the point cloud and provides a graphical user interface for travelling through the point cloud, and to create and load different data structures. It uses the \texttt{dypc}.
+\item[Library] The \emph{Dynamic Point Cloud Library} (\texttt{dypc}) implements all of the data structures and algorithms described here. It provides an API interface to load models from \emph{PLY}\footnote{File format used to store output from 3D scanners} files or generate example models, to create data structures containing a model, store it in a file, and to dynamically load points out a data structure stored in memory or in a file.
+\item[Viewer] An application that renders the point cloud and provides a graphical user interface for traveling through the point cloud, and to create and load different data structures. It uses the \texttt{dypc}.
 \end{description}
 
 \section{Library}
-The shared library is implemented in \emph{C++}, using the \emph{STL} standard template library, and \emph{GLM} for mathematical helper functions. It also uses the C/C++ libraries for \emph{HDF5} and \emph{SQLite}. Because of its use of template metaprogramming, a lot of symbols are generated when compiling. All of the \emph{C++} symbols have \emph{hidden} visibility and are for internal use inside the library only. It provides a small pure \emph{C} interface for usage. This avoids problems with linking different \emph{C++} binaries, minimizes coupling, and allows for the library to be used from other programming languages. It is implemented in a mix of object-oriented, procedural and generic programming similar to the \emph{STL}.
+The shared library is implemented in \emph{C++}, using the \emph{STL} standard template library, and \emph{GLM} for mathematical helper functions. It also uses the C/C++ libraries for \emph{HDF5} and \emph{SQLite}. Because of its use of template metaprogramming, a lot of symbols are generated when compiling. All of the \emph{C++} symbols have \emph{hidden} visibility and are for internal use inside the library only. It provides a small pure \emph{C} interface for the API. This avoids problems with linking different \emph{C++} binaries, minimizes coupling, and allows for the library to be used from other programming languages. It is implemented in a mix of object-oriented, procedural and generic programming similar to the \emph{STL}.
 
 \subsection{Overview}
 The following main classes or components compose the library:
 \begin{description}
-\item[model] A model is a source of input for points. There are subclasses for reading points from a \emph{PLY} file, or for generating random example models. Points can be read from it via an iterator interface. Additionally, it is possible to read from two different iterators simultaneously, for multi-threading use. For the \emph{PLY} file \emph{model}, this is implemented using multiple file handles. The \emph{model} itself does not store any points in memory (apart internal buffers).
+\item[model] A model is a source of input for points. There are subclasses for reading points from a \emph{PLY} file, or for generating random example models. Points can be read from it via an iterator interface. Additionally, it is possible to read from two different iterators simultaneously, for multi-threading use. For the \emph{PLY} file \emph{model}, this is implemented using multiple file handles. The \emph{model} itself does not store any points in memory (apart from internal buffers).
 \item[ply\_model] Reads from a \emph{PLY} file. Limited support for \emph{PLY} (e.g. no ASCII files), optimized for speed.
-\item[random\_model] Abstract base class for model generated randomly. The \emph{seed} of the random number generator acts as ``file handle''. Used for example models \textbf{concentric\_spheres\_model} and \textbf{torus\_model}.
-\item[structure] Abstract base class for a data structure. Object of this class contain the data structure in memory and provide an interface for \emph{loaders} to access it. Remain linked by reference to its \emph{model}. The subclass constructors implement the creation of the data structure from the model.
+\item[random\_model] Abstract base class for model generated based on random number generator. The \emph{seed} of the random number generator acts as ``file handle''. Used for the example models \textbf{concentric\_spheres\_model} and \textbf{torus\_model}.
+\item[structure] Abstract base class for a data structure. Objects of this class contain the data structure in memory and provide an interface for \emph{loaders} to access it. Remains linked by reference to its \emph{model}. The subclass constructors implement the creation of the data structure from the model.
 \item[mipmap\_structure] Abstract base class for a data structure that uses \emph{LOD regions}, aka \emph{mipmaps}. Provides access to downsampling algorithms and functions to determine downsampling ratios/levels.
 \item[loader] Abstract base class for a \textbf{loader}. See below.
 \item[cubes\_structure] Cubes stucture, \emph{weighted points} variant.
@@ -664,15 +668,15 @@ The following main classes or components compose the library:
 \end{description}
 
 \subsection{Loader}
-A loader exists for each data structure, and possibly both for reading from a file and from memory (aka from the \emph{structure} object). It implements the \emph{extraction algorithm}, which generates the filtered point set $P'$ from its source. The \emph{request} to the loader consists the current camera position, orientation, view frustum. Movement velocity is also included but not used by and loader. In addition, the capacity $C$, and loader-specific parameters such as the \emph{downsampling setting} $s$, \emph{point-to-cuboid} distance mode are given as input.
+A loader exists for each data structure, and possibly both for reading from a file and from memory (aka from the \emph{structure} object). It implements the \emph{extraction algorithm}, which generates the filtered point set $P'$ from its source. The \emph{request} to the loader consists the current camera position, orientation, view frustum. Movement velocity is also included but not used by and loader. In addition, the capacity $C$, and loader-specific parameters such as the \emph{downsampling setting} $s$, and the \emph{point-to-cuboid} distance mode are also given as input.
 
-It writes the outputted points into a provided buffer. In the \emph{Viewer} implementation, this is virtual memory mapped directly to an OpenGL GPU buffer.
+It writes the outputted points into a provided buffer. In the \emph{Viewer}, this is virtual memory mapped directly to an OpenGL GPU buffer.
 
 The \emph{direct\_model\_loader} extracts points directly from a \textbf{model} without any filtering or data structure.
 
 
 \subsection{Tree structure}
-Tree structures are implemented by the \textbf{tree\_structure} template class.\footnote{Many other classes used are template classes as well.} It is parametrized by the \emph{splitter} class, which is a subclass of \textbf{tree\_structure\_splitter} with only static members. The \emph{splitter}'s \texttt{number\_of\_node\_children} const static member determines how many children nodes shall have. This is implemented using metaprogramming to avoid additional heap allocations for a runtime-determined number of children.
+Tree structures are implemented by the \textbf{tree\_structure} template class.\footnote{Many other classes used are template classes as well.} It is parametrized by a \emph{splitter} class, which is a subclass of \textbf{tree\_structure\_splitter} with only static members. The \emph{splitter}'s \texttt{number\_of\_node\_children} const static member determines how many children nodes shall have. This is implemented using meta-programming to avoid additional heap allocations required for a runtime-determined number of children.
 
 Its \emph{point container} can either be the \emph{STL} \texttt{vector} or \texttt{deque}. Reading and writing to \texttt{vector} is faster, but it needs to allocate large contiguous memory segments which may fail. \texttt{deque} uses an internal chunked structure.
 
@@ -680,9 +684,9 @@ The tree structure node template class \textbf{tree\_structure\_node} works in c
 
 This is used for its subclass \textbf{tree\_structure\_piecewise}, which essentially implements outer tree creation on piecewise tree structures. The underlying \textbf{tree\_structure} will be made to contain one inner tree structure. \textbf{tree\_structure\_piecewise} can also spawn a new \textbf{tree\_structure} that contains one piece. This is used for the parallelized implementation.
 
-There are two loader variants: \textbf{tree\_structure\_simple\_loader} and \textbf{tree\_structure\_ordered\_loader}. The latter implements the improved extraction algorithm by which the cuboids closer to the camera are loader first.
+There are two loader variants: \textbf{tree\_structure\_simple\_loader} and \textbf{tree\_structure\_ordered\_loader}. The latter implements the improved extraction algorithm by which the cuboids closer to the camera are loaded first.
 
-The \emph{tree loader sources} \textbf{tree\_structure\_memory\_source} and \textbf{tree\_structure\_hdf\_source} provide a polymorphic interface for loading from either an in-memory structure or \emph{HDF} file.
+The \emph{tree loader sources} \textbf{tree\_structure\_memory\_source} and \textbf{tree\_structure\_hdf\_source} provide a polymorphic interface for loading from either an in-memory structure or an \emph{HDF} file.
 
 Exporting the tree structure to \emph{HDF} is implemented in \textbf{tree\_structure\_piecewise\_hdf\_write} and the parallelized version \textbf{tree\_structure\_piecewise\_hdf\_write\_parallel}. The \textbf{tree\_structure\_hdf\_file} class provides the basic structure for reading and writing to \emph{HDF}. There is an optimization for copying segments of points directly out of a \texttt{vector}.
 
@@ -690,10 +694,10 @@ Exporting the tree structure to \emph{HDF} is implemented in \textbf{tree\_struc
 \subsection{Additional parts}
 \begin{description}
 \item[structure\_loader\_factory] Functions for creating loaders, writing to files, etc. Essentially map parameters to template parameters.
-\item[interface] The \emph{C} interface to the library. Only these functions are exported.
+\item[interface] The \emph{C} API interface to the library. Only these functions are exported.
 \item[geometry] Implementation of geometry algorithms and objects such as cuboid, frustum, plane.
 \item[sqlite] An \emph{SQLite} wrapper.
-\item[point, weighted\_point] POD class types for POD \emph{points}. Meant be copies directly across \emph{HDF}, memory and \emph{GPU} video memory.
+\item[point, weighted\_point] POD class types for POD \emph{points}. Meant to be copied directly across \emph{HDF}, memory and \emph{GPU} video memory.
 \item[progress] Helper functions for displaying progress bars. Interface provides callbacks for GUI.
 \item[utils, debug, enums] Some helper functions.
 \end{description}
@@ -703,22 +707,45 @@ Exporting the tree structure to \emph{HDF} is implemented in \textbf{tree\_struc
 
 \section{Viewer}
 The \emph{Viewer} is also implemented in \emph{C++}. It uses the \emph{wxWidgets} toolkit to provide a graphical user interface. The main reason for choosing \emph{wxWidgets} was to have a \emph{C++} based, cross-platform GUI with support for including \emph{OpenGL} render context in a window.
-\emph{OpenGL} is used for the rendering, and the \emph{GLM} library is also used. The \emph{Viewer} links with the \emph{dypc library} and provided a graphical user interface to all of its functionality. The forms are created using \emph{wxFormBuilder}, which generates \texttt{.cpp / .hpp} files for creating the form automatically.
+\emph{OpenGL} is used for the rendering, and the \emph{GLM} library is also used. The \emph{Viewer} links with the \emph{dypc library} and provides a graphical user interface to all of its functionality. The forms are created using \emph{wxFormBuilder}, which generates \texttt{.cpp / .hpp} files the form automatically.
 
 \subsection{Streaming mechanism}
-The \emph{Viewer} attempts to provide the user with a seamless experience in that they can move through the virtual point cloud, while the program dynamically loads visible point sets $P'$. The application uses two threads: The main threads operated the user interface and OpenGL renderer, while the secondary thread runs the \emph{updater} which periodically sends request to the \emph{loader} in the \emph{dypc library}, and passes the new point set to the renderer.
+The \emph{Viewer} attempts to provide the user with a seamless experience in that they can move through the virtual point cloud, while the program dynamically loads visible point sets $P'$. The application uses two threads: The main thread operated the user interface and OpenGL renderer, while the secondary thread runs the \emph{updater} which periodically sends new requests to the \emph{loader} in the \emph{dypc library}, and passes the new point sets to the renderer.
 
-To make this last step efficient, a \emph{buffer swap} mechanism is used: Two OpenGL point buffers are allocated in video memory with the point capacity $C$. The \emph{renderer buffer} is used by OpenGL for the rendering, while the \emph{loader buffer} is being filled by the loader. The use of virtual memory mapping and the \emph{POD} \textbf{point} type makes it possible to directly copy raw data from the loader to the GPU. The \textbf{point} is composed in such a way that \emph{OpenGL} can directly extract the coordinate and color data from the raw data. In some cases, it is possible that point data is stored in the \emph{HDF} files in exactly the same binary format, and can be copied directly to the buffer.
+To make this last step efficient, a \emph{buffer swap} mechanism is used: Two OpenGL point buffers are allocated in video memory with the same point capacity $C$. The \emph{renderer buffer} is used by OpenGL for the rendering, while the \emph{loader buffer} is being filled by the loader. The use of virtual memory mapping and the \emph{POD} \textbf{point} type makes it possible to directly copy raw data from the loader to the GPU. The \textbf{point} is composed in such a way that \emph{OpenGL} can directly extract the coordinate and color data from the raw data. In some cases, it is possible that point data is stored in the \emph{HDF} files in exactly the same binary format, and can also be copied directly to the buffer.
 
-The \emph{buffer swap} occurs when the updater has finished filling the \emph{loader buffer}. It then notifies the render that new data is available via an atomic flag, and locks. Once available, the \emph{renderer} swaps the two buffers: The \emph{loader buffer} becomes the new \emph{renderer buffer} and vice versa. So no copy takes place, and there is no interference between \emph{renderer} and \emph{updater}. Several concurrency facilities such as mutexes and atomic types are used in the implementation.
+The \emph{buffer swap} occurs when the updater has finished filling the \emph{loader buffer}. It then notifies the render that new data is available via an atomic flag, and waites for a new request. Once available, the \emph{renderer} swaps the two buffers: The \emph{loader buffer} becomes the new \emph{renderer buffer} and vice versa. So no copy takes place, and there is no interference between \emph{renderer} and \emph{updater}. Several concurrency facilities such as mutexes and atomic types are used in the implementation.
 
 \subsection{Renderer}
 The \emph{renderer} is responsible both for making \emph{OpenGL} render the data in the \emph{point buffers}, and for allowing the user to move through the virtual space.
 
 It is implemented in \emph{OpenGL 4}, so \texttt{glDrawArrays} is used to render data and the projection math is implemented using \emph{GLSL} vertex and fragment shaders. There also implement a visual \emph{fog} effect, and the \emph{point shadow} occlusion culling.
 
+\section{Usage}
+Movement through the point cloud is controller with the \texttt{Z, Q, S, D} keys. \texttt{Space} moves up, and \texttt{<} moves down. The speed can be set on the right panel. The camera orientation can be changed by holding and dragging the mouse in the renderer area. The scroll wheel rolls the camera.
 
-\chapter{Conclusion}
+\subsection{Compilation}
+Both the \emph{library} and \emph{viewer} are built by issuing \texttt{make} in the \texttt{app} directory. The viewer, along with \texttt{libdypc.so} will be located in \texttt{dist/viewer}. Setting \texttt{DEPLOY = 1} in the Makefile disables assertions and enabled compiler optimizations. It makes the program much faster.
+
+The following external dependencies (libraries and development headers) are required:
+\begin{itemize}
+\item GCC compiler with full C++11 support
+\item OpenGL and GLEW
+\item wxWidgets, at least version 2.8.
+\item SQLite3
+\item HDF5 CPP
+\item GLM
+\item The wxFormBuilder program
+\end{itemize}
+
+The \emph{Viewer} displays its progress indicators in the console. A GUI version exists, but is not activated because proper support for multi-threading is not implemented for the parallelized tree creation is not implemented. Also the \emph{Viewer} does not verify all user input, and does not handle all error conditions reported by \emph{dypc}.
+
+
+\subsection{Example files}
+The \texttt{ply} directory contains some \emph{PLY} models. \texttt{tower.ply} is a huge colored point cloud containing about 150 million points. Smaller downsampled versions are also included.
+
+The \texttt{hdf} directory contains some different \emph{HDF} files with structures created from these models. They can be visualized in the \emph{viewer}.
+
 
 \appendix
 \chapter{Geometric algorithms}

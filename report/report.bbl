@@ -6,4 +6,14 @@ Klaus~Hartmann Gil~Gribb.
   world-view-projection matrix.
 \newblock 2001.
 
+\bibitem{Ren2012}
+Antonio~Oliveira Renan Machado~e Silva, Claudio~Esperança.
+\newblock Efficient hpr-based rendering of point clouds.
+\newblock {\em SIBGRAPI}, 2012.
+
+\bibitem{Kat2007}
+Ronen~Basri Sagi~Katz, Ayellet~Tal.
+\newblock Direct visibility of point sets.
+\newblock {\em ACM Transactions on Graphics}, 26(3), 2007.
+
 \end{thebibliography}

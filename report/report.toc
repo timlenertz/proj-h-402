@@ -38,7 +38,7 @@
 \contentsline {subsubsection}{Downsampled points}{21}{section*.20}
 \contentsline {section}{\numberline {3.8}Piecewise tree structure}{22}{section.3.8}
 \contentsline {subsection}{\numberline {3.8.1}Building the outer tree}{22}{subsection.3.8.1}
-\contentsline {subsection}{\numberline {3.8.2}Building the inner trees}{23}{subsection.3.8.2}
+\contentsline {subsection}{\numberline {3.8.2}Building the inner trees}{22}{subsection.3.8.2}
 \contentsline {subsection}{\numberline {3.8.3}Combining the trees}{23}{subsection.3.8.3}
 \contentsline {section}{\numberline {3.9}Parallelized piecewise tree creation}{23}{section.3.9}
 \contentsline {chapter}{\numberline {4}Implementation}{24}{chapter.4}
@@ -50,7 +50,9 @@
 \contentsline {section}{\numberline {4.2}Viewer}{27}{section.4.2}
 \contentsline {subsection}{\numberline {4.2.1}Streaming mechanism}{27}{subsection.4.2.1}
 \contentsline {subsection}{\numberline {4.2.2}Renderer}{27}{subsection.4.2.2}
-\contentsline {chapter}{\numberline {5}Conclusion}{28}{chapter.5}
+\contentsline {section}{\numberline {4.3}Usage}{27}{section.4.3}
+\contentsline {subsection}{\numberline {4.3.1}Compilation}{27}{subsection.4.3.1}
+\contentsline {subsection}{\numberline {4.3.2}Example files}{28}{subsection.4.3.2}
 \contentsline {chapter}{\numberline {A}Geometric algorithms}{29}{appendix.A}
 \contentsline {section}{\numberline {A.1}Definitions}{29}{section.A.1}
 \contentsline {section}{\numberline {A.2}Projection matrix to view frustum}{29}{section.A.2}
