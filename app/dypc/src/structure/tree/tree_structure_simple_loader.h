@@ -5,6 +5,9 @@
 
 namespace dypc {
 
+/**
+ * Tree structure loader that traverses tree with no specific order.
+ */
 class tree_structure_simple_loader : public tree_structure_loader {
 public:		
 	std::string loader_name() const override { return "Tree Structure Simple Loader"; }

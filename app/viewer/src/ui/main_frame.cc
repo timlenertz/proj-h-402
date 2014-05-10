@@ -29,14 +29,12 @@
 
 namespace dypc {
 
-main_frame::main_frame(wxWindow* parent, wxWindowID id) : main_frame_ui(parent, id) {
-	
-}
+main_frame::main_frame(wxWindow* parent, wxWindowID id) : main_frame_ui(parent, id) { }
 
 main_frame::~main_frame() { }
 
 
-void main_frame::updated_callback_() {
+void main_frame::updated_callback_(bool changed_loader) {
 	wxColour color_red(230, 0, 0);
 	wxColour color_yellow(213, 166, 8);
 	wxColour color_green(26, 175, 35);
@@ -44,14 +42,19 @@ void main_frame::updated_callback_() {
 	std::size_t rom, ram, pts;
 	
 	get_renderer_().get_updater().access_loader([&](dypc_loader ld) {
-		rom = dypc_loader_rom_size(ld);
+		if(changed_loader) {
+			rom = dypc_loader_rom_size(ld);
+			pts = dypc_loader_number_of_points(ld);
+		}
 		ram = dypc_loader_memory_size(ld);
-		pts = dypc_loader_number_of_points(ld);
 	});
 	
-	memory_rom->SetLabel(wxString(file_size_to_string(rom).c_str(), wxConvUTF8));
+	if(changed_loader) {
+		memory_rom->SetLabel(wxString(file_size_to_string(rom).c_str(), wxConvUTF8));
+		points_stat_total->SetLabel(wxString(std::to_string(pts).c_str(), wxConvUTF8));		
+	}
 	memory_ram->SetLabel(wxString(file_size_to_string(ram).c_str(), wxConvUTF8));
-	points_stat_total->SetLabel(wxString(std::to_string(pts).c_str(), wxConvUTF8));			
+
 		
 	points_stat_rendered->SetLabel(wxString(std::to_string(get_renderer_().get_rendered_points()).c_str(), wxConvUTF8));
 	points_stat_capacity->SetLabel(wxString(std::to_string(get_renderer_().get_capacity()).c_str(), wxConvUTF8));
@@ -105,7 +108,7 @@ void main_frame::on_create_structure_file_(wxCommandEvent& event) {
 
 
 void main_frame::on_loader_choice_(wxCommandEvent& event) {
-	get_renderer_().set_callback( std::bind(&main_frame::updated_callback_, this) );
+	get_renderer_().set_callback( std::bind(&main_frame::updated_callback_, this, std::placeholders::_1) );
 	
 	int index = loader_choice->GetSelection();
 	if(index == wxNOT_FOUND) return;
@@ -197,7 +200,7 @@ void main_frame::on_loader_config_() {
 	bool adap = adaptive_loader->IsChecked();
 	
 	rd.set_loader_downsampling_setting(setting);
-	rd.set_loader_adaptive(adap);
+	//rd.set_loader_adaptive(adap);
 }
 
 void main_frame::on_loader_update_now_(wxCommandEvent& event) {

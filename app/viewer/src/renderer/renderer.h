@@ -67,7 +67,8 @@ private:
 	glm::vec3 velocity_; ///< Current camera velocity.
 	glm::vec3 view_target_velocity_;
 	
-	std::function<void()> callback_;
+	std::function<void(bool)> callback_;
+	bool just_changed_loader_ = false;
 
 	void compute_projection_matrix_();
 	void compute_view_matrix_();
@@ -109,9 +110,9 @@ public:
 	void set_loader_adaptive(bool adaptive);
 	bool get_loader_adaptive();
 	
-	void set_callback(const std::function<void()>& f) { callback_ = f; }
+	void set_callback(const std::function<void(bool)>& f) { callback_ = f; }
 	void clear_callback() { callback_ = nullptr; }
-	std::function<void()> get_callback() const { return callback_; }
+	std::function<void(bool)> get_callback() const { return callback_; }
 	
 	std::size_t get_capacity() const { return point_buffer_capacity_; }
 	std::size_t get_rendered_points() const { return renderer_point_buffer_size_; } 

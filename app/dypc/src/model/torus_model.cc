@@ -19,8 +19,8 @@ point torus_model::compute_point_(random_generator_t& gen, std::size_t n) const 
 	float theta = dist(gen), phi = dist(gen);
 	
 	float x = std::cos(theta) * (r0_ + r1_*std::cos(phi));
-	float y = std::sin(theta) * (r0_ + r1_*std::cos(phi));
-	float z = r1_ * std::sin(phi);
+	float y = r1_ * std::sin(phi);
+	float z = std::sin(theta) * (r0_ + r1_*std::cos(phi));
 
 	unsigned char r = 55.0 + 200.0*(x - minimum_[0])/(maximum_[0] - minimum_[0]);
 	unsigned char g = 55.0 + 200.0*(y - minimum_[1])/(maximum_[1] - minimum_[1]);

@@ -6,6 +6,7 @@
 #include <map>
 #include <ostream>
 #include <random>
+#include <cassert>
 
 #define DYPC_INTERFACE_BEGIN \
 	try { (void)0
@@ -74,7 +75,7 @@ inline std::ptrdiff_t max(std::ptrdiff_t a, std::ptrdiff_t b) { return (a < b ? 
  * Epsilon value used to compare floats to approximate equality.
  * Two floating point values will be considered equal after several operations, if their difference is less than this value.
  */
-constexpr float float_comparison_epsilon = 0.000001;
+constexpr float float_comparison_epsilon = 0.0002;
 
 /**
  * Random number generator type used in the library.
@@ -97,15 +98,14 @@ inline bool approximately_equal(float a, float b, float ep = float_comparison_ep
 /**
  * Fill container up with duplicates.
  * Takes random values from the container any appends duplicates to it, until the container reaches
- * a given size. If \a target_size is smaller or equal to the current number of elements in the container,
- * does nothing.
- * @param values Container to fill up.
+ * a given size.
+ * @param values Container to fill up. Must contain less (or equal) to \a target_size items.
  * @param target_size Number of elements in container after completion.
  */
 template<class Container>
 void fill_with_duplicates(Container& values, std::size_t target_size) {
 	std::size_t current_size = values.size();
-	if(current_size <= target_size) return;
+	assert(current_size <= target_size);
 	std::size_t remaining = target_size - current_size;
 	random_generator_t random_generator;
 	std::uniform_int_distribution<std::ptrdiff_t> distribution(0, current_size - 1);

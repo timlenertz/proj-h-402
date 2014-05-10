@@ -18,6 +18,7 @@ cuboid octree_structure_splitter::adjust_root_cuboid(const cuboid& cub) {
 
 std::ptrdiff_t octree_structure_splitter::node_child_for_point(const point& pt, const cuboid& cub, const node_points_information& info, unsigned depth) {
 	// Child node index is determined by position of points relative to center of this cube
+
 	assert(cub.is_cube());
 	assert(cub.in_range(pt));
 	

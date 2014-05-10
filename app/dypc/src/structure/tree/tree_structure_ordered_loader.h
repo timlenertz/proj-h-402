@@ -6,12 +6,15 @@
 
 namespace dypc {
 
+/**
+ * Tree structure loader that traverses nearby nodes first.
+ */
 class tree_structure_ordered_loader : public tree_structure_loader {
 protected:
 	using source_node = tree_structure_source::node;
 
 private:
-	std::vector<const source_node*> position_path_;
+	std::vector<const source_node*> position_path_; ///< Stores current position of camera.
 	
 public:	
 	std::string loader_name() const override { return "Tree Structure Ordered Loader"; }

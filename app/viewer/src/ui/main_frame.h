@@ -19,7 +19,7 @@ private:
 	void on_renderer_config_();
 	void on_loader_config_();
 	
-	void updated_callback_();
+	void updated_callback_(bool changed_loader);
 		
 protected:
 	void on_create_structure_file_(wxCommandEvent& event) override;

@@ -36,7 +36,7 @@ public:
 	sqlite_database(sqlite_database&& db) : filename_(db.filename_), database_(db.database_) { db.database_ = nullptr; }
 	
 	~sqlite_database() {
-		if(database_) sqlite3_close(database_);
+		if(database_) sqlite3_close_v2(database_);
 	}
 	
 	std::size_t database_size();

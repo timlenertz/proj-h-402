@@ -9,6 +9,9 @@
 
 namespace dypc {
 
+/**
+ * Tree structure source that reads HDF file.
+ */
 template<std::size_t Levels, std::size_t NumberOfChildren>
 class tree_structure_hdf_source : public tree_structure_source {
 public:

@@ -24,6 +24,7 @@ std::size_t tree_structure_ordered_loader::extract_node_points_(point_buffer_t p
 			const source_node* child = & nd.child(i);
 			if(child != skip) children.push_back(child);
 		}
+		// Sort child nodes by which one is currently closer to camera
 		std::sort(children.begin(), children.end(), [&](const source_node* a, const source_node* b) {
 			return (cuboid_distance_(req.position, a->node_cuboid()) < cuboid_distance_(req.position, b->node_cuboid()));
 		});
@@ -43,11 +44,14 @@ std::size_t tree_structure_ordered_loader::extract_node_points_(point_buffer_t p
 	
 
 std::size_t tree_structure_ordered_loader::compute_downsampled_points_(point_buffer_t points, std::size_t capacity, const loader::request_t& req) {
+	// First update position of camera
 	bool outside_root = false;
+	// Move back to parent node if no longer in same node
 	while(!outside_root && !position_path_.back()->node_cuboid().in_range(req.position)) {
 		if(position_path_.size() > 1) position_path_.pop_back();
-		else outside_root = true;
+		else outside_root = true; // Completely outside model
 	}
+	// Find leaf node containing camera
 	if(! outside_root) while(! position_path_.back()->is_leaf()) {
 		const auto& nd = *position_path_.back();
 		assert(nd.node_cuboid().in_range(req.position));
@@ -60,6 +64,7 @@ std::size_t tree_structure_ordered_loader::compute_downsampled_points_(point_buf
 	std::size_t c = 0;
 	const source_node* previous = nullptr;
 	for(auto it = position_path_.rbegin(); c < capacity && it != position_path_.rend(); ++it) {
+		// First traverse subtree closer to camera
 		c += this->extract_node_points_(points + c, capacity - c, req, **it, previous);
 		previous = *it;
 	}

@@ -52,14 +52,14 @@ private:
 		void add_point_to_buffer(const point& pt, std::size_t leaf_capacity) {
 			// Allocate buffer if not yet done, and add the point
 			if(! points_buffer) points_buffer = new point [leaf_capacity];
-			
-			if(number_of_points = leaf_capacity) {
+
+			if(number_of_points == leaf_capacity) {
 				// Crossing the leaf capacity: Double size of buffer
 				point* new_points_buffer = new point [2 * leaf_capacity];
 				std::memcpy((void*)new_points_buffer, (const void*)points_buffer, sizeof(point)*leaf_capacity);
 				delete[] points_buffer;
 				points_buffer = new_points_buffer;
-			} else if(number_of_points = leaf_capacity*2) {
+			} else if(number_of_points == leaf_capacity*2) {
 				// Cannot go further
 				throw std::runtime_error("Too far beyond leaf capacity");
 			}

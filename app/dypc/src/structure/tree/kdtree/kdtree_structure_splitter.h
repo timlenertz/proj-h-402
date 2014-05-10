@@ -26,6 +26,7 @@ public:
 
 template<class Iterator>
 kdtree_structure_splitter::node_points_information kdtree_structure_splitter::compute_node_points_information(Iterator pt_begin, Iterator pt_end, const cuboid& cub, unsigned depth){
+	// Calculate median
 	std::deque<float> coordinates;
 	
 	unsigned dimension = depth % 3;

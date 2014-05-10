@@ -150,8 +150,9 @@ void write_to_hdf(const std::string& filename, tree_structure_piecewise<Splitter
 		const auto& pts = s.points_at_level(0);
 		file.write_points(pts.begin(), pts.end(), 0, task.point_data_offsets[0]);
 		
+		uniform_downsampling_previous_results_t previous_results;		
 		for(std::ptrdiff_t lvl = 1; lvl < Levels; ++lvl) {
-			s.load_downsampled_points(lvl);
+			s.load_downsampled_points(lvl, previous_results);
 			const auto& pts = s.points_at_level(lvl);
 			file.write_points(pts.begin(), pts.end(), lvl, task.point_data_offsets[lvl]);
 			s.unload_downsampled_points(lvl);

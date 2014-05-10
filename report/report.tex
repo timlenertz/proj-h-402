@@ -13,6 +13,7 @@
 \usepackage{gnuplottex}
 \usepackage[mathcal]{euscript}
 \usepackage{siunitx}
+\usepackage{algpseudocode}
 
 
 \captionsetup{font={small}}
@@ -29,13 +30,13 @@
 \vspace{3cm}
 \renewcommand{\abstractname}{Résumé}
 \begin{abstract}
-résumé en français
+Des fichiers nuage de points produits par des scanneurs 3D actuels peuvent aisément devenir trop lourds pour pouvoir être traités ou visualisés en entier. Ce projet met en comparaison plusieurs structures de données, formats de fichier et techniques de filtrage qui pourraient permettre d'en extraire dynamiquement des sous-ensembles rélévants. Sur cette base une application a été développée qui créé une telle structure et permet à l'utilisateur de se déplacer à travers et d'explorer un nuage de points de grande taille.
 \end{abstract}
 
 \vspace{2cm}
 \renewcommand{\abstractname}{Abstract}
 \begin{abstract}
-english abstract
+Point cloud data produced by current 3D scanning technology can quickly become too large in size to be processed or visualized as a whole. This project compares several data structures, file formats and filtering techniques that would make it possible to dynamically extract relevant subsets. Based on this an application was developped which creates such a structure and allows the user to seamlessly move through and explore areas of a large point cloud. 
 \end{abstract}
 
 \tableofcontents{}
@@ -49,9 +50,16 @@ The goal of this project is to develop a system which dynamically loads the visi
 
 To this end, different data structures and file formats were compared for their possibilities to extract the right subsets of points in an efficient way, and a program was developped which converts a given point cloud file into such a data structure, and then allows the user to explore the point cloud, by dynamically loading chunks of it from the preprocessed data structure file.
 
+\begin{figure}[H]
+\centering
+	\includegraphics[height=9cm]{screenshot.png}
+	\caption{Screenshot of the \emph{Viewer} application}
+\end{figure}
+
+
 
 \chapter{Filtering the point cloud}
-This chapter describes the methods used to compute a smaller set of points based on the full point cloud, which visually reproduce the model as seen from a given view point. The data structure used to store the point cloud is not considered in this chapter.
+This chapter describes the methods used to compute a smaller set of points based on the full point cloud, that should still visually reproduce the model as seen from a given view point. The data structure used to store the point cloud is not considered in this chapter.
 
 \section{Definitions}
 The following definitions are used throughout this report. A \emph{point cloud} is an unordered set of points with an Euclidian coordinate system. Each \emph{point} $p = \langle x, y, z, r, g, b\rangle$ consists of its coordinates $x, y, z$, and RGB color information. The \emph{model} $P$ is the full point cloud used as input. The \emph{point capacity} $C$ is the maximal number of points that can be outputted to the renderer. 
@@ -321,7 +329,7 @@ Finally, this graph shows $r_{d, s}$ ($r_{\ell} \circ \ell$) in piecewise form, 
 \label{fig:downsampling_r}
 \end{figure}
 
-\subsection{Adaptive downsampling}
+\subsection{Effect of downsampling setting}
 The following graph shows how the downsampling setting $s$ affects the number of outputted points $n$, on different camera view points and for different models. Since downsampling is applied on the point set that was already filtered by view frustum culling, the camera position and orientation have a great effect on the output range.
 
 \begin{figure}[H]
@@ -350,9 +358,9 @@ For view points where only a small portion of the model is visible, $n$ can rema
 
 The optimal setting $s$ is one where $n$ is as large as possible, but below $n_{min}$. If it is smaller than is could be, the renderer capacity would still allow for a higher number of points and thus higher quality. If it hits $n_{min}$, then the program attempts to extract more than $C$ points and breaks up in the process, leading to missing parts in the output.
 
-Also the aspect of the curve varies greatly with the camera position and orientation, especially for composite models where different parts have different point densities. So the user would have to keep adjusting the setting $s$ in order to get good results. Adaptive downsampling is an attempt to implement a controller system that automatically adjusts the setting as the user is moving through the point cloud.
+Also the aspect of the curve varies greatly with the camera position and orientation, especially for composite models where different parts have different point densities. So the user would have to keep adjusting the setting $s$ in order to get good results. It may be possible to implement a controller mechanism that automatically adjusts $s$. Possibly a system similar to a \emph{PID} controller could be used. This is not implemented in the program.
 
-...
+
 
 
 \section{Occlusion culling}
@@ -366,9 +374,23 @@ A simple method that is implemented in the application is do draw a black \emph{
 The method can improve visual quality, but it no longer works when the camera is too close to the surface, and as a side effect it produces black contours around the edges of the model, since the shadows don't take the (unknown) normal vectors of the points on their surface into account. Also, it increases the load on the GPU too much since every pixel of the shadow it processed the same way as a point from $P'$, and there can easily be many unnecessary overlapping pixels produces this way. Because it is implemented on the GPU (as an OpenGL shader), it does not contribute to the goal of reducing the size $P'$ to fit $C$.
 
 \subsection{HPR Operator}
-...
+Another possibility is the \emph{HPS operator} described in \cite{Katz2007}: In a coordinate system centered around the current camera position $O$, the following \emph{spherical flipping} transformation is applied to the points in the frustum:
+\begin{equation}
+	p' = p + 2(R - |p|) \frac{}{p}{|p|}
+\end{equation}
 
-\subsubsection{Approximation}
+where $R$ is the radius of a sphere centered in $O$ that englobes all visible points. This transformation has the property that if for two points $p_{1}, p_{2}$, $p_{1}$ is closer to the $O$ than $p_{2}$, the image $p'_{1}$ will now be further away from $O$ than $p'_{2}$.
+
+Then, the convex hull is calculated on the transformed point set. As output, the algorithm returns only the points $p \in P$ whose image $p'$ is part of that convex hull. The following picture illustrates the transformation in 2D, along with the resulting output. The figure is copied from \cite{Kat2007}.
+
+\begin{figure}[H]
+\centering
+	\includegraphics[width=10cm]{hpr.png}
+\end{figure}
+
+However, this algorithm is not useable in a dynamic setting because of the complexity of computing the three-dimensional convex hull of a large point set. It tends to take a few seconds to compute for about $3000$ points.
+
+An modified ``Fast HPR operator'' is presented in \cite{Ren2012} that calculates an approximate convex hull instead. According to the article, this technique may be efficient enough for interactive usage.
 
 \chapter{Data structures}
 The $f_{P}$ function described in the previous chapter takes a unordered set $P$ of three-dimensional points as input. In an implementation, $P$ will be stored in a certain \emph{data structure}, which is essentially a way of representing $P$ using a one-dimensional array of bits. The data structure will hold the points $P$, along with weights or LOD sets for downsampling, and possibly additional information. The criterion for choosing a data structure is that $f_{P}$ can be implemented in an efficient way.
@@ -696,8 +718,6 @@ The \emph{renderer} is responsible both for making \emph{OpenGL} render the data
 It is implemented in \emph{OpenGL 4}, so \texttt{glDrawArrays} is used to render data and the projection math is implemented using \emph{GLSL} vertex and fragment shaders. There also implement a visual \emph{fog} effect, and the \emph{point shadow} occlusion culling.
 
 
-\chapter{Results}
-
 \chapter{Conclusion}
 
 \appendix
@@ -712,7 +732,7 @@ The geometric objects used in the algorithms are defined in the following manner
 
 In its \emph{normalized} form, $a, b, c, d$ are defined such that $|\overrightarrow{n}| = 1$. Then $d$ is simply the distance from the origin to the plane, and each plane there is exactly one normalized form.
 
-The planes are oriented, that is an (oriented) distance from a point $\overrightarrow{p}$ to the plane is positive when $\overrightarrow{n} \cdot \overrightarrow{p} \geq 0$, and negative otherwise.
+The planes are oriented, that is an (oriented) distance from a point $\overrightarrow{p}$ to the plane is positive when $\overrightarrow{n} \cdot \overrightarrow{p} \geq 0$, and negative otherwise. If it is positive, the points is called \emph{in front of} the plane, and otherwise it is \emph{behind} the plane.
 
 \item[frustum] A frustum is defined using the 6 planes that delimit it: the near, far, left, right, top and bottom planes. Supposing that the normal vectors of the planes are all pointing inside the frustum, a point is considered to be inside the frustum if and only if its oriented distance to each one of the planes of positive.
 
@@ -741,7 +761,54 @@ Let $\overrightarrow{d} = (\Delta x, \Delta y, \Delta z)$ be the vector from $\o
 
 The coordinates $\Delta y$ and $\Delta z$ are determined the same way. Finally $d = \sqrt{\Delta x^{2} + \Delta y^{2} + \Delta z^{2}}$ is calculated. This implies that $d$ will be set to $0$ when $\overrightarrow{p}$ is inside $\mathcal{C}$. A small optimization might be to avoid calculating the square and square root when none or only one coordinate is non-zero.
 
-\section{Frustum-cuboid intersection} \label{sec:fr_cub_inter}
+\section{Frustum-cuboid intersection}
+To test whether a cuboid is inside or outside the frustum, is is not sufficient to test if any corner of the cuboid is inside the frustum, because if the cuboid completely encloses the frustum, all of its corners will be outside, but the cuboid still intersects the frustum.
+
+Considering that the 6 planes of the frustum are oriented towards the inside of it, a cuboid is inside the frustum, if for every one of the 6 planes, at least one corner of the cuboid is in front of it. This is obviously true when at least one point of the cuboid is inside the frustum, but also when any position inside the cuboid is inside the frustum. Also, if all 8 corners are behind any one plane, then the cuboid must be outside the frustum.
+
+So the algorithm that distinguishes inside and outside is as follows:
+
+\begin{algorithmic}
+	\ForAll{plane $P_{i}$}
+		\ForAll{corner point $c_{j}$}
+			\If{$c_{j}$ is in front of $P_{i}$} \textbf{continue} \\
+				\Comment{$c_{j}$ is in front of $P_{i}$. No need to check other corners.} 
+			\EndIf
+		\EndFor \\
+		\Return false \Comment{All corners were behind $P_{i}$, so $\mathcal{C}$ is outside}
+	\EndFor \\
+	\Return true \Comment{All planes had a corner in front of them, so $\mathcal{C}$ is inside}
+\end{algorithmic}
+
+Because the frustum is not a cuboid (the planes are not all parallel, so somewhere they intersect and change orientation), this algorithm can sometimes produce false positives. If is possible for all planes to have a corner in front of them yet the cuboid is not inside the frustum. But this only rarely occurs in an area behind the frustum, and does not pose a practical problem.
+
+
+\section{Frustum-cuboid (partial) intersection} \label{sec:fr_cub_inter}
+The algorithm can be extended to distinguish 3 cases: If the cuboid is completely outside, partially inside, or completely inside the frustum. A cuboid is completely inside the frustum only if all its corners lie inside the frustum. The following is an extended version of the previous algorithm that also checks, for each plane, whether \emph{all} corners lie in front of it.
+
+\begin{algorithmic}
+	\State $p \gets 0$ 
+	\Comment{$p$ counts planes that have all 8 corners in front}
+	\ForAll{plane $P_{i}$}
+		\State $c \gets 0$
+		\Comment{$c$ counts corners in front of $P_{i}$}
+		\ForAll{corner point $c_{j}$}
+			\If{$c_{j}$ is in front of $P_{i}$}
+				\State $c \gets c + 1$
+			\EndIf
+		\EndFor
+		\If{$c = 0$}
+			\Return{completely outside}
+		\ElsIf{$c = 8$}
+			\State $p \gets p + 1$
+		\EndIf
+	\EndFor
+	\If{$p = 6$}
+		\Return{completely inside}
+	\Else
+		\Return{partially inside}
+	\EndIf
+\end{algorithmic}
 
 
 \bibliographystyle{plain}

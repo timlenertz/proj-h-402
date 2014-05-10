@@ -67,7 +67,8 @@ void renderer::check_updater_() {
 			renderer_point_buffer_size_ = sz;
 		}
 		
-		if(callback_) callback_();
+		if(callback_) callback_(just_changed_loader_);
+		just_changed_loader_ = false;
 	} else {
 		glUnmapBuffer(GL_ARRAY_BUFFER); // does nothing if buffer was not mapped
 		renderer_point_buffer_size_ = 0;
@@ -166,6 +167,7 @@ void renderer::update_now() {
 
 void renderer::switch_loader(dypc_loader ld) {
 	updater_.switch_loader(ld);
+	just_changed_loader_ = true;
 }
 
 void renderer::set_updater_paused(bool paused) {

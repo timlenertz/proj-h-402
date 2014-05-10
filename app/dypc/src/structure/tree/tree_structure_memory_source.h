@@ -8,6 +8,11 @@
 
 namespace dypc {
 
+/**
+ * Tree structure source that reads from an in-memory tree structure.
+ * Reads from tree_structure and tree_structure_node.
+ * @tparam The tree_structure class.
+ */
 template<class Structure>
 class tree_structure_memory_source : public tree_structure_source {
 public:
