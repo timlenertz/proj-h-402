@@ -9,7 +9,7 @@ else
 endif
 
 CXXFLAGS += -I../dypc/include
-LDLIBS += -L../dypc/lib -ldypc -Wl,-rpath=.
+LDLIBS += -L../dypc/lib -ldypc -Wl,-rpath=. -lpng
 
 PACKAGES := gl glew
 LDLIBS += $(shell pkg-config --libs $(PACKAGES))

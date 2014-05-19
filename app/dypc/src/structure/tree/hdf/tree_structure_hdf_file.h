@@ -59,7 +59,7 @@ private:
 	static const H5::CompType point_type_;
 	static const H5::CompType node_type_;
 
-	static constexpr std::size_t maximal_chunk_size_ = 1000000;
+	static constexpr std::size_t maximal_chunk_size_ = 4800;
 	static constexpr hsize_t points_data_set_chunk_size_ = 1000000;
 	
 	template<class Iterator> void write_(Iterator el_begin, Iterator el_end, const H5::DataType& typ, const H5::DataSet&, hsize_t offset);

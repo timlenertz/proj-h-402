@@ -1,9 +1,11 @@
 #include "renderer.h"
 #include "shader.h"
+#include "../util.h"
 
 #include <stdexcept>
 #include <utility>
 #include <string>
+#include <cstdint>
 
 namespace dypc {
 
@@ -222,6 +224,18 @@ void renderer::set_point_capacity(std::size_t capacity) {
 	initialize_point_buffers_();
 	set_updater_paused(was_paused);
 }
+
+void renderer::render_to_png(const std::string& filename) {
+	std::size_t length = viewport_width_ * viewport_height_ * 3;
+	std::unique_ptr<std::uint8_t[]> data(new std::uint8_t [length]);
+
+	draw();
+	glReadBuffer(GL_BACK);
+	glReadPixels(0, 0, viewport_width_, viewport_height_, GL_RGB, GL_UNSIGNED_BYTE, data.get());
+	
+	write_to_png(data.get(), filename, viewport_width_, viewport_height_);
+}
+
 
 
 }

@@ -60,7 +60,7 @@ private:
 	GLint shadow_uniform_;
 	GLint shadow_point_size_uniform_;
 	GLint maximal_shadow_distance_uniform_;
-	
+		
 	float scale_ = 1.0;
 	glm::vec3 position_; ///< Current camera position.
 	glm::quat orientation_; ///< Current camera orientation as quaternion.
@@ -120,6 +120,8 @@ public:
 	void update_now();
 	void switch_loader(dypc_loader);
 	void delete_loader() { switch_loader(nullptr); }
+	
+	void render_to_png(const std::string& filename);
 };
 
 }

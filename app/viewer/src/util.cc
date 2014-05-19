@@ -1,6 +1,9 @@
 #include "util.h"
 #include <wx/msgdlg.h>
 #include <wx/choicdlg.h>
+#include <cstdio>
+#include <stdexcept>
+#include <png.h>
 
 namespace dypc {
 
@@ -71,6 +74,50 @@ std::string file_formats_to_wildcard(const std::map<std::string, std::string>& f
 		wildcard += p.second + " (*." + p.first + ")|*." + p.first;
 	}
 	return wildcard;
+}
+
+void write_to_png(std::uint8_t* data, const std::string& filename, std::size_t width, std::size_t height) {
+	FILE* fp = std::fopen(filename.c_str(), "wb");
+	if(! fp) throw std::runtime_error("Could not open file for writing");
+
+	png_structp png_ptr = png_create_write_struct(PNG_LIBPNG_VER_STRING, nullptr, nullptr, nullptr);
+	if(! png_ptr) {
+		std::fclose(fp);
+		throw std::runtime_error("Could not allocate write struct");
+	}
+	
+	png_infop info_ptr = png_create_info_struct(png_ptr);
+	if(! info_ptr) {
+		std::fclose(fp);
+		png_destroy_write_struct(&png_ptr, nullptr);
+		throw std::runtime_error("Could not allocate info struct");
+	}
+	
+	if(setjmp(png_jmpbuf(png_ptr))) {
+		std::fclose(fp);
+		png_free_data(png_ptr, info_ptr, PNG_FREE_ALL, -1);
+		png_destroy_write_struct(&png_ptr, nullptr);
+		throw std::runtime_error("Error during PNG creating");
+	}
+
+	png_init_io(png_ptr, fp);
+	
+	png_set_IHDR(png_ptr, info_ptr, width, height, 8, PNG_COLOR_TYPE_RGB, PNG_INTERLACE_NONE, PNG_COMPRESSION_TYPE_BASE, PNG_FILTER_TYPE_BASE);
+	png_write_info(png_ptr, info_ptr);
+
+	std::size_t row_length = width * 3;
+	std::size_t data_length = row_length * height;
+	const std::uint8_t* data_end = data + data_length;
+	while(data < data_end) {
+		png_write_row(png_ptr, (png_bytep)data);
+		data += row_length;
+	}
+	
+	png_write_end(png_ptr, nullptr);
+	
+	std::fclose(fp);
+	png_free_data(png_ptr, info_ptr, PNG_FREE_ALL, -1);
+	png_destroy_write_struct(&png_ptr, nullptr);
 }
 
 

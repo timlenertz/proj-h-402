@@ -241,4 +241,22 @@ void main_frame::on_setting_points_stat_(wxCommandEvent& event) {
 	});
 }
 
+void main_frame::render_to_png_(wxCommandEvent& event) {
+	wxFileDialog save_dialog(
+		nullptr,
+		wxT("Render to PNG file"),
+		wxEmptyString,
+		wxEmptyString,
+		wxT("PNG files (*.png)|*.png"),
+		wxFD_SAVE | wxFD_OVERWRITE_PROMPT
+	);
+	auto result = save_dialog.ShowModal();
+	if(result == wxID_CANCEL) return;
+		
+	std::string filename(save_dialog.GetPath().utf8_str());	
+	
+	renderer& rd = get_renderer_();
+	rd.render_to_png(filename);
+}
+
 }

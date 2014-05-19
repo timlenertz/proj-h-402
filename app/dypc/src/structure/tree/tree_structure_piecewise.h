@@ -21,7 +21,7 @@ namespace dypc {
  * @tparam PointsContainer Container used to store arrays of points.
  * @tparam PiecesSplitter Tree structure splitter which defines how the model is subdivided into piece nodes.
  */
-template<class Splitter, std::size_t Levels, class PointsContainer = std::vector<point>, class PiecesSplitter = kdtree_half_structure_splitter>
+template<class Splitter, std::size_t Levels, class PointsContainer = std::deque<point>, class PiecesSplitter = kdtree_half_structure_splitter>
 class tree_structure_piecewise : public tree_structure<Splitter, Levels, PointsContainer> {
 	static_assert(Splitter::number_of_node_children >= PiecesSplitter::number_of_node_children, "Pieces splitter cannot have more children than nodes splitter");
 	
@@ -185,7 +185,7 @@ root_piece_node_(mod.enclosing_cuboid(), 0) {
 		root_piece_node_.initialize_tree(max_depth);
 		progress_foreach_break(mod.begin(), mod.end(), mod.number_of_points(), "Counting points in child pieces (max depth " + std::to_string(max_depth) + ")...", [&](const point& pt)->bool {
 			bool ok = root_piece_node_.count_point(pt, maxnum);
-			if(! ok) { repeat = true; max_depth *= 2; return false; }
+			if(! ok) { repeat = true; max_depth *= 1.5; return false; }
 			return true;
 		});
 	}

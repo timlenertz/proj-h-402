@@ -5,6 +5,7 @@
 #include <vector>
 #include <chrono>
 #include <map>
+#include <cstdint>
 
 namespace dypc {
 
@@ -17,6 +18,8 @@ std::string float_to_string(double f, std::size_t decimal_digits = 2);
 
 std::ptrdiff_t user_choice(const std::vector<std::string>& choices, const std::string& caption);
 void error_message(const std::string& msg, const std::string& title = "Error");
+
+void write_to_png(std::uint8_t* data, const std::string& filename, std::size_t width, std::size_t height);
 
 }
 

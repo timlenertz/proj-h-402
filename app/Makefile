@@ -1,4 +1,4 @@
-DEPLOY := 1
+DEPLOY := 0
 
 CXX := g++
 CC := gcc

@@ -199,14 +199,16 @@ float uniform_downsampling_side_length(Iterator pt_begin, Iterator pt_end, std::
 
 			pr.pulse();
 			pr.message("expected: " + std::to_string(expected_number_of_points) + "; got: " + std::to_string(attempt.number_of_points) + "; side: " + std::to_string(attempt.side_length));
-			
-			previous_results[attempt.number_of_points] = attempt.side_length;
-	
+				
 			if(attempt.number_of_points > expected_number_of_points) lower_bound = attempt;
 			else upper_bound = attempt;
+			
+			previous_results[attempt.number_of_points] = attempt.side_length;
+			
 			last_side_length = attempt.side_length;
 			attempt.side_length = lower_bound.side_length + (upper_bound.side_length - lower_bound.side_length)/2;
 			if(attempt.side_length < float_comparison_epsilon) break; // don't let it become zero
+			if(approximately_equal(attempt.side_length, last_side_length)) break; // happens in non-monotonic segment
 		} while(attempt.number_of_points > expected_number_of_points || expected_number_of_points - attempt.number_of_points > tolerance);
 	
 	});
